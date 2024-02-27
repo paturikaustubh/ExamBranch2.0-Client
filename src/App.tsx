@@ -1,4 +1,4 @@
-import { useLayoutEffect, useState } from "react";
+import { Suspense, lazy, useLayoutEffect, useState } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -7,70 +7,76 @@ import {
 } from "react-router-dom";
 
 import Navbar from "./components/Navbar/Navbar";
-import LoginForm from "./pages/Login/Login";
 import PageLayout from "./components/PageLayout";
+import AlertProvider from "./components/Context/AlertDetails";
+import { Backdrop, CircularProgress } from "@mui/material";
+
+const LoginForm = lazy(() => import("./pages/Login/Login"));
+const Supple = lazy(() => import("./pages/Revaluation/Reval"));
 
 function App() {
   // ANCHOR STATES && VARS  ||========================================================================
   const [goAhead, setGoAhead] = useState(false);
 
+  const routes = [
+    {
+      path: "supplementary",
+      element: <Supple />,
+    },
+  ];
+
   // ANCHOR EFFECTS  ||========================================================================
   useLayoutEffect(() => {
-    sessionStorage.getItem("username") && setGoAhead(true);
+    localStorage.getItem("username") && setGoAhead(true);
   }, []);
 
   // ANCHOR JSX  ||========================================================================
   return (
     <Router>
       {goAhead ? (
-        <Navbar user={sessionStorage.getItem("username") as string} />
+        <Navbar
+          user={localStorage.getItem("username") as string}
+          setGoAhead={setGoAhead}
+        />
       ) : (
         <Navigate to={"/"} />
       )}
-      <Routes>
-        <Route path="/">
-          <Route
-            path="/"
-            element={
-              goAhead ? (
-                <Navigate to="/supplementary" />
-              ) : (
-                <LoginForm setGoAhead={setGoAhead} />
-              )
-            }
-          />
-          <Route
-            path="supplementary"
-            element={
-              <PageLayout>
-                <button
-                  onClick={() => {
-                    setGoAhead(false);
-                    sessionStorage.removeItem("username");
-                  }}
-                >
-                  Logout
-                </button>
-              </PageLayout>
-            }
-          />
-          <Route
-            path="cbt"
-            element={
-              <PageLayout>
-                <button
-                  onClick={() => {
-                    setGoAhead(false);
-                    sessionStorage.removeItem("username");
-                  }}
-                >
-                  Hello
-                </button>
-              </PageLayout>
-            }
-          />
-        </Route>
-      </Routes>
+      <Suspense
+        fallback={
+          <Backdrop
+            sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+            open={true}
+          >
+            <CircularProgress color="inherit" />
+          </Backdrop>
+        }
+      >
+        <Routes>
+          <Route path="/">
+            <Route
+              path="/"
+              element={
+                goAhead ? (
+                  <Navigate to="/supplementary" />
+                ) : (
+                  <div>
+                    <AlertProvider>
+                      <LoginForm setGoAhead={setGoAhead} />
+                    </AlertProvider>
+                  </div>
+                )
+              }
+            />
+            {routes.map(({ path, element }, indx) => (
+              <Route
+                key={indx}
+                path={path}
+                element={<PageLayout>{element}</PageLayout>}
+              />
+            ))}
+          </Route>
+        </Routes>
+      </Suspense>
     </Router>
   );
 }

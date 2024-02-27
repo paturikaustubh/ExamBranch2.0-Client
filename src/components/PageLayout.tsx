@@ -5,5 +5,9 @@ export default function PageLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <Container maxWidth={"xl"}>{children}</Container>;
+  return (
+    <Container maxWidth={"xl"} sx={{ marginBlock: "1rem" }}>
+      {children}
+    </Container>
+  );
 }

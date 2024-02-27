@@ -12,7 +12,7 @@ import AlertProvider from "./components/Context/AlertDetails";
 import { Backdrop, CircularProgress } from "@mui/material";
 
 const LoginForm = lazy(() => import("./pages/Login/Login"));
-const Supple = lazy(() => import("./pages/Revaluation/Reval"));
+const Reval = lazy(() => import("./pages/Revaluation/Reval"));
 
 function App() {
   // ANCHOR STATES && VARS  ||========================================================================
@@ -20,8 +20,8 @@ function App() {
 
   const routes = [
     {
-      path: "supplementary",
-      element: <Supple />,
+      path: "revaluation",
+      element: <Reval />,
     },
   ];
 
@@ -57,7 +57,14 @@ function App() {
               path="/"
               element={
                 goAhead ? (
-                  <Navigate to="/supplementary" />
+                  <Navigate
+                    to={
+                      !localStorage.getItem("lastPage") ||
+                      localStorage.getItem("lastPage") === "undefined"
+                        ? "/supplementary"
+                        : (localStorage.getItem("lastPage") as string)
+                    }
+                  />
                 ) : (
                   <div>
                     <AlertProvider>

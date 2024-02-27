@@ -11,3 +11,33 @@
 body {
   background-color: #dbf1ff;
 }
+
+:disabled {
+  opacity: 0.35;
+  filter: grayscale(0.8);
+  cursor: not-allowed;
+}
+
+.red-button-lg {
+  @apply lg:text-2xl md:text-xl text-lg text-red-500 hover:bg-red-50 rounded-sm duration-300 px-2 py-1;
+}
+
+.red-button {
+  @apply lg:text-xl md:text-lg text-base text-red-500 hover:bg-red-50 rounded-sm duration-300 px-2 py-1;
+}
+
+.red-button-sm {
+  @apply lg:text-lg md:text-base text-sm text-red-500 hover:bg-red-50 rounded-sm duration-300 px-2 py-1;
+}
+
+.blue-button-lg {
+  @apply lg:text-2xl md:text-xl text-lg text-blue-500 hover:bg-blue-50 rounded-sm duration-300 px-2 py-1;
+}
+
+.blue-button {
+  @apply lg:text-xl md:text-lg text-base text-blue-500 hover:bg-blue-50 rounded-sm duration-300 px-2 py-1;
+}
+
+.blue-button-sm {
+  @apply lg:text-lg md:text-base text-sm text-blue-500 hover:bg-blue-50 rounded-sm duration-300 px-2 py-1;
+}

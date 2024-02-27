@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 
 import {
   TextField,
@@ -9,9 +9,10 @@ import {
 } from "@mui/material";
 import { PersonOutlineOutlined, VpnKeyOutlined } from "@mui/icons-material";
 
-import { UserDetails } from "../../loginInfo";
+import { AlertContext } from "../../components/Context/AlertDetails";
 
 import Logo from "/assets/Logo.png";
+import Axios from "axios";
 
 export default function LoginForm({
   setGoAhead,
@@ -19,12 +20,16 @@ export default function LoginForm({
   setGoAhead: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   // ANCHOR STATES && VARS  ||========================================================================
+
+  const context = useContext(AlertContext);
+
   const [showPass, setShowPass] = useState(false);
-  const [loginCreds, setLoginCreds] = useState<LoginCredentials>({
+  const [loginCreds, setLoginCreds] = useState<LoginCredentialsProps>({
     username: "",
     password: "",
   });
 
+  // ANCHOR JSX  ||========================================================================
   return (
     <div className="grid lg:grid-cols-2 grid-cols-1 justify-center items-center h-[100dvh] lg:p-6 md:p-4 p-2">
       <img src={Logo} alt="College Logo" className="mx-auto hidden lg:block" />
@@ -32,20 +37,20 @@ export default function LoginForm({
         <div className="lg:text-7xl md:text-6xl text-5xl font-semibold text-blue-700">
           Welcome!
         </div>
+
+        {/* Login form */}
         <form
           className="flex flex-col gap-6 w-full items-center"
           onSubmit={async (e) => {
             e.preventDefault();
 
-            const { password } = UserDetails.filter(
-              ({ username }) => username === loginCreds.username
-            )[0];
-            if (password === loginCreds.password) {
-              setGoAhead(true);
-              sessionStorage.setItem("username", loginCreds.username);
-            } else {
-              alert("Incorrect username or password");
-            }
+            const { data }: { data: LoginResponseParams } = await Axios.get(
+              `http://localhost:6969/api/login?username=${loginCreds.username}&password=${loginCreds.password}`
+            );
+            setGoAhead(data.goahead);
+            if (!data.goahead)
+              context?.showAlert(data.error as string, "error");
+            else localStorage.setItem("username", loginCreds.username);
           }}
         >
           <TextField
@@ -93,7 +98,11 @@ export default function LoginForm({
             </FormGroup>
             <button
               type="submit"
-              className="bg-blue-700 px-4 py-2 text-white rounded-md ml-auto lg:text-xl md:text-lg text-base"
+              className="bg-blue-700 px-4 py-2 text-white rounded-md ml-auto lg:text-xl md:text-lg text-base duration-300"
+              disabled={
+                loginCreds.username.length === 0 ||
+                loginCreds.password.length < 4
+              }
             >
               Login
             </button>

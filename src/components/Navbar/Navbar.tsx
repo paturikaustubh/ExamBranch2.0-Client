@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 
 import {
@@ -34,7 +34,6 @@ export default function Navbar({
   setGoAhead: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   // ANCHOR STATES && VARS  ||========================================================================
-
   const { pathname } = useLocation();
   const pageLocation = pathname.split("/").filter((path) => path !== "")[0];
 
@@ -65,16 +64,21 @@ export default function Navbar({
     { name: "Manage Users", icon: <PeopleAltOutlined /> },
   ];
 
+  // ANCHOR EFFECTS  ||========================================================================
+  useEffect(() => {
+    localStorage.setItem("lastPage", pageLocation);
+  }, [pathname]);
+
   return (
     <>
       <nav
-        className="sticky flex items-center justify-between top-0 w-full text-white px-5 py-4"
+        className="sticky flex items-center justify-between top-0 w-full text-white px-5 py-3"
         style={{
           backgroundColor: "rgba(0 0 0 / 0.8)",
           backdropFilter: "blur(3px)",
         }}
       >
-        <div className="flex justify-start items-center gap-2">
+        <div className="flex justify-start items-center gap-4">
           <button
             onClick={() => setOpenSideMenu(true)}
             className={`rounded-full ${
@@ -91,9 +95,9 @@ export default function Navbar({
                   <Link
                     key={indx}
                     to={activePage}
-                    className={`lg:flex hidden items-center gap-2 rounded-sm px-4 py-2 hover:bg-[rgba(92,92,255,0.1)] duration-300 ${
-                      activePage === pageLocation ? "text-blue-500" : ""
-                    }`}
+                    className={`nav-link relative ${
+                      activePage === pageLocation ? "active" : ""
+                    } lg:flex hidden items-center gap-1 rounded-sm px-3 py-2 hover:bg-[rgba(92,92,255,0.1)] duration-300`}
                   >
                     {icon}
                     {name}
@@ -107,9 +111,7 @@ export default function Navbar({
                   <Link
                     key={indx}
                     to={activePage}
-                    className={`lg:flex hidden items-center gap-2 rounded-sm px-4 py-2 hover:bg-[rgba(92,92,255,0.1)] duration-300 ${
-                      activePage === pageLocation ? "text-blue-500" : ""
-                    }`}
+                    className={`nav-link lg:flex hidden items-center gap-2 rounded-sm px-4 py-2 hover:bg-[rgba(92,92,255,0.1)] duration-300`}
                   >
                     {icon}
                     {name}
@@ -251,12 +253,12 @@ function Logout({
     <>
       <Tooltip title="Kaustubh Paturi">
         <button
-          className="text-xl font-semibold tracking-wider bg-neutral-300 text-black flex justify-center items-center rounded-full p-2"
+          className="text-lg font-semibold tracking-wider bg-neutral-300 text-black flex justify-center items-center rounded-full size-10"
           onClick={() => setOpen(true)}
         >
           {"Kaustubh Paturi"
             .split(" ")
-            .map((word) => word[0])
+            .map((word) => word[0].toUpperCase())
             .join("")}
         </button>
       </Tooltip>

@@ -7,7 +7,7 @@ import {
 } from "react-router-dom";
 
 import Navbar from "./components/Navbar/Navbar";
-import PageLayout from "./components/PageLayout";
+import PageLayout from "./components/Custom/PageLayout";
 import AlertProvider from "./components/Context/AlertDetails";
 import { Backdrop, CircularProgress } from "@mui/material";
 
@@ -51,38 +51,36 @@ function App() {
           </Backdrop>
         }
       >
-        <Routes>
-          <Route path="/">
-            <Route
-              path="/"
-              element={
-                goAhead ? (
-                  <Navigate
-                    to={
-                      !localStorage.getItem("lastPage") ||
-                      localStorage.getItem("lastPage") === "undefined"
-                        ? "/supplementary"
-                        : (localStorage.getItem("lastPage") as string)
-                    }
-                  />
-                ) : (
-                  <div>
-                    <AlertProvider>
-                      <LoginForm setGoAhead={setGoAhead} />
-                    </AlertProvider>
-                  </div>
-                )
-              }
-            />
-            {routes.map(({ path, element }, indx) => (
+        <AlertProvider>
+          <Routes>
+            <Route path="/">
               <Route
-                key={indx}
-                path={path}
-                element={<PageLayout>{element}</PageLayout>}
+                path="/"
+                element={
+                  goAhead ? (
+                    <Navigate
+                      to={
+                        !localStorage.getItem("lastPage") ||
+                        localStorage.getItem("lastPage") === "undefined"
+                          ? "/supplementary"
+                          : (localStorage.getItem("lastPage") as string)
+                      }
+                    />
+                  ) : (
+                    <LoginForm setGoAhead={setGoAhead} />
+                  )
+                }
               />
-            ))}
-          </Route>
-        </Routes>
+              {routes.map(({ path, element }, indx) => (
+                <Route
+                  key={indx}
+                  path={path}
+                  element={<PageLayout>{element}</PageLayout>}
+                />
+              ))}
+            </Route>
+          </Routes>
+        </AlertProvider>
       </Suspense>
     </Router>
   );

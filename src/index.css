@@ -12,12 +12,42 @@ body {
   background-color: #dbf1ff;
 }
 
+button {
+  outline: 0;
+  border: 0;
+}
+
+button:focus-visible {
+  outline: 1;
+}
+
+code {
+  background-color: #dedede;
+  padding-left: 4px;
+  padding-right: 4px;
+  font-weight: 600;
+  border-radius: 3px;
+}
+
 :disabled {
   opacity: 0.35;
   filter: grayscale(0.8);
   cursor: not-allowed;
 }
 
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  .print-section {
+    padding: 0;
+  }
+  body {
+    background-color: white;
+  }
+}
+
+/* ANCHOR RED BUTTONS ||==================== */
 .red-button-lg {
   @apply lg:text-2xl md:text-xl text-lg text-red-500 hover:bg-red-50 rounded-sm duration-300 px-2 py-1;
 }
@@ -30,6 +60,7 @@ body {
   @apply lg:text-lg md:text-base text-sm text-red-500 hover:bg-red-50 rounded-sm duration-300 px-2 py-1;
 }
 
+/* ANCHOR BLUE BUTTONS ||==================== */
 .blue-button-lg {
   @apply lg:text-2xl md:text-xl text-lg text-blue-500 hover:bg-blue-50 rounded-sm duration-300 px-2 py-1;
 }
@@ -52,6 +83,31 @@ body {
 
 .blue-button-filled-sm {
   @apply lg:text-lg md:text-base text-sm text-blue-50 bg-blue-500 hover:bg-blue-600 rounded-md duration-300 px-4 py-2;
+}
+
+/* ANCHOR GREEN BUTTONS ||==================== */
+.green-button-lg {
+  @apply lg:text-2xl md:text-xl text-lg text-green-600 hover:bg-green-50 rounded-sm duration-300 px-2 py-1;
+}
+
+.green-button {
+  @apply lg:text-xl md:text-lg text-base text-green-600 hover:bg-green-50 rounded-sm duration-300 px-2 py-1;
+}
+
+.green-button-sm {
+  @apply lg:text-lg md:text-base text-sm text-green-600 hover:bg-green-50 rounded-sm duration-300 px-2 py-1;
+}
+
+.green-button-filled-lg {
+  @apply lg:text-2xl md:text-xl text-lg text-green-50 bg-green-600 hover:bg-green-700 rounded-md duration-300 px-4 py-2;
+}
+
+.green-button-filled {
+  @apply lg:text-xl md:text-lg text-base text-green-50 bg-green-600 hover:bg-green-700 rounded-md duration-300 px-4 py-2;
+}
+
+.green-button-filled-sm {
+  @apply lg:text-lg md:text-base text-sm text-green-50 bg-green-600 hover:bg-green-700 rounded-md duration-300 px-4 py-2;
 }
 
 .page-title {

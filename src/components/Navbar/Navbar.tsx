@@ -15,7 +15,6 @@ import {
 } from "@mui/icons-material";
 import { Link } from "react-router-dom";
 import {
-  Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
@@ -25,6 +24,7 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
+import { CustDialog } from "../Custom/CustDialog";
 
 export default function Navbar({
   user,
@@ -67,12 +67,20 @@ export default function Navbar({
   // ANCHOR EFFECTS  ||========================================================================
   useEffect(() => {
     localStorage.setItem("lastPage", pageLocation);
+    document.title = pageLocation
+      ? pageLocation
+          .split("/")
+          .filter((path) => path !== "")[0]
+          .split("-")
+          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(" ")
+      : "Exam Branch Portal";
   }, [pathname]);
 
   return (
     <>
       <nav
-        className="sticky flex items-center justify-between top-0 w-full text-white px-5 py-3"
+        className="sticky flex items-center justify-between top-0 w-full text-white px-5 py-3 z-50 no-print"
         style={{
           backgroundColor: "rgba(0 0 0 / 0.8)",
           backdropFilter: "blur(3px)",
@@ -97,7 +105,7 @@ export default function Navbar({
                     to={activePage}
                     className={`nav-link relative ${
                       activePage === pageLocation ? "active" : ""
-                    } lg:flex hidden items-center gap-1 rounded-sm px-3 py-2 hover:bg-[rgba(92,92,255,0.1)] duration-300`}
+                    } lg:flex hidden items-center gap-2 rounded-sm px-3 py-2 hover:bg-[rgba(92,92,255,0.1)] duration-300`}
                   >
                     {icon}
                     {name}
@@ -111,7 +119,7 @@ export default function Navbar({
                   <Link
                     key={indx}
                     to={activePage}
-                    className={`nav-link lg:flex hidden items-center gap-2 rounded-sm px-4 py-2 hover:bg-[rgba(92,92,255,0.1)] duration-300`}
+                    className={`nav-link lg:flex hidden items-center gap-2 rounded-sm px-3 py-2 hover:bg-[rgba(92,92,255,0.1)] duration-300`}
                   >
                     {icon}
                     {name}
@@ -262,7 +270,7 @@ function Logout({
             .join("")}
         </button>
       </Tooltip>
-      <Dialog
+      <CustDialog
         open={open}
         onClose={() => setOpen(false)}
         maxWidth="sm"
@@ -302,7 +310,7 @@ function Logout({
             Logout
           </button>
         </DialogActions>
-      </Dialog>
+      </CustDialog>
     </>
   );
 }

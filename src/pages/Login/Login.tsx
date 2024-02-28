@@ -44,13 +44,18 @@ export default function LoginForm({
           onSubmit={async (e) => {
             e.preventDefault();
 
-            const { data }: { data: LoginResponseParams } = await Axios.get(
+            const resp = await Axios.post(
               `http://localhost:6969/api/login?username=${loginCreds.username}&password=${loginCreds.password}`
             );
-            setGoAhead(data.goahead);
-            if (!data.goahead)
-              context?.showAlert(data.error as string, "error");
-            else localStorage.setItem("username", loginCreds.username);
+
+            console.log(resp.headers);
+            setGoAhead(resp.data.goahead);
+            if (!resp.data.goahead)
+              context?.showAlert(resp.data.error as string, "error");
+            else {
+              localStorage.setItem("username", loginCreds.username);
+              document.cookie = `Token=${resp.data.token}`;
+            }
           }}
         >
           <TextField

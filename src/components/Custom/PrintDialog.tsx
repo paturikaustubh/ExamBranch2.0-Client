@@ -1,23 +1,48 @@
-import { PrintOutlined } from "@mui/icons-material";
+import { Edit, PrintOutlined } from "@mui/icons-material";
 import {
   DialogTitle,
   Typography,
   DialogContent,
   DialogContentText,
   DialogActions,
+  Tooltip,
 } from "@mui/material";
 import { useState } from "react";
 import { CustDialog } from "./CustDialog";
+import Axios from "axios";
+import { ExamSearchResponseProps } from "../../Types/responseTypes";
 
-export function PrintDialog({ rollNo }: { rollNo: string }) {
+export function PrintDialog({
+  rollNo,
+  setStudentCopyGenerated,
+  selectedSubjects,
+  printTable,
+}: {
+  rollNo: string;
+  setStudentCopyGenerated: React.Dispatch<React.SetStateAction<boolean>>;
+  selectedSubjects: ExamSearchResponseProps;
+  printTable: boolean;
+}) {
   const [openPrintDialog, setOpenPrintDialog] = useState(false);
   return (
-    <>
+    <div className="flex ml-auto gap-2 items-center border-none no-print">
+      <Tooltip
+        title={printTable && "To edit values, delete records from print table."}
+      >
+        <button
+          className="blue-button-outline flex items-center gap-2"
+          onClick={() => setStudentCopyGenerated(false)}
+          disabled={printTable}
+        >
+          <Edit fontSize="small" />
+          Edit Values
+        </button>
+      </Tooltip>
       <button
-        className="blue-button-filled border-t-0 ml-auto flex items-center gap-2 no-print"
+        className="blue-button-filled flex items-center gap-2"
         onClick={() => setOpenPrintDialog(true)}
       >
-        <PrintOutlined /> Print
+        <PrintOutlined fontSize="small" /> Print
       </button>
       <CustDialog open={openPrintDialog} className="no-print">
         <DialogTitle>
@@ -84,15 +109,26 @@ export function PrintDialog({ rollNo }: { rollNo: string }) {
           </button>
           <button
             className="blue-button-sm"
-            onClick={() => {
+            onClick={async () => {
               setOpenPrintDialog(false);
               window.print();
+              const { data } = await Axios.post(
+                `http://localhost:6969/api/reval/print/${rollNo}`,
+                {
+                  selectedSubjects: selectedSubjects,
+                  username: localStorage.getItem("username"),
+                }
+              );
+
+              // if(data.done){
+              //   set
+              // }
             }}
           >
             Print
           </button>
         </DialogActions>
       </CustDialog>
-    </>
+    </div>
   );
 }

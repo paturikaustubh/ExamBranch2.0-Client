@@ -48,7 +48,6 @@ export default function LoginForm({
               `http://localhost:6969/api/login?username=${loginCreds.username}&password=${loginCreds.password}`
             );
 
-            console.log(resp.headers);
             setGoAhead(resp.data.goahead);
             if (!resp.data.goahead)
               context?.showAlert(resp.data.error as string, "error");

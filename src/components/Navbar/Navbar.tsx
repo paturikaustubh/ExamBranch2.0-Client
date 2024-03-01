@@ -105,7 +105,7 @@ export default function Navbar({
                     to={activePage}
                     className={`nav-link relative ${
                       activePage === pageLocation ? "active" : ""
-                    } lg:flex hidden items-center gap-2 rounded-sm px-3 py-2 hover:bg-[rgba(92,92,255,0.1)] duration-300`}
+                    } lg:flex hidden items-center gap-2 rounded-sm px-3 py-2 hover:bg-zinc-800 duration-300`}
                   >
                     {icon}
                     {name}
@@ -119,7 +119,7 @@ export default function Navbar({
                   <Link
                     key={indx}
                     to={activePage}
-                    className={`nav-link lg:flex hidden items-center gap-2 rounded-sm px-3 py-2 hover:bg-[rgba(92,92,255,0.1)] duration-300`}
+                    className={`nav-link lg:flex hidden items-center gap-2 rounded-sm px-3 py-2 hover:bg-zinc-800 duration-300`}
                   >
                     {icon}
                     {name}
@@ -192,7 +192,7 @@ function SideMenu({
                 <Link
                   key={indx}
                   to={activePage}
-                  className={`flex items-center gap-2 rounded-sm p-4 hover:bg-[rgba(92,92,255,0.1)] duration-300 ${
+                  className={`flex items-center gap-2 rounded-sm p-4 hover:bg-zinc-300 duration-300 ${
                     activePage === pageLocation ? "text-blue-500" : ""
                   }`}
                   onClick={handleLinkClick}
@@ -209,7 +209,7 @@ function SideMenu({
                 <Link
                   key={indx}
                   to={activePage}
-                  className={`flex items-center gap-2 rounded-sm p-4 hover:bg-[rgba(92,92,255,0.1)] duration-300 ${
+                  className={`flex items-center gap-2 rounded-sm p-4 hover:bg-zinc-300 duration-300 ${
                     activePage === pageLocation ? "text-blue-500" : ""
                   }`}
                   onClick={handleLinkClick}
@@ -235,7 +235,7 @@ function SideMenu({
             <Link
               key={indx}
               to={activePage}
-              className={`flex items-center gap-2 rounded-sm p-4 hover:bg-[rgba(92,92,255,0.1)] duration-300 ${
+              className={`flex items-center gap-2 rounded-sm p-4 hover:bg-zinc-300 duration-300 ${
                 activePage === pageLocation ? "text-blue-500" : ""
               }`}
               onClick={handleLinkClick}
@@ -261,7 +261,7 @@ function Logout({
     <>
       <Tooltip title="Kaustubh Paturi">
         <button
-          className="text-lg font-semibold tracking-wider bg-neutral-300 text-black flex justify-center items-center rounded-full size-10"
+          className="text-lg font-semibold tracking-wider bg-zinc-300 text-black flex justify-center items-center rounded-full size-10"
           onClick={() => setOpen(true)}
         >
           {"Kaustubh Paturi"

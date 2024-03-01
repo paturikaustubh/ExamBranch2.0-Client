@@ -8,13 +8,15 @@ import {
   ListAltOutlined,
   SearchOutlined,
 } from "@mui/icons-material";
-import { Autocomplete, TextField } from "@mui/material";
 
 import { CustTextField } from "../../components/Custom/CustTextField";
 import { ExamSearchResponseProps } from "../../Types/responseTypes";
 import { AlertContext } from "../../components/Context/AlertDetails";
 import { formatCost } from "../../misc/CostFormater";
 import { PrintDialog } from "../../components/Custom/PrintDialog";
+import { CustBarcode } from "../../components/Custom/Barcode";
+import { CustAutocomplete } from "../../components/Custom/CustAutocomplete";
+import { MenuItem } from "@mui/material";
 
 export default function Reval() {
   // ANCHOR STATES && VARS  ||========================================================================
@@ -24,6 +26,7 @@ export default function Reval() {
   const [examYear, setExamYear] = useState(dayjs().year());
   const [examMonth, setExamMonth] = useState(dayjs().month() + 1);
   const [showForm, setShowForm] = useState(false);
+  const [availableSubs, setAvailableSubs] = useState<ExamSearchResponseProps>();
   const [selectedSubjects, setSelectedSubjects] =
     useState<ExamSearchResponseProps>();
   const [currDateTime, setCurrDateTime] = useState<string>(
@@ -32,6 +35,9 @@ export default function Reval() {
   const [studentCopyGenerated, setStudentCopyGenerated] = useState(false);
   const [searched, setSearched] = useState(false);
   const [printTable, setPrintTable] = useState(false);
+  const [cost, setCost] = useState(1000);
+  const [regular, setRegular] = useState("0");
+  const [lastSem, setLastSem] = useState("A");
 
   // ANCHOR EFFECTS  ||========================================================================
   useEffect(() => {
@@ -46,10 +52,10 @@ export default function Reval() {
   }: {
     copyType: "Exam Branch" | "Student" | "Accounts";
   }) => (
-    <div className="flex justify-around w-full items-center font-semibold mt-6">
-      <span className="text-xl">{rollNo} (Revaluation)</span>
-      <span className="text-3xl">{copyType} Copy</span>
-      <span className="text-xl">{currDateTime}</span>
+    <div className="flex justify-around w-full items-center font-semibold mt-4">
+      <span className="lg:text-xl text-lg">{rollNo} (Revaluation)</span>
+      <span className="lg:text-3xl text-2xl">{copyType} Copy</span>
+      <span className="lg:text-xl text-lg">{currDateTime}</span>
     </div>
   );
 
@@ -65,27 +71,52 @@ export default function Reval() {
         className="grid lg:grid-cols-6 md:grid-cols-3 grid-cols-2 gap-4 no-print"
         onSubmit={async (e) => {
           e.preventDefault();
-          const { data } = await Axios.get(
-            `http://localhost:6969/api/reval/${rollNo}?examMonth=${examMonth}&examYear=${examYear}`
+
+          const {
+            data: { subjects, printTableExist },
+          }: {
+            data: {
+              subjects: ExamSearchResponseProps;
+              printTableExist: boolean;
+            };
+          } = await Axios.get(
+            `http://localhost:6969/api/reval/search?rollNo=${rollNo}&examMonth=${examMonth}&examYear=${examYear}`
           );
+          setLastSem(
+            Object.keys(subjects).filter(
+              (subjectKey) =>
+                subjects[subjectKey as keyof ExamSearchResponseProps].subCodes
+                  .length > 0
+            )[
+              Object.keys(subjects).filter(
+                (subjectKey) =>
+                  subjects[subjectKey as keyof ExamSearchResponseProps].subCodes
+                    .length > 0
+              ).length - 1
+            ]
+          );
+
+          setPrintTable(printTableExist);
           let totalLength = 0;
-          if (data) {
-            Object.keys(data).forEach((key) => {
-              totalLength += data[key].subjNames.length;
+          if (subjects) {
+            Object.keys(subjects).forEach((key) => {
+              totalLength +=
+                subjects[key as keyof ExamSearchResponseProps].subNames.length;
             });
           }
 
           if (totalLength > 0) {
             setShowForm(true);
             setSearched(true);
-            setSelectedSubjects(data);
+            setAvailableSubs(subjects);
+            setSelectedSubjects(subjects);
           } else alert?.showAlert("No data found", "warning");
         }}
       >
         <div className="col-span-1 row-start-1">
           <CustTextField
             label="Cost"
-            defaultValue={formatCost(1000)}
+            defaultValue={formatCost(cost)}
             disabled
             inputProps={{ style: { textAlign: "right" } }}
           />
@@ -98,7 +129,9 @@ export default function Reval() {
               inputProps: { min: dayjs().year() - 1, max: dayjs().year() },
             }}
             onChange={({ target: { value } }) => {
-              setExamYear(parseInt(value));
+              setExamYear(
+                parseInt(value) > 0 ? parseInt(value) : dayjs().year() - 1
+              );
               setShowForm(false);
             }}
             value={examYear}
@@ -110,7 +143,7 @@ export default function Reval() {
               inputProps: { min: 1, max: 12 },
             }}
             onChange={({ target: { value } }) => {
-              setExamMonth(parseInt(value));
+              setExamMonth(parseInt(value) > 0 ? parseInt(value) : 0);
               setShowForm(false);
             }}
             value={examMonth}
@@ -127,6 +160,7 @@ export default function Reval() {
               setShowForm(false);
               setStudentCopyGenerated(false);
               setSearched(false);
+              setPrintTable(false);
             }}
           />
           {!printTable ? (
@@ -135,38 +169,104 @@ export default function Reval() {
               className="blue-button-filled col-span-1 mr-auto h-fit flex items-center gap-2"
               disabled={rollNo.length !== 10 || searched}
             >
-              <SearchOutlined />
+              <SearchOutlined fontSize="small" />
               Search
             </button>
           ) : (
-            <button
-              className="green-button-filled col-span-1 mr-auto h-fit flex items-center gap-2"
-              type="button"
-            >
-              <HowToRegOutlined />
-              Register
-            </button>
+            <div className="flex items-center gap-2">
+              <CustTextField
+                select
+                label="Regular"
+                value={regular}
+                onChange={({ target: { value } }) => setRegular(value)}
+              >
+                <MenuItem value="0">None</MenuItem>
+                <MenuItem value={lastSem}>
+                  {lastSem === "A"
+                    ? "1-1"
+                    : lastSem === "B"
+                    ? "1-2"
+                    : lastSem === "C"
+                    ? "2-1"
+                    : lastSem === "D"
+                    ? "2-2"
+                    : lastSem === "E"
+                    ? "3-1"
+                    : lastSem === "F"
+                    ? "3-2"
+                    : lastSem === "G"
+                    ? "4-1"
+                    : "4-2"}
+                </MenuItem>
+              </CustTextField>
+              <button
+                className="green-button-filled col-span-1 mr-auto h-fit flex items-center gap-2"
+                type="button"
+                onClick={async () => {
+                  const { data } = await Axios.post(
+                    `http://localhost:6969/api/reval/register/${rollNo}`,
+                    {
+                      selectedSubjects,
+                      username: localStorage.getItem("username"),
+                      regular,
+                    }
+                  );
+
+                  if (data.done) {
+                    alert?.showAlert(`Registered for ${rollNo}`, "success");
+                    setPrintTable(false);
+                    setRegular("0");
+                    setShowForm(false);
+                    setSearched(false);
+                  } else {
+                    alert?.showAlert(data.error, "error");
+                  }
+                }}
+              >
+                <HowToRegOutlined />
+                Register
+              </button>
+            </div>
           )}
         </div>
       </form>
 
       {showForm && (
-        <>
-          <div className="flex mt-10">
-            <div className="bg-white rounded-sm p-4 w-full">
-              <div
-                className="flex flex-col gap-8 divide-y divide-neutral-500"
-                style={{
-                  backgroundImage: "url(assets/LightLogo.png)",
-                  backgroundRepeat: "no-repeat",
-                  backgroundPosition: "center",
-                  // backgroundSize: "cover",
-                  backgroundSize: "50%",
-                }}
-              >
-                <div className="space-y-6">
-                  <FormSectionHeader copyType={"Exam Branch"} />
+        <div className="bg-white rounded-sm p-4 w-full mt-5">
+          <div
+            className="flex flex-col gap-4 divide-y divide-neutral-500"
+            style={{
+              backgroundImage: studentCopyGenerated
+                ? `url(assets/LightLogo.png)`
+                : "",
+              backgroundRepeat: "no-repeat",
+              backgroundPosition: "center",
+              backgroundSize: "60%",
+            }}
+          >
+            <div className="flex flex-col space-y-2">
+              <FormSectionHeader copyType={"Exam Branch"} />
+              <SubDetails
+                printTable={printTable}
+                cost={cost}
+                revalSubs={availableSubs as ExamSearchResponseProps}
+                selectedSubjects={selectedSubjects as ExamSearchResponseProps}
+                setSelectedSubjects={
+                  setSelectedSubjects as React.Dispatch<
+                    React.SetStateAction<ExamSearchResponseProps>
+                  >
+                }
+                studentCopyGenerated={studentCopyGenerated}
+              />
+              <CustBarcode rollNo={rollNo} />
+            </div>
+            {studentCopyGenerated ? (
+              <>
+                <div className="flex flex-col space-y-2">
+                  <FormSectionHeader copyType={"Student"} />
                   <SubDetails
+                    printTable={printTable}
+                    cost={cost}
                     revalSubs={selectedSubjects as ExamSearchResponseProps}
                     selectedSubjects={
                       selectedSubjects as ExamSearchResponseProps
@@ -178,55 +278,62 @@ export default function Reval() {
                     }
                     studentCopyGenerated={studentCopyGenerated}
                   />
+                  <CustBarcode rollNo={rollNo} />
+                  <span className="mx-auto text-lg text-center font-bold">
+                    AFTER PAYING THE FEE IN ACCOUNTS SECTION, THE RECEIPT MUST
+                    BE SUBMITTED IN THE EXAM BRANCH TO COMPLETE YOUR
+                    REGISTRATION
+                  </span>
                 </div>
-                {studentCopyGenerated ? (
-                  <>
-                    <div className="space-y-6">
-                      <FormSectionHeader copyType={"Student"} />
-                      <SubDetails
-                        revalSubs={selectedSubjects as ExamSearchResponseProps}
-                        selectedSubjects={
-                          selectedSubjects as ExamSearchResponseProps
-                        }
-                        setSelectedSubjects={
-                          setSelectedSubjects as React.Dispatch<
-                            React.SetStateAction<ExamSearchResponseProps>
-                          >
-                        }
-                        studentCopyGenerated={studentCopyGenerated}
-                      />
-                    </div>
-                    <div className="space-y-6">
-                      <FormSectionHeader copyType={"Accounts"} />
-                      <SubDetails
-                        revalSubs={selectedSubjects as ExamSearchResponseProps}
-                        selectedSubjects={
-                          selectedSubjects as ExamSearchResponseProps
-                        }
-                        setSelectedSubjects={
-                          setSelectedSubjects as React.Dispatch<
-                            React.SetStateAction<ExamSearchResponseProps>
-                          >
-                        }
-                        studentCopyGenerated={studentCopyGenerated}
-                      />
-                    </div>
-                    <PrintDialog rollNo={rollNo} />
-                  </>
-                ) : (
-                  <button
-                    className="blue-button-sm mr-auto flex items-center gap-2 no-print"
-                    onClick={() => {
-                      setStudentCopyGenerated(true);
-                    }}
-                  >
-                    <ListAltOutlined /> Generate Form
-                  </button>
-                )}
-              </div>
-            </div>
+                <div className=" flex flex-col space-y-2">
+                  <FormSectionHeader copyType={"Accounts"} />
+                  <SubDetails
+                    printTable={printTable}
+                    cost={cost}
+                    revalSubs={selectedSubjects as ExamSearchResponseProps}
+                    selectedSubjects={
+                      selectedSubjects as ExamSearchResponseProps
+                    }
+                    setSelectedSubjects={
+                      setSelectedSubjects as React.Dispatch<
+                        React.SetStateAction<ExamSearchResponseProps>
+                      >
+                    }
+                    studentCopyGenerated={studentCopyGenerated}
+                  />
+                  <CustBarcode rollNo={rollNo} />
+                </div>
+                <PrintDialog
+                  rollNo={rollNo}
+                  setStudentCopyGenerated={setStudentCopyGenerated}
+                  selectedSubjects={selectedSubjects as ExamSearchResponseProps}
+                  printTable={printTable}
+                />
+              </>
+            ) : (
+              <button
+                className="blue-button ml-auto border-none flex items-center gap-2 no-print"
+                onClick={() => {
+                  setStudentCopyGenerated(true);
+                }}
+                disabled={
+                  selectedSubjects &&
+                  Object.keys(
+                    selectedSubjects as ExamSearchResponseProps
+                  ).reduce(
+                    (acc, key) =>
+                      acc +
+                      selectedSubjects[key as keyof ExamSearchResponseProps]
+                        .subNames.length,
+                    0
+                  ) === 0
+                }
+              >
+                <ListAltOutlined /> Generate Form
+              </button>
+            )}
           </div>
-        </>
+        </div>
       )}
     </>
   );
@@ -238,6 +345,8 @@ function SubDetails({
   selectedSubjects,
   setSelectedSubjects,
   studentCopyGenerated,
+  cost,
+  printTable,
 }: {
   revalSubs: ExamSearchResponseProps;
   selectedSubjects: ExamSearchResponseProps;
@@ -245,16 +354,18 @@ function SubDetails({
     React.SetStateAction<ExamSearchResponseProps>
   >;
   studentCopyGenerated: boolean;
+  cost: number;
+  printTable: boolean;
 }) {
   // ANCHOR STATES && VARS  ||========================================================================
-  const subsA = revalSubs["A"].subjNames;
-  const subsB = revalSubs["B"].subjNames;
-  const subsC = revalSubs["C"].subjNames;
-  const subsD = revalSubs["D"].subjNames;
-  const subsE = revalSubs["E"].subjNames;
-  const subsF = revalSubs["F"].subjNames;
-  const subsG = revalSubs["G"].subjNames;
-  const subsH = revalSubs["H"].subjNames;
+  const subsA = revalSubs["A"].subNames;
+  const subsB = revalSubs["B"].subNames;
+  const subsC = revalSubs["C"].subNames;
+  const subsD = revalSubs["D"].subNames;
+  const subsE = revalSubs["E"].subNames;
+  const subsF = revalSubs["F"].subNames;
+  const subsG = revalSubs["G"].subNames;
+  const subsH = revalSubs["H"].subNames;
 
   // ANCHOR FUNCTIONS  ||========================================================================
   const calculateCostPerYear = (year: 1 | 2 | 3 | 4) => {
@@ -262,24 +373,24 @@ function SubDetails({
     switch (year) {
       case 1:
         totalSubs =
-          selectedSubjects["A"].subjNames.length +
-          selectedSubjects["B"].subjNames.length;
+          selectedSubjects["A"].subNames.length +
+          selectedSubjects["B"].subNames.length;
 
         break;
       case 2:
         totalSubs =
-          selectedSubjects["C"].subjNames.length +
-          selectedSubjects["D"].subjNames.length;
+          selectedSubjects["C"].subNames.length +
+          selectedSubjects["D"].subNames.length;
         break;
       case 3:
         totalSubs =
-          selectedSubjects["E"].subjNames.length +
-          selectedSubjects["F"].subjNames.length;
+          selectedSubjects["E"].subNames.length +
+          selectedSubjects["F"].subNames.length;
         break;
       case 4:
         totalSubs =
-          selectedSubjects["G"].subjNames.length +
-          selectedSubjects["H"].subjNames.length;
+          selectedSubjects["G"].subNames.length +
+          selectedSubjects["H"].subNames.length;
         break;
     }
     return totalSubs * 1000;
@@ -287,7 +398,7 @@ function SubDetails({
 
   // ANCHOR JSX  ||========================================================================
   return (
-    <div className="flex flex-col gap-4 justify-center">
+    <div className="flex flex-col gap-x-4 gap-y-4 justify-center">
       {/* ANCHOR 1st YEAR  ||=============================================================== */}
       <div className="grid grid-cols-12 gap-4 items-center">
         <CustAutocomplete
@@ -297,6 +408,7 @@ function SubDetails({
           revalSubs={revalSubs}
           setSelectedSubjects={setSelectedSubjects}
           studentCopyGenerated={studentCopyGenerated}
+          printTable={printTable}
         />
         <CustAutocomplete
           options={subsB}
@@ -305,6 +417,7 @@ function SubDetails({
           revalSubs={revalSubs}
           setSelectedSubjects={setSelectedSubjects}
           studentCopyGenerated={studentCopyGenerated}
+          printTable={printTable}
         />
         <div className="col-span-2">
           {calculateCostPerYear(1) ? formatCost(calculateCostPerYear(1)) : "NA"}
@@ -319,6 +432,7 @@ function SubDetails({
           revalSubs={revalSubs}
           setSelectedSubjects={setSelectedSubjects}
           studentCopyGenerated={studentCopyGenerated}
+          printTable={printTable}
         />
         <CustAutocomplete
           options={subsD}
@@ -327,6 +441,7 @@ function SubDetails({
           revalSubs={revalSubs}
           setSelectedSubjects={setSelectedSubjects}
           studentCopyGenerated={studentCopyGenerated}
+          printTable={printTable}
         />
         <div className="col-span-2">
           {calculateCostPerYear(2) ? formatCost(calculateCostPerYear(2)) : "NA"}
@@ -341,6 +456,7 @@ function SubDetails({
           revalSubs={revalSubs}
           setSelectedSubjects={setSelectedSubjects}
           studentCopyGenerated={studentCopyGenerated}
+          printTable={printTable}
         />
         <CustAutocomplete
           options={subsF}
@@ -349,6 +465,7 @@ function SubDetails({
           revalSubs={revalSubs}
           setSelectedSubjects={setSelectedSubjects}
           studentCopyGenerated={studentCopyGenerated}
+          printTable={printTable}
         />
         <div className="col-span-2">
           {calculateCostPerYear(3) ? formatCost(calculateCostPerYear(3)) : "NA"}
@@ -363,6 +480,7 @@ function SubDetails({
           revalSubs={revalSubs}
           setSelectedSubjects={setSelectedSubjects}
           studentCopyGenerated={studentCopyGenerated}
+          printTable={printTable}
         />
         <CustAutocomplete
           options={subsH}
@@ -371,6 +489,7 @@ function SubDetails({
           revalSubs={revalSubs}
           setSelectedSubjects={setSelectedSubjects}
           studentCopyGenerated={studentCopyGenerated}
+          printTable={printTable}
         />
         <div className="col-span-2">
           {calculateCostPerYear(4) ? formatCost(calculateCostPerYear(4)) : "NA"}
@@ -383,58 +502,15 @@ function SubDetails({
             calculateCostPerYear(2) +
             calculateCostPerYear(3) +
             calculateCostPerYear(4)
-        )}
+        )}{" "}
+        (
+        {(calculateCostPerYear(1) +
+          calculateCostPerYear(2) +
+          calculateCostPerYear(3) +
+          calculateCostPerYear(4)) /
+          cost}{" "}
+        subjects )
       </span>
     </div>
-  );
-}
-
-// ANCHOR CUSTOM AUTOCOMPLETE  ||========================================================================
-function CustAutocomplete({
-  options,
-  label,
-  sem,
-  revalSubs,
-  setSelectedSubjects,
-  studentCopyGenerated,
-}: {
-  options: string[];
-  label: string;
-  sem: "A" | "B" | "C" | "D" | "E" | "F" | "G" | "H";
-  revalSubs: ExamSearchResponseProps;
-  setSelectedSubjects: React.Dispatch<
-    React.SetStateAction<ExamSearchResponseProps>
-  >;
-  studentCopyGenerated: boolean;
-}) {
-  return (
-    <Autocomplete
-      multiple
-      options={options}
-      value={[...options]}
-      renderInput={(params) => (
-        <TextField {...params} label={label} variant="outlined" />
-      )}
-      fullWidth
-      sx={{ bgcolor: "white" }}
-      className="col-span-5 rounded-md"
-      disabled={options.length === 0}
-      readOnly={studentCopyGenerated}
-      onChange={(_, newValue) => {
-        const selectedCodes = newValue.map((selectedSubject) => {
-          const indx = revalSubs[sem].subjNames.findIndex(
-            (value) => value === selectedSubject
-          );
-          return revalSubs[sem].subjCodes[indx];
-        });
-        setSelectedSubjects((prevState) => ({
-          ...prevState,
-          [sem]: {
-            subjNames: newValue,
-            subjCodes: selectedCodes,
-          },
-        }));
-      }}
-    />
   );
 }

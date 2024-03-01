@@ -6,40 +6,40 @@ interface LoginResponseParams {
 
 export interface ExamSearchResponseProps {
   A: {
-    subjCodes: string[];
-    subjNames: string[];
+    subCodes: string[];
+    subNames: string[];
   };
   B: {
-    subjCodes: string[];
-    subjNames: string[];
+    subCodes: string[];
+    subNames: string[];
   };
   C: {
-    subjCodes: string[];
-    subjNames: string[];
+    subCodes: string[];
+    subNames: string[];
   };
   D: {
-    subjCodes: string[];
-    subjNames: string[];
+    subCodes: string[];
+    subNames: string[];
   };
   E: {
-    subjCodes: string[];
-    subjNames: string[];
+    subCodes: string[];
+    subNames: string[];
   };
   F: {
-    subjCodes: string[];
-    subjNames: string[];
+    subCodes: string[];
+    subNames: string[];
   };
   G: {
-    subjCodes: string[];
-    subjNames: string[];
+    subCodes: string[];
+    subNames: string[];
   };
   H: {
-    subjCodes: string[];
-    subjNames: string[];
+    subCodes: string[];
+    subNames: string[];
   };
 }
 
 export interface ExamSemProps {
-  subjCodes: string[];
-  subjNames: string[];
+  subCodes: string[];
+  subNames: string[];
 }

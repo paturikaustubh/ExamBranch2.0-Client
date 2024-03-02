@@ -6,4 +6,5 @@ interface NavLinkProps {
 interface LoginCredentialsProps {
   username: string;
   password: string;
+  displayName: string;
 }

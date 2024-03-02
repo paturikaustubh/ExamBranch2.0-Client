@@ -27,7 +27,7 @@ function App() {
 
   // ANCHOR EFFECTS  ||========================================================================
   useLayoutEffect(() => {
-    localStorage.getItem("username") && setGoAhead(true);
+    sessionStorage.getItem("username") && setGoAhead(true);
   }, []);
 
   // ANCHOR JSX  ||========================================================================
@@ -35,7 +35,7 @@ function App() {
     <Router>
       {goAhead ? (
         <Navbar
-          user={localStorage.getItem("username") as string}
+          user={sessionStorage.getItem("username") as string}
           setGoAhead={setGoAhead}
         />
       ) : (
@@ -60,10 +60,10 @@ function App() {
                   goAhead ? (
                     <Navigate
                       to={
-                        !localStorage.getItem("lastPage") ||
-                        localStorage.getItem("lastPage") === "undefined"
+                        !sessionStorage.getItem("lastPage") ||
+                        sessionStorage.getItem("lastPage") === "undefined"
                           ? "/supplementary"
-                          : (localStorage.getItem("lastPage") as string)
+                          : (sessionStorage.getItem("lastPage") as string)
                       }
                     />
                   ) : (

@@ -66,7 +66,7 @@ export default function Navbar({
 
   // ANCHOR EFFECTS  ||========================================================================
   useEffect(() => {
-    localStorage.setItem("lastPage", pageLocation);
+    sessionStorage.setItem("lastPage", pageLocation);
     document.title = pageLocation
       ? pageLocation
           .split("/")
@@ -259,13 +259,13 @@ function Logout({
   const [open, setOpen] = useState(false);
   return (
     <>
-      <Tooltip title="Kaustubh Paturi">
+      <Tooltip title={sessionStorage.getItem("displayName")}>
         <button
           className="text-lg font-semibold tracking-wider bg-zinc-300 text-black flex justify-center items-center rounded-full size-10"
           onClick={() => setOpen(true)}
         >
-          {"Kaustubh Paturi"
-            .split(" ")
+          {(sessionStorage.getItem("displayName") as string)
+            ?.split(" ")
             .map((word) => word[0].toUpperCase())
             .join("")}
         </button>
@@ -291,7 +291,7 @@ function Logout({
               fontWeight={500}
               component="span"
             >
-              {localStorage.getItem("username")}
+              {sessionStorage.getItem("username")}
             </Typography>
             ?
           </DialogContentText>
@@ -303,7 +303,7 @@ function Logout({
           <button
             className="blue-button-sm"
             onClick={() => {
-              localStorage.clear();
+              sessionStorage.clear();
               setGoAhead(false);
             }}
           >

@@ -1,3 +1,5 @@
+import { useContext } from "react";
+
 import { Edit, PrintOutlined } from "@mui/icons-material";
 import {
   DialogTitle,
@@ -11,19 +13,26 @@ import { useState } from "react";
 import { CustDialog } from "./CustDialog";
 import Axios from "axios";
 import { ExamSearchResponseProps } from "../../Types/responseTypes";
+import { AlertContext } from "../Context/AlertDetails";
 
 export function PrintDialog({
   rollNo,
   setStudentCopyGenerated,
   selectedSubjects,
   printTable,
+  reset,
 }: {
   rollNo: string;
   setStudentCopyGenerated: React.Dispatch<React.SetStateAction<boolean>>;
   selectedSubjects: ExamSearchResponseProps;
   printTable: boolean;
+  reset: () => void;
 }) {
+  // ANCHOR STATES && VARS  ||========================================================================
   const [openPrintDialog, setOpenPrintDialog] = useState(false);
+  const alert = useContext(AlertContext);
+
+  // ANCHOR JSX  ||========================================================================
   return (
     <div className="flex ml-auto gap-2 items-center border-none no-print">
       <Tooltip
@@ -112,17 +121,16 @@ export function PrintDialog({
             onClick={async () => {
               setOpenPrintDialog(false);
               window.print();
-              const { data } = await Axios.post(
-                `http://localhost:6969/api/reval/print/${rollNo}`,
-                {
-                  selectedSubjects: selectedSubjects,
-                  username: localStorage.getItem("username"),
-                }
-              );
+              const { data } = await Axios.post(`api/reval/print/${rollNo}`, {
+                selectedSubjects: selectedSubjects,
+                username: sessionStorage.getItem("username"),
+              });
 
-              // if(data.done){
-              //   set
-              // }
+              if (!data.done) {
+                alert?.showAlert(data.error, "error");
+              } else {
+                reset();
+              }
             }}
           >
             Print

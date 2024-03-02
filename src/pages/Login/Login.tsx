@@ -27,6 +27,7 @@ export default function LoginForm({
   const [loginCreds, setLoginCreds] = useState<LoginCredentialsProps>({
     username: "",
     password: "",
+    displayName: "",
   });
 
   // ANCHOR JSX  ||========================================================================
@@ -44,16 +45,21 @@ export default function LoginForm({
           onSubmit={async (e) => {
             e.preventDefault();
 
-            const resp = await Axios.post(
-              `http://localhost:6969/api/login?username=${loginCreds.username}&password=${loginCreds.password}`
+            const { data } = await Axios.get(
+              `api/login?username=${loginCreds.username}&password=${loginCreds.password}`,
+              {
+                withCredentials: true,
+              }
             );
+            console.log(data);
 
-            setGoAhead(resp.data.goahead);
-            if (!resp.data.goahead)
-              context?.showAlert(resp.data.error as string, "error");
+            setGoAhead(data.goahead);
+            if (!data.goahead)
+              context?.showAlert(data.error as string, "error");
             else {
-              localStorage.setItem("username", loginCreds.username);
-              document.cookie = `Token=${resp.data.token}`;
+              sessionStorage.setItem("username", loginCreds.username);
+              sessionStorage.setItem("displayName", data.displayName);
+              document.cookie = `Token=${data.token}`;
             }
           }}
         >

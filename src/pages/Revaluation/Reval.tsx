@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useLayoutEffect, useState } from "react";
 
 import dayjs from "dayjs";
 import Axios from "axios";
@@ -35,7 +35,7 @@ export default function Reval() {
   const [studentCopyGenerated, setStudentCopyGenerated] = useState(false);
   const [searched, setSearched] = useState(false);
   const [printTable, setPrintTable] = useState(false);
-  const [cost, setCost] = useState(1000);
+  const [cost, setCost] = useState(69);
   const [regular, setRegular] = useState("0");
   const [lastSem, setLastSem] = useState("A");
 
@@ -44,6 +44,12 @@ export default function Reval() {
     setInterval(() => {
       setCurrDateTime(dayjs().format("DD MMM, YYYY (hh:mm A)"));
     }, 500);
+  }, []);
+
+  useLayoutEffect(() => {
+    Axios.get(`api/cost/costs?module=reval`).then(({ data }) => {
+      setCost(data.rev);
+    });
   }, []);
 
   // ANCHOR FUNCTIONS  ||========================================================================
@@ -58,6 +64,14 @@ export default function Reval() {
       <span className="lg:text-xl text-lg">{currDateTime}</span>
     </div>
   );
+
+  const reset = () => {
+    setPrintTable(false);
+    setRegular("0");
+    setShowForm(false);
+    setSearched(false);
+    setStudentCopyGenerated(false);
+  };
 
   // ANCHOR JSX  ||========================================================================
   return (
@@ -80,7 +94,10 @@ export default function Reval() {
               printTableExist: boolean;
             };
           } = await Axios.get(
-            `http://localhost:6969/api/reval/search?rollNo=${rollNo}&examMonth=${examMonth}&examYear=${examYear}`
+            `api/reval/search?rollNo=${rollNo}&examMonth=${examMonth}&examYear=${examYear}`,
+            {
+              withCredentials: true,
+            }
           );
           setLastSem(
             Object.keys(subjects).filter(
@@ -116,7 +133,8 @@ export default function Reval() {
         <div className="col-span-1 row-start-1">
           <CustTextField
             label="Cost"
-            defaultValue={formatCost(cost)}
+            value={formatCost(cost)}
+            onChange={() => {}}
             disabled
             inputProps={{ style: { textAlign: "right" } }}
           />
@@ -204,20 +222,17 @@ export default function Reval() {
                 type="button"
                 onClick={async () => {
                   const { data } = await Axios.post(
-                    `http://localhost:6969/api/reval/register/${rollNo}`,
+                    `api/reval/register/${rollNo}`,
                     {
                       selectedSubjects,
-                      username: localStorage.getItem("username"),
+                      username: sessionStorage.getItem("username"),
                       regular,
                     }
                   );
 
                   if (data.done) {
                     alert?.showAlert(`Registered for ${rollNo}`, "success");
-                    setPrintTable(false);
-                    setRegular("0");
-                    setShowForm(false);
-                    setSearched(false);
+                    reset();
                   } else {
                     alert?.showAlert(data.error, "error");
                   }
@@ -308,6 +323,7 @@ export default function Reval() {
                   setStudentCopyGenerated={setStudentCopyGenerated}
                   selectedSubjects={selectedSubjects as ExamSearchResponseProps}
                   printTable={printTable}
+                  reset={reset}
                 />
               </>
             ) : (

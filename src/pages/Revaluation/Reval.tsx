@@ -99,7 +99,6 @@ export default function Reval() {
             `api/reval/search?rollNo=${rollNo}&examMonth=${examMonth}&examYear=${examYear}`
           )
             .then(({ data: { subjects, printTableExist } }) => {
-              console.log(subjects);
               setPrintTable(printTableExist);
               let totalLength = 0;
               if (subjects) {

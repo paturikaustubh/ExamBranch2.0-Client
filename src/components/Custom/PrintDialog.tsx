@@ -21,12 +21,14 @@ export function PrintDialog({
   selectedSubjects,
   printTable,
   reset,
+  grandTotal,
 }: {
   rollNo: string;
   setStudentCopyGenerated: React.Dispatch<React.SetStateAction<boolean>>;
   selectedSubjects: ExamSearchSubjectsProps;
   printTable: boolean;
   reset: () => void;
+  grandTotal: number;
 }) {
   // ANCHOR STATES && VARS  ||========================================================================
   const [openPrintDialog, setOpenPrintDialog] = useState(false);
@@ -37,9 +39,7 @@ export function PrintDialog({
   return (
     <div className="flex ml-auto gap-2 items-center border-none no-print">
       <button
-        className={`blue-button-outline flex items-center gap-2 ${
-          printTable ? "tooltip-info" : ""
-        }`}
+        className={`blue-button-outline flex items-center gap-2`}
         onClick={() => setStudentCopyGenerated(false)}
         disabled={printTable}
         data-tooltip-text="To edit values, delete the print values first."
@@ -124,6 +124,7 @@ export function PrintDialog({
               Axios.post(`api/reval/print/${rollNo}`, {
                 selectedSubjects: selectedSubjects,
                 username: sessionStorage.getItem("username"),
+                grandTotal,
               })
                 .then(({ data }) => {
                   if (!data.done) {

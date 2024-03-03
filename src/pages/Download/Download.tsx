@@ -17,19 +17,27 @@ import {
   DeleteForeverOutlined,
 } from "@mui/icons-material";
 import { CustDialog } from "../../components/Custom/CustDialog";
+import Axios from "axios";
+import dayjs from "dayjs";
 
 export default function Download() {
   // ANCHOR STATES && VARS  ||========================================================================
-  const [exam, setExam] = useState("supple");
+  const [exam, setExam] = useState<"supple" | "reval" | "cbt">("supple");
   const [acYear, setAcYear] = useState("0");
   const [sem, setSem] = useState("0");
   const buttonPopoverRef = useRef<HTMLButtonElement>(null);
   const [openDonloadOpts, setOpenDonloadOpts] = useState(false);
   const [examType, setExamType] = useState<"paid" | "print" | "report">("paid");
+
   const examTypeNames = {
     paid: "Registered",
     print: "Uregistered",
     report: "Report",
+  };
+  const examNames = {
+    supple: "Supplementary",
+    reval: "Revaluation",
+    cbt: "Written Test",
   };
 
   // ANCHOR FUNCTIONS  ||========================================================================
@@ -48,7 +56,9 @@ export default function Download() {
           select
           label="Exam"
           value={exam}
-          onChange={({ target: { value } }) => setExam(value)}
+          onChange={({ target: { value } }) =>
+            setExam(value as "supple" | "reval" | "cbt")
+          }
         >
           <MenuItem value="supple">Supplementary</MenuItem>
           <MenuItem value="reval">Revaluation</MenuItem>
@@ -86,6 +96,27 @@ export default function Download() {
               className="blue-button-filled"
               style={{ borderRadius: "6px 0px 0px 6px" }}
               ref={buttonPopoverRef}
+              onClick={async () => {
+                Axios.get(
+                  `api/download/table?tableName=${
+                    examType + exam
+                  }&acYear=${acYear}&sem=${sem}`,
+                  { responseType: "blob" }
+                ).then(({ data, headers }) => {
+                  console.log(headers);
+                  const url = window.URL.createObjectURL(new Blob([data]));
+                  const link = document.createElement("a");
+                  link.href = url;
+                  link.setAttribute(
+                    "download",
+                    `${examTypeNames[examType]}_${
+                      examNames[exam]
+                    }_${dayjs().format("DD-MMM-YY_hh-mm_A")}.xlsx`
+                  );
+                  document.body.appendChild(link);
+                  link.click();
+                });
+              }}
             >
               {examTypeNames[examType]}
             </button>

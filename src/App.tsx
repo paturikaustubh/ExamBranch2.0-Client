@@ -15,6 +15,9 @@ import LoadingProvider from "./components/Context/Loading";
 const LoginForm = lazy(() => import("./pages/Login/Login"));
 const Reval = lazy(() => import("./pages/Revaluation/Reval"));
 const Download = lazy(() => import("./pages/Download/Download"));
+const Supple = lazy(() => import("./pages/Supplementary/Supplementary"));
+const Upload = lazy(() => import("./pages/Upload/Upload"));
+const CBT = lazy(() => import("./pages/CBT/Cbt"));
 
 function App() {
   // ANCHOR STATES && VARS  ||========================================================================
@@ -29,6 +32,18 @@ function App() {
       path: "download",
       element: <Download />,
     },
+    {
+      path: "supplementary",
+      element: <Supple />,
+    },
+    {
+      path: "written-test",
+      element: <CBT />,
+    },
+    {
+      path: "upload",
+      element: <Upload />,
+    }
   ];
 
   // ANCHOR EFFECTS  ||========================================================================

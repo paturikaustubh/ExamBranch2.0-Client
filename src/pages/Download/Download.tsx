@@ -10,17 +10,18 @@ import {
   Popover,
 } from "@mui/material";
 import { CustTextField } from "../../components/Custom/CustTextField";
-import { useRef, useState } from "react";
-import {
-  ArrowDropDown,
-  ArrowDropUp,
-  DeleteForeverOutlined,
-} from "@mui/icons-material";
+import { useContext, useRef, useState } from "react";
+import { DeleteForeverOutlined, DownloadOutlined } from "@mui/icons-material";
 import { CustDialog } from "../../components/Custom/CustDialog";
 import Axios from "axios";
 import dayjs from "dayjs";
+import { AlertContext } from "../../components/Context/AlertDetails";
+import { LoadingContext } from "../../components/Context/Loading";
 
 export default function Download() {
+  const alert = useContext(AlertContext);
+  const loading = useContext(LoadingContext);
+
   // ANCHOR STATES && VARS  ||========================================================================
   const [exam, setExam] = useState<"supple" | "reval" | "cbt">("supple");
   const [acYear, setAcYear] = useState("0");
@@ -90,20 +91,27 @@ export default function Download() {
           </CustTextField>
         </div>
 
-        <div className="row-start-3">
-          <div className="flex items-center divide-x divide-blue-600">
-            <button
-              className="blue-button-filled"
-              style={{ borderRadius: "6px 0px 0px 6px" }}
-              ref={buttonPopoverRef}
-              onClick={async () => {
-                Axios.get(
-                  `api/download/table?tableName=${
-                    examType + exam
-                  }&acYear=${acYear}&sem=${sem}`,
-                  { responseType: "blob" }
-                ).then(({ data, headers }) => {
-                  console.log(headers);
+        <div className="row-start-3 col-span-1 flex items-center divide-x divide-blue-600">
+          <button
+            className="blue-button-filled w-full"
+            style={{ borderRadius: "6px 0px 0px 6px" }}
+            ref={buttonPopoverRef}
+            onClick={() => setOpenDonloadOpts(true)}
+          >
+            {examTypeNames[examType]}
+          </button>
+          <button
+            className="blue-button-filled"
+            style={{ borderRadius: "0px 6px 6px 0px" }}
+            onClick={() => {
+              loading?.showLoading(true, "Downloading file...");
+              Axios.get(
+                `api/download/table?tableName=${
+                  examType + exam
+                }&acYear=${acYear}&sem=${sem}`,
+                { responseType: "blob" }
+              )
+                .then(({ data }) => {
                   const url = window.URL.createObjectURL(new Blob([data]));
                   const link = document.createElement("a");
                   link.href = url;
@@ -115,23 +123,16 @@ export default function Download() {
                   );
                   document.body.appendChild(link);
                   link.click();
-                });
-              }}
-            >
-              {examTypeNames[examType]}
-            </button>
-            <button
-              className="blue-button-filled"
-              style={{ borderRadius: "0px 6px 6px 0px" }}
-              onClick={() => setOpenDonloadOpts(true)}
-            >
-              {!openDonloadOpts ? (
-                <ArrowDropDown fontSize="small" />
-              ) : (
-                <ArrowDropUp fontSize="small" />
-              )}
-            </button>
-          </div>
+                  alert?.showAlert("File downloaded successfully", "success");
+                })
+                .catch(() =>
+                  alert?.showAlert("Error downloading file", "error")
+                )
+                .finally(() => loading?.showLoading(false));
+            }}
+          >
+            <DownloadOutlined fontSize="small" />
+          </button>
         </div>
       </div>
 
@@ -239,7 +240,9 @@ function Truncate() {
           <button className="red-button" onClick={() => setOpenDialog(false)}>
             Cancel
           </button>
-          <button className="blue-button">Truncate</button>
+          <button className="blue-button" onClick={() => {}}>
+            Truncate
+          </button>
         </DialogActions>
       </CustDialog>
     </>

@@ -10,6 +10,7 @@ import Navbar from "./components/Navbar/Navbar";
 import PageLayout from "./components/Custom/PageLayout";
 import AlertProvider from "./components/Context/AlertDetails";
 import { Backdrop, CircularProgress } from "@mui/material";
+import LoadingProvider from "./components/Context/Loading";
 
 const LoginForm = lazy(() => import("./pages/Login/Login"));
 const Reval = lazy(() => import("./pages/Revaluation/Reval"));
@@ -51,36 +52,38 @@ function App() {
           </Backdrop>
         }
       >
-        <AlertProvider>
-          <Routes>
-            <Route path="/">
-              <Route
-                path="/"
-                element={
-                  goAhead ? (
-                    <Navigate
-                      to={
-                        !sessionStorage.getItem("lastPage") ||
-                        sessionStorage.getItem("lastPage") === "undefined"
-                          ? "/supplementary"
-                          : (sessionStorage.getItem("lastPage") as string)
-                      }
-                    />
-                  ) : (
-                    <LoginForm setGoAhead={setGoAhead} />
-                  )
-                }
-              />
-              {routes.map(({ path, element }, indx) => (
+        <LoadingProvider>
+          <AlertProvider>
+            <Routes>
+              <Route path="/">
                 <Route
-                  key={indx}
-                  path={path}
-                  element={<PageLayout>{element}</PageLayout>}
+                  path="/"
+                  element={
+                    goAhead ? (
+                      <Navigate
+                        to={
+                          !sessionStorage.getItem("lastPage") ||
+                          sessionStorage.getItem("lastPage") === "undefined"
+                            ? "/supplementary"
+                            : (sessionStorage.getItem("lastPage") as string)
+                        }
+                      />
+                    ) : (
+                      <LoginForm setGoAhead={setGoAhead} />
+                    )
+                  }
                 />
-              ))}
-            </Route>
-          </Routes>
-        </AlertProvider>
+                {routes.map(({ path, element }, indx) => (
+                  <Route
+                    key={indx}
+                    path={path}
+                    element={<PageLayout>{element}</PageLayout>}
+                  />
+                ))}
+              </Route>
+            </Routes>
+          </AlertProvider>
+        </LoadingProvider>
       </Suspense>
     </Router>
   );

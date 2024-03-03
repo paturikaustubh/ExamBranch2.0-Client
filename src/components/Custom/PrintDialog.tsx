@@ -14,6 +14,7 @@ import { CustDialog } from "./CustDialog";
 import Axios from "axios";
 import { ExamSearchResponseProps } from "../../Types/responseTypes";
 import { AlertContext } from "../Context/AlertDetails";
+import { LoadingContext } from "../Context/Loading";
 
 export function PrintDialog({
   rollNo,
@@ -31,6 +32,7 @@ export function PrintDialog({
   // ANCHOR STATES && VARS  ||========================================================================
   const [openPrintDialog, setOpenPrintDialog] = useState(false);
   const alert = useContext(AlertContext);
+  const loading = useContext(LoadingContext);
 
   // ANCHOR JSX  ||========================================================================
   return (
@@ -119,18 +121,27 @@ export function PrintDialog({
           <button
             className="blue-button-sm"
             onClick={async () => {
+              loading?.showLoading(true);
               setOpenPrintDialog(false);
-              window.print();
-              const { data } = await Axios.post(`api/reval/print/${rollNo}`, {
+              Axios.post(`api/reval/print/${rollNo}`, {
                 selectedSubjects: selectedSubjects,
                 username: sessionStorage.getItem("username"),
-              });
-
-              if (!data.done) {
-                alert?.showAlert(data.error, "error");
-              } else {
-                reset();
-              }
+              })
+                .then(({ data }) => {
+                  if (!data.done) {
+                    alert?.showAlert(data.error, "error");
+                  } else {
+                    window.print();
+                    reset();
+                  }
+                })
+                .catch(() =>
+                  alert?.showAlert(
+                    "There was an error while printing. Please try again.",
+                    "error"
+                  )
+                )
+                .finally(() => loading?.showLoading(false));
             }}
           >
             Print

@@ -17,10 +17,12 @@ import { PrintDialog } from "../../components/Custom/PrintDialog";
 import { CustBarcode } from "../../components/Custom/Barcode";
 import { CustAutocomplete } from "../../components/Custom/CustAutocomplete";
 import { MenuItem } from "@mui/material";
+import { LoadingContext } from "../../components/Context/Loading";
 
 export default function Reval() {
   // ANCHOR STATES && VARS  ||========================================================================
   const alert = useContext(AlertContext);
+  const loading = useContext(LoadingContext);
 
   const [rollNo, setRollNo] = useState("");
   const [examYear, setExamYear] = useState(dayjs().year());
@@ -47,9 +49,16 @@ export default function Reval() {
   }, []);
 
   useLayoutEffect(() => {
-    Axios.get(`api/cost/costs?module=reval`).then(({ data }) => {
-      setCost(data.rev);
-    });
+    Axios.get(`api/cost/costs?module=reval`)
+      .then(({ data }) => {
+        setCost(data.rev);
+      })
+      .catch(() =>
+        alert?.showAlert(
+          "There was an error while connecting to the server",
+          "error"
+        )
+      );
   }, []);
 
   // ANCHOR FUNCTIONS  ||========================================================================
@@ -83,51 +92,47 @@ export default function Reval() {
       {/* ANCHOR REVAL FORM  ||======================================================================== */}
       <form
         className="grid lg:grid-cols-6 md:grid-cols-3 grid-cols-2 gap-4 no-print"
-        onSubmit={async (e) => {
+        onSubmit={(e) => {
           e.preventDefault();
+          loading?.showLoading(true);
+          Axios.get(
+            `api/reval/search?rollNo=${rollNo}&examMonth=${examMonth}&examYear=${examYear}`
+          )
+            .then(({ data: { subjects, printTableExist } }) => {
+              console.log(subjects);
+              setPrintTable(printTableExist);
+              let totalLength = 0;
+              if (subjects) {
+                setLastSem(() => {
+                  const keysArr = Object.keys(subjects).filter(
+                    (subjectKey) =>
+                      subjects[subjectKey as keyof ExamSearchResponseProps]
+                        .subCodes.length > 0
+                  );
+                  return keysArr[keysArr.length - 1];
+                });
 
-          const {
-            data: { subjects, printTableExist },
-          }: {
-            data: {
-              subjects: ExamSearchResponseProps;
-              printTableExist: boolean;
-            };
-          } = await Axios.get(
-            `api/reval/search?rollNo=${rollNo}&examMonth=${examMonth}&examYear=${examYear}`,
-            {
-              withCredentials: true,
-            }
-          );
-          setLastSem(
-            Object.keys(subjects).filter(
-              (subjectKey) =>
-                subjects[subjectKey as keyof ExamSearchResponseProps].subCodes
-                  .length > 0
-            )[
-              Object.keys(subjects).filter(
-                (subjectKey) =>
-                  subjects[subjectKey as keyof ExamSearchResponseProps].subCodes
-                    .length > 0
-              ).length - 1
-            ]
-          );
+                Object.keys(subjects).forEach((key) => {
+                  totalLength +=
+                    subjects[key as keyof ExamSearchResponseProps].subNames
+                      .length;
+                });
+              }
 
-          setPrintTable(printTableExist);
-          let totalLength = 0;
-          if (subjects) {
-            Object.keys(subjects).forEach((key) => {
-              totalLength +=
-                subjects[key as keyof ExamSearchResponseProps].subNames.length;
-            });
-          }
-
-          if (totalLength > 0) {
-            setShowForm(true);
-            setSearched(true);
-            setAvailableSubs(subjects);
-            setSelectedSubjects(subjects);
-          } else alert?.showAlert("No data found", "warning");
+              if (totalLength > 0) {
+                setShowForm(true);
+                setSearched(true);
+                setAvailableSubs(subjects);
+                setSelectedSubjects(subjects);
+              } else alert?.showAlert("No data found", "warning");
+            })
+            .catch(() =>
+              alert?.showAlert(
+                "There was an error while connecting to the server",
+                "error"
+              )
+            )
+            .finally(() => loading?.showLoading(false));
         }}
       >
         <div className="col-span-1 row-start-1">
@@ -220,22 +225,28 @@ export default function Reval() {
               <button
                 className="green-button-filled col-span-1 mr-auto h-fit flex items-center gap-2"
                 type="button"
-                onClick={async () => {
-                  const { data } = await Axios.post(
-                    `api/reval/register/${rollNo}`,
-                    {
-                      selectedSubjects,
-                      username: sessionStorage.getItem("username"),
-                      regular,
-                    }
-                  );
-
-                  if (data.done) {
-                    alert?.showAlert(`Registered for ${rollNo}`, "success");
-                    reset();
-                  } else {
-                    alert?.showAlert(data.error, "error");
-                  }
+                onClick={() => {
+                  loading?.showLoading(true);
+                  Axios.post(`api/reval/paid/${rollNo}`, {
+                    selectedSubjects,
+                    username: sessionStorage.getItem("username"),
+                    regular,
+                  })
+                    .then(({ data }) => {
+                      if (data.done) {
+                        alert?.showAlert(`Registered for ${rollNo}`, "success");
+                        reset();
+                      } else {
+                        alert?.showAlert(data.error, "error");
+                      }
+                    })
+                    .catch(() =>
+                      alert?.showAlert(
+                        "There was an error while connecting to the server.",
+                        "error"
+                      )
+                    )
+                    .finally(() => loading?.showLoading(false));
                 }}
               >
                 <HowToRegOutlined />

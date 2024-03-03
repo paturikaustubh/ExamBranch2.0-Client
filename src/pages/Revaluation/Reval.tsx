@@ -10,7 +10,7 @@ import {
 } from "@mui/icons-material";
 
 import { CustTextField } from "../../components/Custom/CustTextField";
-import { ExamSearchResponseProps } from "../../Types/responseTypes";
+import { ExamSearchSubjectsProps } from "../../Types/responseTypes";
 import { AlertContext } from "../../components/Context/AlertDetails";
 import { formatCost } from "../../misc/CostFormater";
 import { PrintDialog } from "../../components/Custom/PrintDialog";
@@ -28,9 +28,9 @@ export default function Reval() {
   const [examYear, setExamYear] = useState(dayjs().year());
   const [examMonth, setExamMonth] = useState(dayjs().month() + 1);
   const [showForm, setShowForm] = useState(false);
-  const [availableSubs, setAvailableSubs] = useState<ExamSearchResponseProps>();
+  const [availableSubs, setAvailableSubs] = useState<ExamSearchSubjectsProps>();
   const [selectedSubjects, setSelectedSubjects] =
-    useState<ExamSearchResponseProps>();
+    useState<ExamSearchSubjectsProps>();
   const [currDateTime, setCurrDateTime] = useState<string>(
     dayjs().format("DD MMM, YYYY (hh:mm A)")
   );
@@ -50,8 +50,8 @@ export default function Reval() {
 
   useLayoutEffect(() => {
     Axios.get(`api/cost/costs?module=reval`)
-      .then(({ data }) => {
-        setCost(data.rev);
+      .then(({ data: { rev } }: { data: { rev: number } }) => {
+        setCost(rev);
       })
       .catch(() =>
         alert?.showAlert(
@@ -74,6 +74,7 @@ export default function Reval() {
     </div>
   );
 
+  // Reset the values when print taken or registered
   const reset = () => {
     setPrintTable(false);
     setRegular("0");
@@ -98,34 +99,42 @@ export default function Reval() {
           Axios.get(
             `api/reval/search?rollNo=${rollNo}&examMonth=${examMonth}&examYear=${examYear}`
           )
-            .then(({ data: { subjects, printTableExist } }) => {
-              console.log(subjects);
-              setPrintTable(printTableExist);
-              let totalLength = 0;
-              if (subjects) {
-                setLastSem(() => {
-                  const keysArr = Object.keys(subjects).filter(
-                    (subjectKey) =>
-                      subjects[subjectKey as keyof ExamSearchResponseProps]
-                        .subCodes.length > 0
-                  );
-                  return keysArr[keysArr.length - 1];
-                });
+            .then(
+              ({
+                data: { subjects, printTableExist },
+              }: {
+                data: {
+                  subjects: ExamSearchSubjectsProps;
+                  printTableExist: boolean;
+                };
+              }) => {
+                setPrintTable(printTableExist);
+                let totalLength = 0;
+                if (subjects) {
+                  setLastSem(() => {
+                    const keysArr = Object.keys(subjects).filter(
+                      (subjectKey) =>
+                        subjects[subjectKey as keyof ExamSearchSubjectsProps]
+                          .subCodes.length > 0
+                    );
+                    return keysArr[keysArr.length - 1];
+                  });
 
-                Object.keys(subjects).forEach((key) => {
-                  totalLength +=
-                    subjects[key as keyof ExamSearchResponseProps].subNames
-                      .length;
-                });
+                  Object.keys(subjects).forEach((key) => {
+                    totalLength +=
+                      subjects[key as keyof ExamSearchSubjectsProps].subNames
+                        .length;
+                  });
+                }
+
+                if (totalLength > 0) {
+                  setShowForm(true);
+                  setSearched(true);
+                  setAvailableSubs(subjects);
+                  setSelectedSubjects(subjects);
+                } else alert?.showAlert("No data found", "warning");
               }
-
-              if (totalLength > 0) {
-                setShowForm(true);
-                setSearched(true);
-                setAvailableSubs(subjects);
-                setSelectedSubjects(subjects);
-              } else alert?.showAlert("No data found", "warning");
-            })
+            )
             .catch(() =>
               alert?.showAlert(
                 "There was an error while connecting to the server",
@@ -156,6 +165,8 @@ export default function Reval() {
                 parseInt(value) > 0 ? parseInt(value) : dayjs().year() - 1
               );
               setShowForm(false);
+              setPrintTable(false);
+              setSearched(false);
             }}
             value={examYear}
           />
@@ -168,6 +179,8 @@ export default function Reval() {
             onChange={({ target: { value } }) => {
               setExamMonth(parseInt(value) > 0 ? parseInt(value) : 0);
               setShowForm(false);
+              setPrintTable(false);
+              setSearched(false);
             }}
             value={examMonth}
           />
@@ -227,19 +240,29 @@ export default function Reval() {
                 type="button"
                 onClick={() => {
                   loading?.showLoading(true);
+
                   Axios.post(`api/reval/paid/${rollNo}`, {
                     selectedSubjects,
                     username: sessionStorage.getItem("username"),
                     regular,
                   })
-                    .then(({ data }) => {
-                      if (data.done) {
-                        alert?.showAlert(`Registered for ${rollNo}`, "success");
-                        reset();
-                      } else {
-                        alert?.showAlert(data.error, "error");
+                    .then(
+                      ({
+                        data: { done, error },
+                      }: {
+                        data: { done: boolean; error: string };
+                      }) => {
+                        if (done) {
+                          alert?.showAlert(
+                            `Registered for ${rollNo}`,
+                            "success"
+                          );
+                          reset();
+                        } else {
+                          alert?.showAlert(error, "error");
+                        }
                       }
-                    })
+                    )
                     .catch(() =>
                       alert?.showAlert(
                         "There was an error while connecting to the server.",
@@ -270,16 +293,17 @@ export default function Reval() {
               backgroundSize: "60%",
             }}
           >
+            {/* EXAM BRANCH COPY ||==================================================== */}
             <div className="flex flex-col space-y-2">
               <FormSectionHeader copyType={"Exam Branch"} />
               <SubDetails
                 printTable={printTable}
                 cost={cost}
-                revalSubs={availableSubs as ExamSearchResponseProps}
-                selectedSubjects={selectedSubjects as ExamSearchResponseProps}
+                revalSubs={availableSubs as ExamSearchSubjectsProps}
+                selectedSubjects={selectedSubjects as ExamSearchSubjectsProps}
                 setSelectedSubjects={
                   setSelectedSubjects as React.Dispatch<
-                    React.SetStateAction<ExamSearchResponseProps>
+                    React.SetStateAction<ExamSearchSubjectsProps>
                   >
                 }
                 studentCopyGenerated={studentCopyGenerated}
@@ -288,18 +312,19 @@ export default function Reval() {
             </div>
             {studentCopyGenerated ? (
               <>
+                {/* STUDENT COPY ||==================================================== */}
                 <div className="flex flex-col space-y-2">
                   <FormSectionHeader copyType={"Student"} />
                   <SubDetails
                     printTable={printTable}
                     cost={cost}
-                    revalSubs={selectedSubjects as ExamSearchResponseProps}
+                    revalSubs={selectedSubjects as ExamSearchSubjectsProps}
                     selectedSubjects={
-                      selectedSubjects as ExamSearchResponseProps
+                      selectedSubjects as ExamSearchSubjectsProps
                     }
                     setSelectedSubjects={
                       setSelectedSubjects as React.Dispatch<
-                        React.SetStateAction<ExamSearchResponseProps>
+                        React.SetStateAction<ExamSearchSubjectsProps>
                       >
                     }
                     studentCopyGenerated={studentCopyGenerated}
@@ -311,18 +336,19 @@ export default function Reval() {
                     REGISTRATION
                   </span>
                 </div>
+                {/* ACCOUNTS COPY ||==================================================== */}
                 <div className=" flex flex-col space-y-2">
                   <FormSectionHeader copyType={"Accounts"} />
                   <SubDetails
                     printTable={printTable}
                     cost={cost}
-                    revalSubs={selectedSubjects as ExamSearchResponseProps}
+                    revalSubs={selectedSubjects as ExamSearchSubjectsProps}
                     selectedSubjects={
-                      selectedSubjects as ExamSearchResponseProps
+                      selectedSubjects as ExamSearchSubjectsProps
                     }
                     setSelectedSubjects={
                       setSelectedSubjects as React.Dispatch<
-                        React.SetStateAction<ExamSearchResponseProps>
+                        React.SetStateAction<ExamSearchSubjectsProps>
                       >
                     }
                     studentCopyGenerated={studentCopyGenerated}
@@ -332,7 +358,7 @@ export default function Reval() {
                 <PrintDialog
                   rollNo={rollNo}
                   setStudentCopyGenerated={setStudentCopyGenerated}
-                  selectedSubjects={selectedSubjects as ExamSearchResponseProps}
+                  selectedSubjects={selectedSubjects as ExamSearchSubjectsProps}
                   printTable={printTable}
                   reset={reset}
                 />
@@ -346,11 +372,11 @@ export default function Reval() {
                 disabled={
                   selectedSubjects &&
                   Object.keys(
-                    selectedSubjects as ExamSearchResponseProps
+                    selectedSubjects as ExamSearchSubjectsProps
                   ).reduce(
                     (acc, key) =>
                       acc +
-                      selectedSubjects[key as keyof ExamSearchResponseProps]
+                      selectedSubjects[key as keyof ExamSearchSubjectsProps]
                         .subNames.length,
                     0
                   ) === 0
@@ -375,10 +401,10 @@ function SubDetails({
   cost,
   printTable,
 }: {
-  revalSubs: ExamSearchResponseProps;
-  selectedSubjects: ExamSearchResponseProps;
+  revalSubs: ExamSearchSubjectsProps;
+  selectedSubjects: ExamSearchSubjectsProps;
   setSelectedSubjects: React.Dispatch<
-    React.SetStateAction<ExamSearchResponseProps>
+    React.SetStateAction<ExamSearchSubjectsProps>
   >;
   studentCopyGenerated: boolean;
   cost: number;

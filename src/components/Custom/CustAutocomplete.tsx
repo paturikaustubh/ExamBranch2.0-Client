@@ -1,5 +1,5 @@
 import { Autocomplete, TextField } from "@mui/material";
-import { ExamSearchResponseProps } from "../../Types/responseTypes";
+import { ExamSearchSubjectsProps } from "../../Types/responseTypes";
 
 export function CustAutocomplete({
   options,
@@ -13,9 +13,9 @@ export function CustAutocomplete({
   options: string[];
   label: string;
   sem: "A" | "B" | "C" | "D" | "E" | "F" | "G" | "H";
-  revalSubs: ExamSearchResponseProps;
+  revalSubs: ExamSearchSubjectsProps;
   setSelectedSubjects: React.Dispatch<
-    React.SetStateAction<ExamSearchResponseProps>
+    React.SetStateAction<ExamSearchSubjectsProps>
   >;
   studentCopyGenerated: boolean;
   printTable: boolean;

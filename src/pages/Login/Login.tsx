@@ -13,6 +13,7 @@ import { AlertContext } from "../../components/Context/AlertDetails";
 
 import Logo from "/assets/Logo.png";
 import Axios from "axios";
+import { LoadingContext } from "../../components/Context/Loading";
 
 export default function LoginForm({
   setGoAhead,
@@ -21,7 +22,8 @@ export default function LoginForm({
 }) {
   // ANCHOR STATES && VARS  ||========================================================================
 
-  const context = useContext(AlertContext);
+  const alert = useContext(AlertContext);
+  const loading = useContext(LoadingContext);
 
   const [showPass, setShowPass] = useState(false);
   const [loginCreds, setLoginCreds] = useState<LoginCredentialsProps>({
@@ -44,23 +46,25 @@ export default function LoginForm({
           className="flex flex-col gap-6 w-full items-center"
           onSubmit={async (e) => {
             e.preventDefault();
+            loading?.showLoading(true);
 
-            const { data } = await Axios.get(
+            Axios.get(
               `api/login?username=${loginCreds.username}&password=${loginCreds.password}`,
               {
                 withCredentials: true,
               }
-            );
-            console.log(data);
-
-            setGoAhead(data.goahead);
-            if (!data.goahead)
-              context?.showAlert(data.error as string, "error");
-            else {
-              sessionStorage.setItem("username", loginCreds.username);
-              sessionStorage.setItem("displayName", data.displayName);
-              document.cookie = `Token=${data.token}`;
-            }
+            )
+              .then(({ data }) => {
+                setGoAhead(data.goahead);
+                if (!data.goahead)
+                  alert?.showAlert(data.error as string, "error");
+                else {
+                  sessionStorage.setItem("username", loginCreds.username);
+                  sessionStorage.setItem("displayName", data.displayName);
+                  document.cookie = `Token=${data.token}`;
+                }
+              })
+              .finally(() => loading?.showLoading(false));
           }}
         >
           <TextField

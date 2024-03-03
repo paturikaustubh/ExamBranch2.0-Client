@@ -3,7 +3,6 @@ import { Snackbar, Alert, AlertColor } from "@mui/material";
 
 interface AlertContextProps {
   showAlert: (message: string, severity: AlertColor) => void;
-  editAlert: () => void;
 }
 
 interface AlertProps {
@@ -29,14 +28,12 @@ const AlertProvider = ({ children }: { children: React.ReactNode }) => {
     });
   };
 
-  const editAlert = () => {};
-
   const handleClose = () => {
     setAlert((prevVals) => ({ ...prevVals, open: false }));
   };
 
   return (
-    <AlertContext.Provider value={{ showAlert, editAlert }}>
+    <AlertContext.Provider value={{ showAlert }}>
       {children}
 
       <Snackbar

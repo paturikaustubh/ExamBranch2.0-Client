@@ -83,6 +83,34 @@ export default function Reval() {
     setStudentCopyGenerated(false);
   };
 
+  const calculateCostPerYear = (year: 1 | 2 | 3 | 4) => {
+    let totalSubs = 0;
+    switch (year) {
+      case 1:
+        totalSubs =
+          (selectedSubjects as ExamSearchSubjectsProps)["A"].subNames.length +
+          (selectedSubjects as ExamSearchSubjectsProps)["B"].subNames.length;
+
+        break;
+      case 2:
+        totalSubs =
+          (selectedSubjects as ExamSearchSubjectsProps)["C"].subNames.length +
+          (selectedSubjects as ExamSearchSubjectsProps)["D"].subNames.length;
+        break;
+      case 3:
+        totalSubs =
+          (selectedSubjects as ExamSearchSubjectsProps)["E"].subNames.length +
+          (selectedSubjects as ExamSearchSubjectsProps)["F"].subNames.length;
+        break;
+      case 4:
+        totalSubs =
+          (selectedSubjects as ExamSearchSubjectsProps)["G"].subNames.length +
+          (selectedSubjects as ExamSearchSubjectsProps)["H"].subNames.length;
+        break;
+    }
+    return totalSubs * 1000;
+  };
+
   // ANCHOR JSX  ||========================================================================
   return (
     <>
@@ -245,6 +273,11 @@ export default function Reval() {
                     selectedSubjects,
                     username: sessionStorage.getItem("username"),
                     regular,
+                    grandTotal:
+                      calculateCostPerYear(1) +
+                      calculateCostPerYear(2) +
+                      calculateCostPerYear(3) +
+                      calculateCostPerYear(4),
                   })
                     .then(
                       ({
@@ -300,7 +333,7 @@ export default function Reval() {
                 printTable={printTable}
                 cost={cost}
                 revalSubs={availableSubs as ExamSearchSubjectsProps}
-                selectedSubjects={selectedSubjects as ExamSearchSubjectsProps}
+                calculateCostPerYear={calculateCostPerYear}
                 setSelectedSubjects={
                   setSelectedSubjects as React.Dispatch<
                     React.SetStateAction<ExamSearchSubjectsProps>
@@ -319,9 +352,7 @@ export default function Reval() {
                     printTable={printTable}
                     cost={cost}
                     revalSubs={selectedSubjects as ExamSearchSubjectsProps}
-                    selectedSubjects={
-                      selectedSubjects as ExamSearchSubjectsProps
-                    }
+                    calculateCostPerYear={calculateCostPerYear}
                     setSelectedSubjects={
                       setSelectedSubjects as React.Dispatch<
                         React.SetStateAction<ExamSearchSubjectsProps>
@@ -343,9 +374,7 @@ export default function Reval() {
                     printTable={printTable}
                     cost={cost}
                     revalSubs={selectedSubjects as ExamSearchSubjectsProps}
-                    selectedSubjects={
-                      selectedSubjects as ExamSearchSubjectsProps
-                    }
+                    calculateCostPerYear={calculateCostPerYear}
                     setSelectedSubjects={
                       setSelectedSubjects as React.Dispatch<
                         React.SetStateAction<ExamSearchSubjectsProps>
@@ -361,6 +390,12 @@ export default function Reval() {
                   selectedSubjects={selectedSubjects as ExamSearchSubjectsProps}
                   printTable={printTable}
                   reset={reset}
+                  grandTotal={
+                    calculateCostPerYear(1) +
+                    calculateCostPerYear(2) +
+                    calculateCostPerYear(3) +
+                    calculateCostPerYear(4)
+                  }
                 />
               </>
             ) : (
@@ -395,14 +430,14 @@ export default function Reval() {
 // ANCHOR SUBJECTS DETAILS  ||========================================================================
 function SubDetails({
   revalSubs,
-  selectedSubjects,
+  calculateCostPerYear,
   setSelectedSubjects,
   studentCopyGenerated,
   cost,
   printTable,
 }: {
   revalSubs: ExamSearchSubjectsProps;
-  selectedSubjects: ExamSearchSubjectsProps;
+  calculateCostPerYear: (year: 1 | 2 | 3 | 4) => number;
   setSelectedSubjects: React.Dispatch<
     React.SetStateAction<ExamSearchSubjectsProps>
   >;
@@ -421,33 +456,6 @@ function SubDetails({
   const subsH = revalSubs["H"].subNames;
 
   // ANCHOR FUNCTIONS  ||========================================================================
-  const calculateCostPerYear = (year: 1 | 2 | 3 | 4) => {
-    let totalSubs = 0;
-    switch (year) {
-      case 1:
-        totalSubs =
-          selectedSubjects["A"].subNames.length +
-          selectedSubjects["B"].subNames.length;
-
-        break;
-      case 2:
-        totalSubs =
-          selectedSubjects["C"].subNames.length +
-          selectedSubjects["D"].subNames.length;
-        break;
-      case 3:
-        totalSubs =
-          selectedSubjects["E"].subNames.length +
-          selectedSubjects["F"].subNames.length;
-        break;
-      case 4:
-        totalSubs =
-          selectedSubjects["G"].subNames.length +
-          selectedSubjects["H"].subNames.length;
-        break;
-    }
-    return totalSubs * 1000;
-  };
 
   // ANCHOR JSX  ||========================================================================
   return (

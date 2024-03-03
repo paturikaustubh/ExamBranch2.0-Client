@@ -31,8 +31,7 @@ code {
 }
 
 :disabled {
-  opacity: 0.35;
-  filter: grayscale(0.8);
+  filter: grayscale(1);
   cursor: not-allowed;
 }
 
@@ -176,4 +175,30 @@ code {
 .active.nav-link::after {
   transform-origin: left;
   transform: scaleX(100%);
+}
+
+.tooltip-info {
+  position: relative;
+}
+
+.tooltip-info::after {
+  content: attr(data-tooltip-text);
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: max-content;
+  background-color: rgb(32, 32, 32);
+  color: white;
+  padding: 0.3rem 0.5rem;
+  border-radius: 0.2em;
+  font-size: 0.7em;
+  transform: translate(-50%, -100%);
+  opacity: 0;
+  transition: 300ms ease-out;
+  pointer-events: none;
+}
+
+.tooltip-info:hover::after {
+  transform: translate(-50%, -130%);
+  opacity: 1 !important;
 }

@@ -4,7 +4,7 @@ interface LoginResponseParams {
   error?: string;
 }
 
-export interface ExamSearchResponseProps {
+export interface ExamSearchSubjectsProps {
   A: {
     subCodes: string[];
     subNames: string[];

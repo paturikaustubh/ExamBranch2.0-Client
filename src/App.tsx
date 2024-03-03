@@ -14,6 +14,7 @@ import LoadingProvider from "./components/Context/Loading";
 
 const LoginForm = lazy(() => import("./pages/Login/Login"));
 const Reval = lazy(() => import("./pages/Revaluation/Reval"));
+const Download = lazy(() => import("./pages/Download/Download"));
 
 function App() {
   // ANCHOR STATES && VARS  ||========================================================================
@@ -23,6 +24,10 @@ function App() {
     {
       path: "revaluation",
       element: <Reval />,
+    },
+    {
+      path: "download",
+      element: <Download />,
     },
   ];
 

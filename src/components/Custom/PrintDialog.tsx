@@ -7,12 +7,11 @@ import {
   DialogContent,
   DialogContentText,
   DialogActions,
-  Tooltip,
 } from "@mui/material";
 import { useState } from "react";
 import { CustDialog } from "./CustDialog";
 import Axios from "axios";
-import { ExamSearchResponseProps } from "../../Types/responseTypes";
+import { ExamSearchSubjectsProps } from "../../Types/responseTypes";
 import { AlertContext } from "../Context/AlertDetails";
 import { LoadingContext } from "../Context/Loading";
 
@@ -25,7 +24,7 @@ export function PrintDialog({
 }: {
   rollNo: string;
   setStudentCopyGenerated: React.Dispatch<React.SetStateAction<boolean>>;
-  selectedSubjects: ExamSearchResponseProps;
+  selectedSubjects: ExamSearchSubjectsProps;
   printTable: boolean;
   reset: () => void;
 }) {
@@ -37,18 +36,17 @@ export function PrintDialog({
   // ANCHOR JSX  ||========================================================================
   return (
     <div className="flex ml-auto gap-2 items-center border-none no-print">
-      <Tooltip
-        title={printTable && "To edit values, delete records from print table."}
+      <button
+        className={`blue-button-outline flex items-center gap-2 ${
+          printTable ? "tooltip-info" : ""
+        }`}
+        onClick={() => setStudentCopyGenerated(false)}
+        disabled={printTable}
+        data-tooltip-text="To edit values, delete the print values first."
       >
-        <button
-          className="blue-button-outline flex items-center gap-2"
-          onClick={() => setStudentCopyGenerated(false)}
-          disabled={printTable}
-        >
-          <Edit fontSize="small" />
-          Edit Values
-        </button>
-      </Tooltip>
+        <Edit fontSize="small" />
+        Edit Values
+      </button>
       <button
         className="blue-button-filled flex items-center gap-2"
         onClick={() => setOpenPrintDialog(true)}

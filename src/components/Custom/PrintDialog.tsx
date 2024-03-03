@@ -17,6 +17,7 @@ import { LoadingContext } from "../Context/Loading";
 
 export function PrintDialog({
   rollNo,
+  exam,
   setStudentCopyGenerated,
   selectedSubjects,
   printTable,
@@ -24,6 +25,7 @@ export function PrintDialog({
   grandTotal,
 }: {
   rollNo: string;
+  exam: "supple" | "reval" | "cbt";
   setStudentCopyGenerated: React.Dispatch<React.SetStateAction<boolean>>;
   selectedSubjects: ExamSearchSubjectsProps;
   printTable: boolean;
@@ -121,7 +123,7 @@ export function PrintDialog({
             onClick={async () => {
               loading?.showLoading(true);
               setOpenPrintDialog(false);
-              Axios.post(`api/reval/print/${rollNo}`, {
+              Axios.post(`api/${exam}/print/${rollNo}`, {
                 selectedSubjects: selectedSubjects,
                 username: sessionStorage.getItem("username"),
                 grandTotal,

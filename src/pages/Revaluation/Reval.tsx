@@ -386,6 +386,7 @@ export default function Reval() {
                 </div>
                 <PrintDialog
                   rollNo={rollNo}
+                  exam="reval"
                   setStudentCopyGenerated={setStudentCopyGenerated}
                   selectedSubjects={selectedSubjects as ExamSearchSubjectsProps}
                   printTable={printTable}

@@ -15,15 +15,12 @@ import LoadingProvider from "./components/Context/Loading";
 const LoginForm = lazy(() => import("./pages/Login/Login"));
 const Reval = lazy(() => import("./pages/Revaluation/Reval"));
 const Download = lazy(() => import("./pages/Download/Download"));
-<<<<<<< Updated upstream
 const Supple = lazy(() => import("./pages/Supplementary/Supplementary"));
 const Upload = lazy(() => import("./pages/Upload/Upload"));
 const CBT = lazy(() => import("./pages/CBT/Cbt"));
-=======
 const ManageUsers = lazy(() => import("./pages/ManageUsers/ManageUsers"));
 const ManageCosts = lazy(() => import("./pages/ManageCosts/ManageCosts"));
 const Backup = lazy(() => import("./pages/Backup/BackUp"));
->>>>>>> Stashed changes
 
 function App() {
   // ANCHOR STATES && VARS  ||========================================================================
@@ -39,7 +36,6 @@ function App() {
       element: <Download />,
     },
     {
-<<<<<<< Updated upstream
       path: "supplementary",
       element: <Supple />,
     },
@@ -50,7 +46,8 @@ function App() {
     {
       path: "upload",
       element: <Upload />,
-=======
+    },
+    {
       path: "manage-users",
       element: <ManageUsers />
     },
@@ -61,7 +58,6 @@ function App() {
     {
       path: "backup",
       element: <Backup />
->>>>>>> Stashed changes
     }
   ];
 

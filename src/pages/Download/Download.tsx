@@ -130,6 +130,9 @@ export default function Download() {
                 )
                 .finally(() => loading?.showLoading(false));
             }}
+            disabled={
+              (acYear === "0" && sem !== "0") || (acYear !== "0" && sem === "0")
+            }
           >
             <DownloadOutlined fontSize="small" />
           </button>
@@ -194,7 +197,7 @@ function Truncate() {
         Truncate
       </button>
 
-      <CustDialog open={openDialog} maxWidth="lg" fullWidth>
+      <CustDialog open={openDialog} maxWidth="md" fullWidth>
         <DialogTitle component={"div"}>
           <span className="lg:text-5xl md:text-4xl text-3xl text-red-600 font-bold">
             Truncate

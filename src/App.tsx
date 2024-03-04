@@ -18,6 +18,7 @@ const Download = lazy(() => import("./pages/Download/Download"));
 const Supple = lazy(() => import("./pages/Supplementary/Supplementary"));
 const Upload = lazy(() => import("./pages/Upload/Upload"));
 const CBT = lazy(() => import("./pages/CBT/Cbt"));
+const ManageDB = lazy(() => import("./pages/ManageDB/ManageDB"));
 
 function App() {
   // ANCHOR STATES && VARS  ||========================================================================
@@ -43,7 +44,11 @@ function App() {
     {
       path: "upload",
       element: <Upload />,
-    }
+    },
+    {
+      path: "manage-database",
+      element: <ManageDB />,
+    },
   ];
 
   // ANCHOR EFFECTS  ||========================================================================

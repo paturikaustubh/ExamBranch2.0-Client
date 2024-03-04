@@ -8,3 +8,5 @@ interface LoginCredentialsProps {
   password: string;
   displayName: string;
 }
+
+type grades = "O" | "A+" | "A" | "B+" | "B" | "C" | "F";

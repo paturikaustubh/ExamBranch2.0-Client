@@ -1,4 +1,3 @@
-import { TextField } from "@mui/material";
 import Title from "../../components/Title";
 import Costs, { addcost, basecosts, maxcost } from "../../components/Costs";
 import { useContext, useEffect, useState } from "react";
@@ -6,7 +5,7 @@ import dayjs from "dayjs";
 import { ExamSearchSubjectsProps } from "../../Types/responseTypes";
 import { AlertContext } from "../../components/Context/AlertDetails";
 import { formatCost } from "../../misc/CostFormater";
-import { Calculate, HowToRegOutlined, ListAltOutlined, SearchOutlined } from "@mui/icons-material";
+import { HowToRegOutlined, ListAltOutlined, SearchOutlined } from "@mui/icons-material";
 import Axios from "axios";
 import { CustTextField } from "../../components/Custom/CustTextField";
 import { PrintDialog } from "../../components/Custom/PrintDialog";
@@ -24,7 +23,6 @@ export default function Supple() {
   const [currDateTime, setCurrDateTime] = useState<string>(
     dayjs().format("DD MMM, YYYY (hh:mm A)")
   );
-  const cost: number = 100
   const [studentCopyGenerated, setStudentCopyGenerated] = useState(false);
   const [searched, setSearched] = useState(false);
   const [printTable, setPrintTable] = useState(false);
@@ -35,6 +33,7 @@ export default function Supple() {
       setCurrDateTime(dayjs().format("DD MMM, YYYY (hh:mm A)"));
     }, 500);
   }, []);
+
   const FormSectionHeader = ({
     copyType,
   }: {
@@ -190,7 +189,6 @@ export default function Supple() {
               <FormSectionHeader copyType={"Exam Branch"} />
               <SubDetails
                 printTable={printTable}
-                cost={cost}
                 supplySubs={availableSubs as ExamSearchSubjectsProps}
                 calculateCostPerYear = {
                   calculateCostPerYear
@@ -210,7 +208,6 @@ export default function Supple() {
                   <FormSectionHeader copyType={"Student"} />
                   <SubDetails
                     printTable={printTable}
-                    cost={cost}
                     supplySubs={selectedSubjects as ExamSearchSubjectsProps}
                     calculateCostPerYear={
                       calculateCostPerYear
@@ -233,7 +230,6 @@ export default function Supple() {
                   <FormSectionHeader copyType={"Accounts"} />
                   <SubDetails
                     printTable={printTable}
-                    cost={cost}
                     supplySubs={selectedSubjects as ExamSearchSubjectsProps}
                     calculateCostPerYear={
                       calculateCostPerYear
@@ -300,7 +296,6 @@ function SubDetails({
     React.SetStateAction<ExamSearchSubjectsProps>
   >;
   studentCopyGenerated: boolean;
-  cost: number;
   printTable: boolean;
 }) {
   // ANCHOR STATES && VARS  ||========================================================================

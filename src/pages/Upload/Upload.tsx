@@ -5,11 +5,12 @@ import { useState } from "react";
 export default function Upload() {
     const [type, settype] = useState("results");
     const [clicked, setclicked] = useState(false);
+    const [table, settable] = useState("regular");
 
     return (
         <>
             <Title title="Upload" />
-            {/* Register... registered Entries... code Names */}
+            {/* Results... registered Entries... code Names */}
             <div className="grid grid-cols-12 gap-2 mb-4">
                 <div className="col-span-12 sm:col-span-4 md:col-span-2">
                     <TextField
@@ -45,19 +46,24 @@ export default function Upload() {
                                     backgroundColor: "white",
                                 }}
                                 label="Exam"
-                                // onChange={handletable}
+                                value={"regular"}
+                                onChange={({ target: { value } }) => {
+                                    settable(value);
+                                }
+                            }
                                 disabled={clicked}
                             >
                                 {[
                                     <MenuItem value={"regular"}>Regular</MenuItem>,
                                     <MenuItem value={"supply"}>
-                                        Supplementary/Re-Evaluation
+                                        Supplementary/Revaluation
                                     </MenuItem>,
                                     <MenuItem value={"cbt"}>CBT</MenuItem>,
                                 ]}
                             </TextField>
                         </div>
                     </div>
+
                 </>
             )
             }

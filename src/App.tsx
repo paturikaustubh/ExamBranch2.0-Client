@@ -21,6 +21,7 @@ const CBT = lazy(() => import("./pages/CBT/Cbt"));
 const ManageUsers = lazy(() => import("./pages/ManageUsers/ManageUsers"));
 const ManageCosts = lazy(() => import("./pages/ManageCosts/ManageCosts"));
 const Backup = lazy(() => import("./pages/Backup/BackUp"));
+const ManageDB = lazy(() => import("./pages/ManageDB/ManageDB"));
 
 function App() {
   // ANCHOR STATES && VARS  ||========================================================================
@@ -58,7 +59,11 @@ function App() {
     {
       path: "backup",
       element: <Backup />
-    }
+    },
+    {
+      path: "manage-database",
+      element: <ManageDB />,
+    },
   ];
 
   // ANCHOR EFFECTS  ||========================================================================

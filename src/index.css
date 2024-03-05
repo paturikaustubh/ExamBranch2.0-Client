@@ -50,11 +50,11 @@ code {
 }
 
 .red-button {
-  @apply text-red-500 hover:bg-red-50 rounded-sm duration-300 px-3 py-2;
+  @apply text-red-500 text-lg hover:bg-red-50 rounded-sm duration-300 px-3 py-1;
 }
 
 .red-button-sm {
-  @apply lg:text-sm text-red-500 hover:bg-red-50 rounded-sm duration-300 px-3 py-2;
+  @apply text-red-500 hover:bg-red-50 rounded-sm duration-300 px-3 py-2;
 }
 /* FILLED ||======================================================================== */
 .red-button-filled-lg {
@@ -62,11 +62,11 @@ code {
 }
 
 .red-button-filled {
-  @apply text-red-50 bg-red-500 hover:bg-red-600 rounded-md duration-300 px-4 py-2;
+  @apply text-red-50 text-lg bg-red-500 hover:bg-red-600 rounded-md duration-300 px-4 py-2;
 }
 
 .red-button-filled-sm {
-  @apply lg:text-sm text-red-50 bg-red-500 hover:bg-red-600 rounded-md duration-300 px-3 py-2;
+  @apply text-red-50 bg-red-500 hover:bg-red-600 rounded-md duration-300 px-3 py-2;
 }
 /* OUTLINE ||======================================================================== */
 .red-button-outline-lg {
@@ -74,11 +74,11 @@ code {
 }
 
 .red-button-outline {
-  @apply text-red-500 hover:text-white hover:bg-red-500 border border-red-500 rounded-md duration-300 px-4 py-2;
+  @apply text-red-500 text-lg hover:text-white hover:bg-red-500 border border-red-500 rounded-md duration-300 px-4 py-2;
 }
 
 .red-button-outline-sm {
-  @apply lg:text-sm text-red-500 hover:text-white hover:bg-red-500 border border-red-500 rounded-md duration-300 px-3 py-2;
+  @apply text-red-500 hover:text-white hover:bg-red-500 border border-red-500 rounded-md duration-300 px-3 py-2;
 }
 
 /* ANCHOR BLUE BUTTONS ||======================================================================== */
@@ -87,11 +87,11 @@ code {
 }
 
 .blue-button {
-  @apply text-blue-500 hover:bg-blue-50 rounded-sm duration-300 px-3 py-2;
+  @apply text-blue-500 text-lg hover:bg-blue-50 rounded-sm duration-300 px-3 py-1;
 }
 
 .blue-button-sm {
-  @apply lg:text-sm text-blue-500 hover:bg-blue-50 rounded-sm duration-300 px-3 py-2;
+  @apply text-blue-500 hover:bg-blue-50 rounded-sm duration-300 px-3 py-2;
 }
 /* FILLED ||======================================================================== */
 .blue-button-filled-lg {
@@ -99,11 +99,11 @@ code {
 }
 
 .blue-button-filled {
-  @apply text-blue-50 bg-blue-500 hover:bg-blue-600 rounded-md duration-300 px-4 py-2;
+  @apply text-blue-50 text-lg bg-blue-500 hover:bg-blue-600 rounded-md duration-300 px-4 py-2;
 }
 
 .blue-button-filled-sm {
-  @apply lg:text-sm  text-blue-50 bg-blue-500 hover:bg-blue-600 rounded-md duration-300 px-3 py-2;
+  @apply text-blue-50 bg-blue-500 hover:bg-blue-600 rounded-md duration-300 px-3 py-2;
 }
 /* OUTLINE ||======================================================================== */
 .blue-button-outline-lg {
@@ -111,11 +111,11 @@ code {
 }
 
 .blue-button-outline {
-  @apply text-blue-500 hover:text-white hover:bg-blue-500 border border-blue-500 rounded-md duration-300 px-4 py-2;
+  @apply text-blue-500 text-lg hover:text-white hover:bg-blue-500 border border-blue-500 rounded-md duration-300 px-4 py-2;
 }
 
 .blue-button-outline-sm {
-  @apply lg:text-sm text-blue-500 hover:text-white hover:bg-blue-500 border border-blue-500 rounded-md duration-300 px-3 py-2;
+  @apply text-blue-500 hover:text-white hover:bg-blue-500 border border-blue-500 rounded-md duration-300 px-3 py-2;
 }
 
 /* ANCHOR GREEN BUTTONS ||======================================================================== */
@@ -124,11 +124,11 @@ code {
 }
 
 .green-button {
-  @apply text-green-600 hover:bg-green-50 rounded-sm duration-300 px-3 py-2;
+  @apply text-green-600 text-lg hover:bg-green-50 rounded-sm duration-300 px-3 py-1;
 }
 
 .green-button-sm {
-  @apply lg:text-sm text-green-600 hover:bg-green-50 rounded-sm duration-300 px-3 py-2;
+  @apply text-green-600 hover:bg-green-50 rounded-sm duration-300 px-3 py-2;
 }
 /* FILLED ||======================================================================== */
 .green-button-filled-lg {
@@ -136,11 +136,11 @@ code {
 }
 
 .green-button-filled {
-  @apply text-green-50 bg-green-600 hover:bg-green-600 rounded-md duration-300 px-4 py-2;
+  @apply text-green-50 text-lg bg-green-600 hover:bg-green-600 rounded-md duration-300 px-4 py-2;
 }
 
 .green-button-filled-sm {
-  @apply lg:text-sm text-green-50 bg-green-600 hover:bg-green-600 rounded-md duration-300 px-3 py-2;
+  @apply text-green-50 bg-green-600 hover:bg-green-600 rounded-md duration-300 px-3 py-2;
 }
 /* OUTLINE ||======================================================================== */
 .green-button-outline-lg {
@@ -148,11 +148,11 @@ code {
 }
 
 .green-button-outline {
-  @apply text-green-500 hover:bg-green-600 hover:text-white border border-green-600 rounded-md duration-300 px-4 py-2;
+  @apply text-green-500 text-lg hover:bg-green-600 hover:text-white border border-green-600 rounded-md duration-300 px-4 py-2;
 }
 
 .green-button-outline-sm {
-  @apply lg:text-sm text-green-500 hover:bg-green-600 hover:text-white border border-green-600 rounded-md duration-300 px-3 py-2;
+  @apply text-green-500 hover:bg-green-600 hover:text-white border border-green-600 rounded-md duration-300 px-3 py-2;
 }
 
 .page-title {
@@ -175,4 +175,50 @@ code {
 .active.nav-link::after {
   transform-origin: left;
   transform: scaleX(100%);
+}
+
+.datagrid-row-red {
+  @apply bg-red-200 hover:bg-red-300 text-red-600 !important;
+}
+
+.MuiDataGrid-virtualScroller::-webkit-scrollbar {
+  @apply w-2 h-2 duration-300;
+}
+
+.MuiDataGrid-virtualScroller::-webkit-scrollbar-track {
+  @apply bg-neutral-200;
+}
+
+.MuiDataGrid-virtualScroller::-webkit-scrollbar-thumb {
+  @apply bg-neutral-400 rounded-sm;
+}
+.MuiDataGrid-virtualScroller::-webkit-scrollbar-thumb:hover {
+  @apply bg-neutral-500 rounded-sm;
+}
+
+.MuiMultiSectionDigitalClockSection-root::-webkit-scrollbar {
+  @apply w-2 h-2 duration-300;
+}
+
+.MuiMultiSectionDigitalClockSection-root::-webkit-scrollbar-track {
+  @apply bg-neutral-200;
+}
+
+.MuiMultiSectionDigitalClockSection-root::-webkit-scrollbar-thumb {
+  @apply bg-neutral-400 rounded-sm;
+}
+.MuiMultiSectionDigitalClockSection-root::-webkit-scrollbar-thumb:hover {
+  @apply bg-neutral-500 rounded-sm;
+}
+
+.MuiDataGrid-root .MuiDataGrid-cell:focus-within {
+  outline: none !important;
+}
+.MuiDataGrid-withBorderColor {
+  outline: none !important;
+}
+
+.MuiDataGrid-columnHeaders {
+  background-color: rgb(210 210 210);
+  /* color: white; */
 }

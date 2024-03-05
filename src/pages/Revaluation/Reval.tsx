@@ -18,6 +18,7 @@ import { CustBarcode } from "../../components/Custom/Barcode";
 import { CustAutocomplete } from "../../components/Custom/CustAutocomplete";
 import { MenuItem } from "@mui/material";
 import { LoadingContext } from "../../components/Context/Loading";
+import Title from "../../components/Title";
 
 export default function Reval() {
   // ANCHOR STATES && VARS  ||========================================================================
@@ -114,9 +115,7 @@ export default function Reval() {
   // ANCHOR JSX  ||========================================================================
   return (
     <>
-      <div className="flex no-print">
-        <span className="page-title">Revaluation</span>
-      </div>
+      <Title title="Revaluation" />
 
       {/* ANCHOR REVAL FORM  ||======================================================================== */}
       <form

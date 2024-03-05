@@ -1,3 +1,5 @@
+import { Dayjs } from "dayjs";
+
 interface LoginResponseParams {
   goahead: boolean;
   userName?: string;
@@ -43,3 +45,30 @@ export interface ExamSemProps {
   subCodes: string[];
   subNames: string[];
 }
+
+export interface ManageDBResponseProps {
+  rollNo: string;
+  subCode: string;
+  subName: string;
+  grade: grades;
+  acYear: 1 | 2 | 3 | 4;
+  sem: 1 | 2;
+  exYear: number;
+  exMonth: number;
+  user: string;
+  total: number;
+  regDate: Dayjs;
+  stat: "R" | "S";
+  branch: string;
+}
+
+export type ManageDBResponseArr = ManageDBResponseProps[];
+
+export type AvailableDbTables =
+  | "studentinfo"
+  | "paidsupply"
+  | "printsupply"
+  | "paidreevaluation"
+  | "printreval"
+  | "paidcbt"
+  | "printcbt";

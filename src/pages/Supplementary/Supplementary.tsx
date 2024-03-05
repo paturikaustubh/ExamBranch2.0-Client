@@ -5,16 +5,18 @@ import dayjs from "dayjs";
 import { ExamSearchSubjectsProps } from "../../Types/responseTypes";
 import { AlertContext } from "../../components/Context/AlertDetails";
 import { formatCost } from "../../misc/CostFormater";
-import { HowToRegOutlined, ListAltOutlined, SearchOutlined } from "@mui/icons-material";
+import {
+  HowToRegOutlined,
+  ListAltOutlined,
+  SearchOutlined,
+} from "@mui/icons-material";
 import Axios from "axios";
 import { CustTextField } from "../../components/Custom/CustTextField";
 import { PrintDialog } from "../../components/Custom/PrintDialog";
 import { CustAutocomplete } from "../../components/Custom/CustAutocomplete";
 import { CustBarcode } from "../../components/Custom/Barcode";
 
-
 export default function Supple() {
-
   const alert = useContext(AlertContext);
   const [rollNo, setRollNo] = useState("");
   const [availableSubs, setAvailableSubs] = useState<ExamSearchSubjectsProps>();
@@ -78,15 +80,21 @@ export default function Supple() {
           (selectedSubjects as ExamSearchSubjectsProps)["H"].subNames.length;
         break;
     }
-    const cost = (totalSubs >= 4 && totalSubs !== 0) ? maxcost : totalSubs > 0 ? basecosts + (totalSubs - 1) * addcost : 0
+    const cost =
+      totalSubs >= 4 && totalSubs !== 0
+        ? maxcost
+        : totalSubs > 0
+        ? basecosts + (totalSubs - 1) * addcost
+        : 0;
     return { cost, totalSubs };
   };
-  
+
   return (
     <>
       <Title title="Supplementary" />
       <Costs />
-      <form className="grid lg:grid-cols-6 md:grid-cols-3 grid-cols-2 gap-5 no-print"
+      <form
+        className="grid lg:grid-cols-6 md:grid-cols-3 grid-cols-2 gap-5 no-print"
         onSubmit={async (e) => {
           e.preventDefault();
           const { data } = await Axios.get(
@@ -111,10 +119,8 @@ export default function Supple() {
             setSelectedSubjects(data.subjectDetails);
             setPrintTable(data.printTableExist);
           } else alert?.showAlert("No data found", "warning");
-        }
-
-        }>
-
+        }}
+      >
         <div className="row-start-3 col-span-3 grid md:grid-cols-3 grid-cols-2 gap-4 items-center">
           <CustTextField
             label="Roll Number"
@@ -140,7 +146,6 @@ export default function Supple() {
             </button>
           ) : (
             <div className="flex items-center gap-2">
-             
               <button
                 className="green-button-filled col-span-1 mr-auto h-fit flex items-center gap-2"
                 type="button"
@@ -150,8 +155,11 @@ export default function Supple() {
                     {
                       selectedSubjects,
                       username: sessionStorage.getItem("username"),
-                      grandTotal: calculateCostPerYear(1).cost + calculateCostPerYear(2).cost +
-                      calculateCostPerYear(3).cost+ calculateCostPerYear(4).cost
+                      grandTotal:
+                        calculateCostPerYear(1).cost +
+                        calculateCostPerYear(2).cost +
+                        calculateCostPerYear(3).cost +
+                        calculateCostPerYear(4).cost,
                     }
                   );
 
@@ -190,9 +198,7 @@ export default function Supple() {
               <SubDetails
                 printTable={printTable}
                 supplySubs={availableSubs as ExamSearchSubjectsProps}
-                calculateCostPerYear = {
-                  calculateCostPerYear
-                }
+                calculateCostPerYear={calculateCostPerYear}
                 setSelectedSubjects={
                   setSelectedSubjects as React.Dispatch<
                     React.SetStateAction<ExamSearchSubjectsProps>
@@ -209,9 +215,7 @@ export default function Supple() {
                   <SubDetails
                     printTable={printTable}
                     supplySubs={selectedSubjects as ExamSearchSubjectsProps}
-                    calculateCostPerYear={
-                      calculateCostPerYear
-                    }
+                    calculateCostPerYear={calculateCostPerYear}
                     setSelectedSubjects={
                       setSelectedSubjects as React.Dispatch<
                         React.SetStateAction<ExamSearchSubjectsProps>
@@ -231,9 +235,7 @@ export default function Supple() {
                   <SubDetails
                     printTable={printTable}
                     supplySubs={selectedSubjects as ExamSearchSubjectsProps}
-                    calculateCostPerYear={
-                      calculateCostPerYear
-                    }
+                    calculateCostPerYear={calculateCostPerYear}
                     setSelectedSubjects={
                       setSelectedSubjects as React.Dispatch<
                         React.SetStateAction<ExamSearchSubjectsProps>
@@ -245,9 +247,13 @@ export default function Supple() {
                 </div>
                 <PrintDialog
                   rollNo={rollNo}
-                  exam = "supple"
-                  grandTotal={calculateCostPerYear(1).cost + calculateCostPerYear(2).cost +
-                    calculateCostPerYear(3).cost+ calculateCostPerYear(4).cost}
+                  exam="supple"
+                  grandTotal={
+                    calculateCostPerYear(1).cost +
+                    calculateCostPerYear(2).cost +
+                    calculateCostPerYear(3).cost +
+                    calculateCostPerYear(4).cost
+                  }
                   setStudentCopyGenerated={setStudentCopyGenerated}
                   selectedSubjects={selectedSubjects as ExamSearchSubjectsProps}
                   printTable={printTable}
@@ -291,7 +297,10 @@ function SubDetails({
   printTable,
 }: {
   supplySubs: ExamSearchSubjectsProps;
-  calculateCostPerYear: (year: 1 | 2 | 3 | 4 ) => {cost:number, totalSubs: number}
+  calculateCostPerYear: (year: 1 | 2 | 3 | 4) => {
+    cost: number;
+    totalSubs: number;
+  };
   setSelectedSubjects: React.Dispatch<
     React.SetStateAction<ExamSearchSubjectsProps>
   >;
@@ -307,7 +316,6 @@ function SubDetails({
   const subsF = supplySubs["F"].subNames;
   const subsG = supplySubs["G"].subNames;
   const subsH = supplySubs["H"].subNames;
-
 
   // ANCHOR JSX  ||========================================================================
   return (
@@ -333,7 +341,9 @@ function SubDetails({
           printTable={printTable}
         />
         <div className="col-span-2">
-          {calculateCostPerYear(1).cost ? formatCost(calculateCostPerYear(1).cost) : "NA"}
+          {calculateCostPerYear(1).cost
+            ? formatCost(calculateCostPerYear(1).cost)
+            : "NA"}
         </div>
       </div>
       {/* ANCHOR 2nd YEAR  ||=============================================================== */}
@@ -357,7 +367,9 @@ function SubDetails({
           printTable={printTable}
         />
         <div className="col-span-2">
-          {calculateCostPerYear(2).cost ? formatCost(calculateCostPerYear(2).cost) : "NA"}
+          {calculateCostPerYear(2).cost
+            ? formatCost(calculateCostPerYear(2).cost)
+            : "NA"}
         </div>
       </div>
       {/* ANCHOR 3rd YEAR  ||=============================================================== */}
@@ -381,7 +393,9 @@ function SubDetails({
           printTable={printTable}
         />
         <div className="col-span-2">
-          {calculateCostPerYear(3).cost ? formatCost(calculateCostPerYear(3).cost) : "NA"}
+          {calculateCostPerYear(3).cost
+            ? formatCost(calculateCostPerYear(3).cost)
+            : "NA"}
         </div>
       </div>
       {/* ANCHOR 4th YEAR  ||=============================================================== */}
@@ -405,21 +419,25 @@ function SubDetails({
           printTable={printTable}
         />
         <div className="col-span-2">
-          {calculateCostPerYear(4).cost ? formatCost(calculateCostPerYear(4).cost) : "NA"}
+          {calculateCostPerYear(4).cost
+            ? formatCost(calculateCostPerYear(4).cost)
+            : "NA"}
         </div>
       </div>
       <span className="text-xl font-semibold mx-auto">
         Grand Total:{" "}
         {formatCost(
           calculateCostPerYear(1).cost +
-          calculateCostPerYear(2).cost +
-          calculateCostPerYear(3).cost +
-          calculateCostPerYear(4).cost
+            calculateCostPerYear(2).cost +
+            calculateCostPerYear(3).cost +
+            calculateCostPerYear(4).cost
         )}
-        ({calculateCostPerYear(1).totalSubs +
+        (
+        {calculateCostPerYear(1).totalSubs +
           calculateCostPerYear(2).totalSubs +
           calculateCostPerYear(3).totalSubs +
-          calculateCostPerYear(4).totalSubs} Subjects)
+          calculateCostPerYear(4).totalSubs}{" "}
+        Subjects)
       </span>
     </div>
   );

@@ -124,7 +124,7 @@ export default function Reval() {
           e.preventDefault();
           loading?.showLoading(true);
           Axios.get(
-            `api/reval/search?rollNo=${rollNo}&examMonth=${examMonth}&examYear=${examYear}`
+            `api/reval/search?rollNo=${rollNo}&exMonth=${examMonth}&exYear=${examYear}`
           )
             .then(
               ({

@@ -4,11 +4,13 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  Menu,
+  MenuList,
 } from "@mui/material";
 import { CustTextField } from "../../components/Custom/CustTextField";
 import Title from "../../components/Title";
 import { ReactNode, useContext, useState } from "react";
-import { Add, SearchOutlined } from "@mui/icons-material";
+import { Add, DeleteOutline, Edit, SearchOutlined } from "@mui/icons-material";
 import Axios from "axios";
 import { AlertContext } from "../../components/Context/AlertDetails";
 import { LoadingContext } from "../../components/Context/Loading";
@@ -295,6 +297,10 @@ function ManageRowDetails({
     sem: row?.sem ?? 1,
   } as ManageDBResponseProps);
   const [alreadyExists, setAlreadyExists] = useState(false);
+  const [anchorEl, setAnchorEl] = useState<
+    (EventTarget & HTMLButtonElement) | null
+  >();
+  const openMenu = Boolean(anchorEl);
 
   return (
     <>
@@ -302,10 +308,36 @@ function ManageRowDetails({
         className={`flex items-center gap-2 ${
           type === "new" ? "blue-button-outline" : "text-blue-500"
         }`}
-        onClick={() => setOpenRowDetailsDialog(true)}
+        onClick={({ currentTarget }) => {
+          type === "update"
+            ? setAnchorEl(currentTarget)
+            : setOpenRowDetailsDialog(true);
+        }}
       >
         {title}
       </button>
+
+      <Menu
+        anchorEl={anchorEl}
+        open={openMenu}
+        onClose={() => setAnchorEl(null)}
+      >
+        <MenuList
+          sx={{ outline: 0, display: "flex", flexDirection: "column", gap: 1 }}
+          disablePadding
+        >
+          <button
+            className="flex items-center gap-4 hover:bg-neutral-200 w-full h-full p-3"
+            onClick={() => setOpenRowDetailsDialog(true)}
+          >
+            <Edit fontSize="small" /> Edit Details
+          </button>
+          <button className="flex items-center gap-4 hover:bg-neutral-200 w-full h-full p-3">
+            <DeleteOutline fontSize="small" /> Delete Record
+          </button>
+        </MenuList>
+      </Menu>
+
       <CustDialog
         open={openRowDetailsDialog}
         onClose={() => setOpenRowDetailsDialog(false)}

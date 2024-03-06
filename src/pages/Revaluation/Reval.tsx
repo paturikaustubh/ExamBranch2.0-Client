@@ -291,7 +291,7 @@ export default function Reval() {
                           );
                           reset();
                         } else {
-                          alert?.showAlert(error, "error");
+                          alert?.showAlert("error", "error");
                         }
                       }
                     )

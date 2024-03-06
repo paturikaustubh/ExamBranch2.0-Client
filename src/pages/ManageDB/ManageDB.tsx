@@ -290,7 +290,7 @@ function ManageRowDetails({
   const alert = useContext(AlertContext);
   const loading = useContext(LoadingContext);
   const [openRowDetailsDialog, setOpenRowDetailsDialog] = useState(false);
-  const [newRowDetails, setNewRowDetails] = useState<ManageDBResponseProps>({
+  const [neuroDetails, setNeuroDetails] = useState<ManageDBResponseProps>({
     ...row,
     grade: row?.grade ?? "O",
     acYear: row?.acYear ?? 1,
@@ -348,17 +348,17 @@ function ManageRowDetails({
           <span className="text-3xl font-semibold text-blue-500">
             {type === "new"
               ? `Add new record for ${rollNo}`
-              : `${newRowDetails?.subCode}-${newRowDetails?.subName}`}
+              : `${neuroDetails?.subCode}-${neuroDetails?.subName}`}
           </span>
         </DialogTitle>
         <DialogContent>
           <div className="grid md:grid-cols-3 grid-cols-1 gap-6 mt-6">
             <CustTextField
               label="Subject Code"
-              value={newRowDetails?.subCode}
+              value={neuroDetails?.subCode}
               onChange={({ target: { value } }) => {
-                setNewRowDetails({
-                  ...newRowDetails,
+                setNeuroDetails({
+                  ...neuroDetails,
                   subCode: value.toUpperCase(),
                 });
               }}
@@ -374,10 +374,10 @@ function ManageRowDetails({
             />
             <CustTextField
               label="Subject Name"
-              value={newRowDetails?.subName}
+              value={neuroDetails?.subName}
               onChange={({ target: { value } }) => {
-                setNewRowDetails({
-                  ...newRowDetails,
+                setNeuroDetails({
+                  ...neuroDetails,
                   subName: value.toUpperCase(),
                 });
               }}
@@ -385,10 +385,10 @@ function ManageRowDetails({
             {table === "studentinfo" ? (
               <CustTextField
                 label="Grade"
-                value={newRowDetails?.grade}
+                value={neuroDetails?.grade}
                 onChange={({ target: { value } }) => {
-                  setNewRowDetails({
-                    ...newRowDetails,
+                  setNeuroDetails({
+                    ...neuroDetails,
                     grade: value as grades,
                   });
                 }}
@@ -405,10 +405,10 @@ function ManageRowDetails({
             ) : table === "paidreevaluation" ? (
               <CustTextField
                 label="Status"
-                value={newRowDetails?.stat !== "R" ? "S" : "R"}
+                value={neuroDetails?.stat !== "R" ? "S" : "R"}
                 onChange={({ target: { value } }) =>
-                  setNewRowDetails({
-                    ...newRowDetails,
+                  setNeuroDetails({
+                    ...neuroDetails,
                     stat: value as "R" | "S",
                   })
                 }
@@ -425,13 +425,13 @@ function ManageRowDetails({
                 <CustTextField
                   label="Exam Year"
                   type="number"
-                  value={newRowDetails?.exYear}
+                  value={neuroDetails?.exYear}
                   InputProps={{
                     inputProps: { max: dayjs().year() },
                   }}
                   onChange={({ target: { value } }) => {
-                    setNewRowDetails({
-                      ...newRowDetails,
+                    setNeuroDetails({
+                      ...neuroDetails,
                       exYear: parseInt(value) > 0 ? parseInt(value) : 0,
                     });
                   }}
@@ -439,13 +439,13 @@ function ManageRowDetails({
                 <CustTextField
                   label="Exam Month"
                   type="number"
-                  value={newRowDetails?.exMonth}
+                  value={neuroDetails?.exMonth}
                   InputProps={{
                     inputProps: { min: 1, max: 12 },
                   }}
                   onChange={({ target: { value } }) => {
-                    setNewRowDetails({
-                      ...newRowDetails,
+                    setNeuroDetails({
+                      ...neuroDetails,
                       exMonth: parseInt(value) > 0 ? parseInt(value) : 0,
                     });
                   }}
@@ -454,10 +454,10 @@ function ManageRowDetails({
             )}
             <CustTextField
               label="Academic Year"
-              value={newRowDetails?.acYear}
+              value={neuroDetails?.acYear}
               onChange={({ target: { value } }) => {
-                setNewRowDetails({
-                  ...newRowDetails,
+                setNeuroDetails({
+                  ...neuroDetails,
                   acYear: parseInt(value) as 1 | 2 | 3 | 4,
                 });
               }}
@@ -470,10 +470,10 @@ function ManageRowDetails({
             </CustTextField>
             <CustTextField
               label="Semester"
-              value={newRowDetails?.sem}
+              value={neuroDetails?.sem}
               onChange={({ target: { value } }) => {
-                setNewRowDetails({
-                  ...newRowDetails,
+                setNeuroDetails({
+                  ...neuroDetails,
                   sem: parseInt(value) as 1 | 2,
                 });
               }}
@@ -486,18 +486,18 @@ function ManageRowDetails({
               <>
                 <CustTextField
                   label="User"
-                  value={newRowDetails?.user}
+                  value={neuroDetails?.user}
                   onChange={({ target: { value } }) =>
-                    setNewRowDetails({ ...newRowDetails, user: value })
+                    setNeuroDetails({ ...neuroDetails, user: value })
                   }
                 />
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                   <DatePicker
                     label="Registered Date"
-                    value={dayjs(newRowDetails?.regDate)}
+                    value={dayjs(neuroDetails?.regDate)}
                     onChange={(value) =>
-                      setNewRowDetails({
-                        ...newRowDetails,
+                      setNeuroDetails({
+                        ...neuroDetails,
                         regDate: dayjs(value),
                       })
                     }
@@ -518,6 +518,9 @@ function ManageRowDetails({
             className="blue-button"
             onClick={() => {
               loading?.showLoading(true);
+              Axios.post("", {
+                details: neuroDetails,
+              });
               setResponseData((prevVals) => {
                 const indx = prevVals.findIndex(
                   ({ subCode }) => subCode === row?.subCode
@@ -525,24 +528,24 @@ function ManageRowDetails({
                 if (indx > -1) {
                   return [
                     ...prevVals.slice(0, indx),
-                    newRowDetails,
+                    neuroDetails,
                     ...prevVals.slice(indx + 1),
                   ];
                 }
 
                 return [
                   ...prevVals,
-                  { ...newRowDetails, id: prevVals.length + 1 },
+                  { ...neuroDetails, id: prevVals.length + 1 },
                 ];
               });
               setOpenRowDetailsDialog(false);
               loading?.showLoading(false);
             }}
             disabled={
-              !newRowDetails.subCode ||
-              !newRowDetails.subName ||
-              !newRowDetails.exYear ||
-              !newRowDetails.exMonth ||
+              !neuroDetails.subCode ||
+              !neuroDetails.subName ||
+              !neuroDetails.exYear ||
+              !neuroDetails.exMonth ||
               alreadyExists
             }
           >

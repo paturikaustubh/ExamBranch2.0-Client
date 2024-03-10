@@ -32,8 +32,6 @@ const AlertProvider = ({ children }: { children: React.ReactNode }) => {
     setAlert((prevVals) => ({ ...prevVals, open: false }));
   };
 
-  console.log(children, alert);
-
   return (
     <AlertContext.Provider value={{ showAlert }}>
       {children}

@@ -124,15 +124,13 @@ export function PrintDialog({
               loading?.showLoading(true);
               setOpenPrintDialog(false);
               Axios.post(`api/${exam}/print/${rollNo}`, {
-                details: {
-                  subjects: selectedSubjects,
-                  username: sessionStorage.getItem("username"),
-                  grandTotal,
-                },
+                subjects: selectedSubjects,
+                username: sessionStorage.getItem("username"),
+                grandTotal,
               })
                 .then(({ data }) => {
                   if (!data.done) {
-                    alert?.showAlert(data.error, "error");
+                    alert?.showAlert(data.error.message, "error");
                   } else {
                     window.print();
                     reset();

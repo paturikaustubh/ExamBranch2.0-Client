@@ -11,6 +11,7 @@ import PageLayout from "./components/Custom/PageLayout";
 import AlertProvider from "./components/Context/AlertDetails";
 import { Backdrop, CircularProgress } from "@mui/material";
 import LoadingProvider from "./components/Context/Loading";
+// import Test from "./misc/Test";
 
 const LoginForm = lazy(() => import("./pages/Login/Login"));
 const Reval = lazy(() => import("./pages/Revaluation/Reval"));
@@ -19,6 +20,7 @@ const Supple = lazy(() => import("./pages/Supplementary/Supplementary"));
 const Upload = lazy(() => import("./pages/Upload/Upload"));
 const CBT = lazy(() => import("./pages/CBT/Cbt"));
 const ManageDB = lazy(() => import("./pages/ManageDB/ManageDB"));
+const Test = lazy(() => import("./misc/Test"));
 
 function App() {
   // ANCHOR STATES && VARS  ||========================================================================
@@ -48,6 +50,10 @@ function App() {
     {
       path: "manage-database",
       element: <ManageDB />,
+    },
+    {
+      path: "test",
+      element: <Test />,
     },
   ];
 

@@ -123,18 +123,22 @@ export default function Reval() {
         onSubmit={(e) => {
           e.preventDefault();
           loading?.showLoading(true);
+
           Axios.get(
             `api/reval/search?rollNo=${rollNo}&exMonth=${examMonth}&exYear=${examYear}`
           )
-            .then(
-              ({
-                data: { subjects, printTableExist },
+            .then(({ data }) => {
+              const {
+                subjects,
+                printTableExist,
+                error,
               }: {
-                data: {
-                  subjects: ExamSearchSubjectsProps;
-                  printTableExist: boolean;
-                };
-              }) => {
+                subjects: ExamSearchSubjectsProps;
+                printTableExist: boolean;
+                error: { message: string };
+              } = data;
+
+              if (!error) {
                 setPrintTable(printTableExist);
                 let totalLength = 0;
                 if (subjects) {
@@ -160,8 +164,10 @@ export default function Reval() {
                   setAvailableSubs(subjects);
                   setSelectedSubjects(subjects);
                 } else alert?.showAlert("No data found", "warning");
+              } else {
+                alert?.showAlert(error.message, "error");
               }
-            )
+            })
             .catch(() =>
               alert?.showAlert(
                 "There was an error while connecting to the server",
@@ -218,6 +224,7 @@ export default function Reval() {
             className="lg:col-span-2 col-span-1"
             inputProps={{ maxLength: 10 }}
             value={rollNo}
+            autoFocus
             onChange={({ target: { value } }) => {
               setRollNo(value.toUpperCase());
               setShowForm(false);
@@ -236,7 +243,7 @@ export default function Reval() {
               Search
             </button>
           ) : (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center col-span-1 gap-1">
               <CustTextField
                 select
                 label="Regular"
@@ -269,7 +276,7 @@ export default function Reval() {
                   loading?.showLoading(true);
 
                   Axios.post(`api/reval/paid/${rollNo}`, {
-                    selectedSubjects,
+                    subjects: selectedSubjects,
                     username: sessionStorage.getItem("username"),
                     regular,
                     grandTotal:
@@ -291,7 +298,7 @@ export default function Reval() {
                           );
                           reset();
                         } else {
-                          alert?.showAlert("error", "error");
+                          alert?.showAlert(error, "error");
                         }
                       }
                     )

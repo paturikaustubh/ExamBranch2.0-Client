@@ -47,6 +47,7 @@ export interface ExamSemProps {
 }
 
 export interface ManageDBResponseProps {
+  id: number;
   rollNo: string;
   subCode: string;
   subName: string;
@@ -65,7 +66,7 @@ export interface ManageDBResponseProps {
 export type ManageDBResponseArr = ManageDBResponseProps[];
 
 export type AvailableDbTables =
-  | "studentinfo"
+  | "studentInfo"
   | "paidsupply"
   | "printsupply"
   | "paidreevaluation"

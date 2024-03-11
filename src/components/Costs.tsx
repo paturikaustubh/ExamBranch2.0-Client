@@ -22,7 +22,6 @@ export default function Costs() {
             <CostField cost={basecosts} label={"Base Cost"} />
             <CostField cost={addcost} label={"Additional Cost"} />
             <CostField cost={maxcost} label={"Max Cost"} />
-
         </Grid>
     )
 }

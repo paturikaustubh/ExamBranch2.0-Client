@@ -8,14 +8,7 @@ import {
 import { CustTextField } from "../../components/Custom/CustTextField";
 import Title from "../../components/Title";
 import { useContext, useState } from "react";
-import {
-  Add,
-  Cancel,
-  Delete,
-  Edit,
-  Save,
-  SearchOutlined,
-} from "@mui/icons-material";
+import { Add, Delete, Edit, SearchOutlined } from "@mui/icons-material";
 import Axios from "axios";
 import { AlertContext } from "../../components/Context/AlertDetails";
 import { LoadingContext } from "../../components/Context/Loading";
@@ -23,10 +16,6 @@ import { CustDataGrid } from "../../components/Custom/CustDataGrid";
 import {
   GridActionsCellItem,
   GridColDef,
-  GridRowId,
-  GridRowModel,
-  GridRowModes,
-  GridRowModesModel,
   GridRowSelectionModel,
 } from "@mui/x-data-grid";
 import {
@@ -47,7 +36,6 @@ export default function ManageDB() {
   const [rollNo, setRollNo] = useState("");
   const [responseData, setResponseData] = useState<ManageDBResponseArr>([]);
   const [selectedRows, setSelectedRows] = useState<GridRowSelectionModel>([]);
-  const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
 
   const datagridCols: GridColDef[] = [
     { field: "id", headerName: "S No.", minWidth: 80, editable: false },
@@ -112,37 +100,6 @@ export default function ManageDB() {
       editable: true,
       type: "number",
       renderCell: ({ value }) => value,
-      // preProcessEditCellProps: (params: GridPreProcessEditCellProps) => {
-      //   const { id, value } = params.props;
-
-      //   if (
-      //     (table === "studentinfo" &&
-      //       (value < dayjs().year() - 4 || value > dayjs().year())) ||
-      //     (table !== "studentinfo" &&
-      //       (value < dayjs().year() - 1 || value > dayjs().year()))
-      //   ) {
-      //     alert?.showAlert("Invalid year", "warning");
-      //     setRowModesModel((prev) => {
-      //       return {
-      //         ...prev,
-      //         [id as GridRowId]: {
-      //           ...prev[id as GridRowId],
-      //           isEditable: false,
-      //         },
-      //       };
-      //     });
-      //   }
-      //   setRowModesModel((prev) => {
-      //     return {
-      //       ...prev,
-      //       [id as GridRowId]: {
-      //         ...prev[id as GridRowId],
-      //         isEditable: true,
-      //       },
-      //     };
-      //   });
-      //   return value;
-      // },
     },
     {
       field: "exMonth",
@@ -183,40 +140,16 @@ export default function ManageDB() {
       headerName: "Actions",
       width: 130,
       cellClassName: "actions",
-      renderCell: ({ id, row }) => {
-        const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
-
-        if (isInEditMode) {
-          return [
-            <GridActionsCellItem
-              icon={<Save />}
-              label="Save"
-              sx={{
-                color: "primary.main",
-              }}
-              onClick={handleSaveClick(id)}
-              key={1}
-            />,
-            <GridActionsCellItem
-              icon={<Cancel />}
-              label="Cancel"
-              sx={{
-                color: "primary.main",
-              }}
-              onClick={handleCancelClick(id)}
-              key={2}
-            />,
-          ];
-        }
-
+      renderCell: ({ row }) => {
         return [
-          <GridActionsCellItem
-            icon={<Edit />}
-            label="Edit"
-            className="textPrimary"
-            onClick={handleEditClick(id)}
-            color="inherit"
+          <ManageRowDetails
             key={1}
+            row={row as ManageDBResponseProps}
+            type="edit"
+            responseData={responseData}
+            setResponseData={setResponseData}
+            rollNo={rollNo}
+            table={table}
           />,
           <DeleteConfirmDialog
             table={table}
@@ -230,6 +163,11 @@ export default function ManageDB() {
     },
   ];
 
+  const [arr, setarr] = useState<string[]>([]);
+
+  arr.push(table);
+  setarr((prevVals) => [...prevVals, table]);
+
   const tablesNames: Record<AvailableDbTables, string> = {
     studentInfo: "Student Database",
     printsupply: "Unregistered Supplementary",
@@ -238,40 +176,6 @@ export default function ManageDB() {
     paidreevaluation: "Registered Revaluation",
     printcbt: "Unregistered Written Test",
     paidcbt: "Registered Written Test",
-  };
-
-  // ANCHOR EFFECTS  ||========================================================================
-
-  // ANCHOR FUNCTIONS  ||========================================================================
-  const handleEditClick = (id: GridRowId) => () => {
-    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
-  };
-
-  const handleSaveClick = (id: GridRowId) => () => {
-    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
-  };
-
-  const handleCancelClick = (id: GridRowId) => () => {
-    setRowModesModel({
-      ...rowModesModel,
-      [id]: { mode: GridRowModes.View, ignoreModifications: true },
-    });
-  };
-
-  const processRowUpdate = (newRow: GridRowModel, oldRow: GridRowModel) => {
-    Axios.patch(`api/manage/database/${rollNo}`, {
-      details: { ...newRow, oldSubCode: oldRow.subCode },
-      tableName: table,
-    }).then(({ data }) => console.log(data));
-    const updatedRow = { ...newRow };
-    setResponseData((prevVals) => {
-      return prevVals.map((row) =>
-        row.id === newRow.id
-          ? { ...updatedRow, oldSubCode: oldRow.subCode }
-          : row
-      ) as ManageDBResponseArr;
-    });
-    return newRow;
   };
 
   // ANCHOR JSX  ||========================================================================
@@ -405,17 +309,13 @@ export default function ManageDB() {
                       rollNo={rollNo}
                       responseData={responseData}
                       setResponseData={setResponseData}
+                      type="add"
+                      table="studentInfo"
                     />
                   )}
                 </div>
               ),
             }}
-            editMode="row"
-            rowModesModel={rowModesModel}
-            onRowModesModelChange={(newRowModesModel) =>
-              setRowModesModel(newRowModesModel)
-            }
-            processRowUpdate={processRowUpdate}
             initialState={{ pagination: { paginationModel: { pageSize: 50 } } }}
             getRowClassName={({ row }) => {
               if (row?.grade == "F") return "datagrid-row-red";
@@ -430,23 +330,32 @@ export default function ManageDB() {
 
 // ANCHOR MANAGE ROW DETAILS  ||========================================================================
 function ManageRowDetails({
+  row,
+  type,
   rollNo,
   responseData,
   setResponseData,
+  table,
 }: {
-  rollNo?: string;
+  row?: ManageDBResponseProps;
+  type: "add" | "edit";
+  rollNo: string;
   responseData: ManageDBResponseArr;
   setResponseData: React.Dispatch<React.SetStateAction<ManageDBResponseArr>>;
+  table: AvailableDbTables;
 }) {
   // STATES && VARS  ||========================================================================
   const alert = useContext(AlertContext);
   const loading = useContext(LoadingContext);
   const [openRowDetailsDialog, setOpenRowDetailsDialog] = useState(false);
-  const [neuroDetails, setNeuroDetails] = useState<ManageDBResponseProps>({
-    grade: "O",
-    acYear: 1,
-    sem: 1,
-  } as ManageDBResponseProps);
+  const [neuroDetails, setNeuroDetails] = useState<ManageDBResponseProps>(
+    row ??
+      ({
+        grade: "O",
+        acYear: 1,
+        sem: 1,
+      } as ManageDBResponseProps)
+  );
   const [subjectAlreadyExists, setSubjectAlreadyExists] = useState(false);
 
   // EFFECTS  ||========================================================================
@@ -454,14 +363,24 @@ function ManageRowDetails({
   // JSX  ||========================================================================
   return (
     <>
-      <button
-        className={`flex items-center gap-2 blue-button-outline`}
-        onClick={() => {
-          setOpenRowDetailsDialog(true);
-        }}
-      >
-        <Add /> Add New Record
-      </button>
+      {type === "add" ? (
+        <button
+          className={`flex items-center gap-2 blue-button-outline`}
+          onClick={() => {
+            setOpenRowDetailsDialog(true);
+          }}
+        >
+          <Add /> Add New Record
+        </button>
+      ) : (
+        <GridActionsCellItem
+          icon={<Edit />}
+          label="Edit"
+          className="textPrimary"
+          onClick={() => setOpenRowDetailsDialog(true)}
+          color="inherit"
+        />
+      )}
 
       {/* ANCHOR ROW EDIT DIALOG ||======================================================================== */}
       <CustDialog
@@ -479,25 +398,50 @@ function ManageRowDetails({
           onSubmit={(e) => {
             e.preventDefault();
             loading?.showLoading(true);
-            Axios.post(`api/manage/database/${rollNo}`, {
-              details: neuroDetails,
-              tableName: "studentinfo",
-            })
-              .then(({ data }) => {
-                if (data.done) {
-                  setResponseData((prevVals) => [
-                    ...prevVals,
-                    { ...neuroDetails, id: prevVals.length + 1 },
-                  ]);
-                  setOpenRowDetailsDialog(false);
-                  alert?.showAlert("New record created", "success");
-                } else alert?.showAlert(data.error.message, "warning");
+            if (type === "add") {
+              Axios.post(`api/manage/database/${rollNo}`, {
+                details: neuroDetails,
+                tableName: "studentinfo",
               })
-              .catch((e) => {
-                console.log(e);
-                alert?.showAlert("There was an error while saving", "error");
+                .then(({ data }) => {
+                  if (data.done) {
+                    setResponseData((prevVals) => {
+                      const indx = prevVals.findIndex(
+                        ({ subCode }) => subCode === row?.subCode
+                      );
+                      if (indx > -1) {
+                        return [
+                          ...prevVals.slice(0, indx),
+                          { ...neuroDetails, oldSubCode: row?.subCode },
+                          ...prevVals.slice(indx + 1),
+                        ];
+                      }
+
+                      return [
+                        ...prevVals,
+                        { ...neuroDetails, id: prevVals.length + 1 },
+                      ];
+                    });
+                    setOpenRowDetailsDialog(false);
+                  } else alert?.showAlert(data.error.message, "error");
+                })
+                .catch((e) => {
+                  console.log(e);
+                  alert?.showAlert("There was an error while saving", "error");
+                })
+                .finally(() => loading?.showLoading(false));
+            } else {
+              console.log(neuroDetails);
+              Axios.patch(`api/manage/database/${rollNo}`, {
+                details: { ...neuroDetails, oldSubCode: row?.subCode },
+                tableName: table,
+                username: sessionStorage.getItem("username"),
               })
-              .finally(() => loading?.showLoading(false));
+                .then(({ data }) => {
+                  console.log(data);
+                })
+                .finally(() => loading?.showLoading(false));
+            }
           }}
         >
           <DialogContent>
@@ -517,7 +461,8 @@ function ManageRowDetails({
                     responseData.filter(
                       ({ subCode }) =>
                         subCode.toLowerCase() === value.toLowerCase()
-                    ).length > 0
+                    ).length > 0 &&
+                    value !== row?.subCode
                   ) {
                     setSubjectAlreadyExists(true);
                     setOpenRowDetailsDialog(true);
@@ -626,7 +571,10 @@ function ManageRowDetails({
           <DialogActions>
             <button
               className="red-button"
-              onClick={() => setOpenRowDetailsDialog(false)}
+              onClick={() => {
+                setOpenRowDetailsDialog(false);
+                setNeuroDetails(row as ManageDBResponseProps);
+              }}
               type="button"
             >
               Cancel

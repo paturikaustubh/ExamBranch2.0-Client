@@ -29,7 +29,7 @@ const LoadingProvider = ({ children }: { children: React.ReactNode }) => {
       <Backdrop
         sx={{
           color: "#fff",
-          zIndex: (theme) => theme.zIndex.drawer + 1,
+          zIndex: 9999,
           display: "flex",
           alignItems: "center",
           gap: "1rem",

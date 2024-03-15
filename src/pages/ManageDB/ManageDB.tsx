@@ -163,11 +163,6 @@ export default function ManageDB() {
     },
   ];
 
-  const [arr, setarr] = useState<string[]>([]);
-
-  arr.push(table);
-  setarr((prevVals) => [...prevVals, table]);
-
   const tablesNames: Record<AvailableDbTables, string> = {
     studentInfo: "Student Database",
     printsupply: "Unregistered Supplementary",
@@ -431,14 +426,18 @@ function ManageRowDetails({
                 })
                 .finally(() => loading?.showLoading(false));
             } else {
-              console.log(neuroDetails);
               Axios.patch(`api/manage/database/${rollNo}`, {
                 details: { ...neuroDetails, oldSubCode: row?.subCode },
                 tableName: table,
                 username: sessionStorage.getItem("username"),
               })
                 .then(({ data }) => {
-                  console.log(data);
+                  if (data.updated) {
+                    setOpenRowDetailsDialog(false);
+                    alert?.showAlert("Record updated", "success");
+                    return;
+                  }
+                  alert?.showAlert(data.error.message, "error");
                 })
                 .finally(() => loading?.showLoading(false));
             }
@@ -457,6 +456,33 @@ function ManageRowDetails({
                   });
                 }}
                 onBlur={({ target: { value } }) => {
+                  const subCodeSplitted = value.split("");
+                  setNeuroDetails((prevVals) => ({
+                    ...prevVals,
+                    acYear: parseInt(subCodeSplitted[4] ?? "1") as
+                      | 1
+                      | 2
+                      | 3
+                      | 4,
+                    sem: parseInt(subCodeSplitted[5] ?? "1") as 1 | 2,
+                  }));
+                  console.log(value.length);
+
+                  if (value.length > 0) {
+                    Axios.get(`api/manage/database/sub-name/${value}`)
+                      .then(({ data }) => {
+                        if (!data.error)
+                          setNeuroDetails((prevVals) => ({
+                            ...prevVals,
+                            subName: data.subName,
+                          }));
+                        else alert?.showAlert(data.error.message, "error");
+                      })
+                      .catch((e) => {
+                        alert?.showAlert(e.response.data.error, "error");
+                      });
+                  }
+
                   if (
                     responseData.filter(
                       ({ subCode }) =>

@@ -35,8 +35,9 @@ export default function CBT() {
     const [additionalCost, setAdditionalCost] = useState("");
     const [maxCost, setMaxCost] = useState("");
     const [branches, setBranches] = useState([]);
-    const [years, setYears] = useState([]);
-    const [semesters, setSemesters] = useState([]);
+    const [years, setYears] = useState(["1", "2", "3", "4"]);
+    const [semesters, setSemesters] = useState(["1", "2"]);
+    let subjectCodes: never[] = [];
     // Effects
     useEffect(() => {
         setInterval(() => {
@@ -45,48 +46,23 @@ export default function CBT() {
       }, []);
     useEffect(() => {
         Axios.get(`api/cbt/branchs`)
-        .then((res) => {
-            setBranches(res.data.branch);
-            setYears((y) => (
-                res.data.acYear.map((acYear: string) => (
-                    <MenuItem value={acYear} key={acYear}>
-                        {acYear}
+        .then((response) => {
+            setBranches(() =>
+                response.data["branch"].map((branch: string) => (
+                    <MenuItem value={branch} key={branch}>
+                    {branch}
                     </MenuItem>
                 ))
-            ));
-            setSemesters((s) => (
-                res.data.sem.map((sem: string) => (
-                    <MenuItem value={sem} key={sem}>
-                        {sem}
-                    </MenuItem>
-                ))
-            ));
+            )
+            console.log(branches);
         });
-        Axios.get(`api/costs?module=cbt`)
+        Axios.get(`api/cost/costs?module=cbt`)
         .then((res) => {
             setBaseCosts(res.data["cbc"]);
             setAdditionalCost(res.data["cac"]);
             setMaxCost(res.data["cfc"]);
         });
     }, [false]);
-    console.log(branches);
-    console.log(years);
-    // JSON
-    const defaultCosts = [
-        {
-            "label": "Base Cost",
-            "value": 200
-        },
-        {
-            "label": "Additional Cost",
-            "value": 100
-        },
-        {
-            "label": "Max Cost",
-            "value": 500
-        }
-    ]
-    let subjectCodes = [];
     // Functions
     const FormSectionHeader = ({
         copyType,
@@ -100,26 +76,26 @@ export default function CBT() {
         </div>
     );
     const calc = () => {
-        if (subjectCodes.length >= 0) {
-          if (subjectCodes.length === 1) {
+        if (subCodes.length > 0) {
+          if (subCodes.length === 1) {
             return (
               <>
                 <h3>
                   {" "}
                   <>
-                    Grand Total: {baseCosts} ({subjectCodes.length} Subject)
+                    Grand Total: {baseCosts} ({subCodes.length} Subject)
                   </>
                 </h3>
               </>
             );
-          } else if (subjectCodes.length >= 5) {
+          } else if (subCodes.length >= 5) {
             return (
               <>
                 <h3>
                   {" "}
                   <br />
                   <>
-                    Grand Total: {maxCost} ({subjectCodes.length} Subjects)
+                    Grand Total: {maxCost} ({subCodes.length} Subjects)
                   </>
                 </h3>
               </>
@@ -134,7 +110,7 @@ export default function CBT() {
                     {" "}
                     <br />
                     <>
-                      Grand Total: {b + ad * (subjectCodes.length - 1)} ({subjectCodes.length}{" "}
+                      Grand Total: {b + ad * (subCodes.length - 1)} ({subCodes.length}{" "}
                       Subjects)
                     </>
                   </h3>
@@ -149,7 +125,7 @@ export default function CBT() {
                   {" "}
                   <br />
                   <>
-                    Grand Total: {b + ad * (subjectCodes.length)} ({subjectCodes.length}{" "}
+                    Grand Total: {b + ad * (subCodes.length)} ({subCodes.length}{" "}
                     Subjects)
                   </>
                 </h3>
@@ -170,32 +146,39 @@ export default function CBT() {
             </div>
             <div className="grid grid-cols-6 gap-4">
                 {
-                    defaultCosts.map((cost) => (
-                        <CustTextField
-                        label = {cost.label}
-                        className="col-span-1"
-                        value = {cost.value}
-                        disabled
-                        />
-                    ))
+                    <>
+                    <CustTextField
+                    label = {"Base Cost"}
+                    className="col-span-1"
+                    value = {baseCosts}
+                    disabled
+                    />
+                    <CustTextField
+                    label = {"Additional Cost"}
+                    className="col-span-1"
+                    value = {additionalCost}
+                    disabled
+                    />
+                    <CustTextField
+                    label = {"Max Cost"}
+                    className="col-span-1"
+                    value = {maxCost}
+                    disabled
+                    />
+                    </>
                 }
             </div>
             <form
             onSubmit={(e) => {
                 e.preventDefault();
-                setLoading(true);
-                Axios.post(`api/cbt/search`,{
-                    acYear: examYear,
-                    sem: semester,
-                    reg: year,
-                    branch: branch,
-                    rollNo: rollNo
-                }).then((res) => {
-                    if(res.data.out.length > 0) {
+                Axios.get(`api/cbt/search?acYear=${year}&sem=${semester}&reg=${examYear}&branch=${branch}&rollNo=${rollNo}`).
+                then((res) => {
+                    console.log(res.data);
+                    if(res.data["subCodes"].length > 0) {
                         setSubCodes(res.data["subCodes"]);
                         setSubNames(res.data["subNames"]);
-                        setMapper(res.data["mapper"]);
                         setPrintTableExist(res.data["printTableExist"]);
+                        setSearched(true);
                     }
                 })
             }}
@@ -222,13 +205,6 @@ export default function CBT() {
                     }}
                     disabled={searched}
                     >
-                      {/* {
-                        branches.map((branch) => (
-                            <MenuItem value={branch} key={branch}>
-                                {branch}
-                            </MenuItem>
-                        ))
-                      }   */}
                       {
                         branches
                       }
@@ -284,9 +260,6 @@ export default function CBT() {
                     type="submit"
                     className="blue-button-filled col-span-1 mr-auto h-fit flex items-center gap-2 my-auto"
                     disabled={rollNo.length !== 10 || branch === '' || year === '' || semester === '' || searched}
-                    onClick={() => {
-                        setSearched(true);
-                    }}
                     >
                     <SearchOutlined fontSize="small" />
                     Search
@@ -308,13 +281,18 @@ export default function CBT() {
                             readOnly={generateForm}
                             multiple
                             onChange={(_e, val) => {
+                                val.forEach((value) => (
+                                    subjectCodes.push(
+                                        value
+                                    )
+                                ))
                                 if (val.length === 0) {
                                     setEmpty(true);
                                 } else setEmpty(false);
                             }}
                             disableCloseOnSelect
                             options={subNames}
-                            defaultValue={[...subNames]}
+                            defaultValue={subNames}
                             filterSelectedOptions
                             renderInput={(val) => <CustTextField {...val} label="Subjects" />}
                             className="col-span-4 col-start-2"
@@ -336,7 +314,7 @@ export default function CBT() {
                             onClick={() => {
                                 setGenerateForm(true);
                             }}
-                            disabled={!empty}
+                            disabled={empty}
                             >
                                 <ListAltOutlined />
                                 Generate Form

@@ -133,6 +133,7 @@ export default function Supple() {
               setStudentCopyGenerated(false);
               setSearched(false);
               setPrintTable(false);
+              console.log(rollNo)
             }}
           />
           {!printTable ? (

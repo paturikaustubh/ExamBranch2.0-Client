@@ -19,6 +19,9 @@ const Download = lazy(() => import("./pages/Download/Download"));
 const Supple = lazy(() => import("./pages/Supplementary/Supplementary"));
 const Upload = lazy(() => import("./pages/Upload/Upload"));
 const CBT = lazy(() => import("./pages/CBT/Cbt"));
+const ManageUsers = lazy(() => import("./pages/ManageUsers/ManageUsers"));
+const ManageCosts = lazy(() => import("./pages/ManageCosts/ManageCosts"));
+const Backup = lazy(() => import("./pages/Backup/BackUp"));
 const ManageDB = lazy(() => import("./pages/ManageDB/ManageDB"));
 const Test = lazy(() => import("./misc/Test"));
 
@@ -46,6 +49,18 @@ function App() {
     {
       path: "upload",
       element: <Upload />,
+    },
+    {
+      path: "manage-users",
+      element: <ManageUsers />
+    },
+    {
+      path: "manage-costs",
+      element: <ManageCosts />
+    },
+    {
+      path: "backup",
+      element: <Backup />
     },
     {
       path: "manage-database",

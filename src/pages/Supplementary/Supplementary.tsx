@@ -25,7 +25,6 @@ export default function Supple() {
   const [currDateTime, setCurrDateTime] = useState<string>(
     dayjs().format("DD MMM, YYYY (hh:mm A)")
   );
-  const cost: number = 100;
   const [studentCopyGenerated, setStudentCopyGenerated] = useState(false);
   const [searched, setSearched] = useState(false);
   const [printTable, setPrintTable] = useState(false);
@@ -36,6 +35,7 @@ export default function Supple() {
       setCurrDateTime(dayjs().format("DD MMM, YYYY (hh:mm A)"));
     }, 500);
   }, []);
+
   const FormSectionHeader = ({
     copyType,
   }: {
@@ -133,6 +133,7 @@ export default function Supple() {
               setStudentCopyGenerated(false);
               setSearched(false);
               setPrintTable(false);
+              console.log(rollNo)
             }}
           />
           {!printTable ? (
@@ -197,7 +198,6 @@ export default function Supple() {
               <FormSectionHeader copyType={"Exam Branch"} />
               <SubDetails
                 printTable={printTable}
-                cost={cost}
                 supplySubs={availableSubs as ExamSearchSubjectsProps}
                 calculateCostPerYear={calculateCostPerYear}
                 setSelectedSubjects={
@@ -215,7 +215,6 @@ export default function Supple() {
                   <FormSectionHeader copyType={"Student"} />
                   <SubDetails
                     printTable={printTable}
-                    cost={cost}
                     supplySubs={selectedSubjects as ExamSearchSubjectsProps}
                     calculateCostPerYear={calculateCostPerYear}
                     setSelectedSubjects={
@@ -236,7 +235,6 @@ export default function Supple() {
                   <FormSectionHeader copyType={"Accounts"} />
                   <SubDetails
                     printTable={printTable}
-                    cost={cost}
                     supplySubs={selectedSubjects as ExamSearchSubjectsProps}
                     calculateCostPerYear={calculateCostPerYear}
                     setSelectedSubjects={
@@ -308,7 +306,6 @@ function SubDetails({
     React.SetStateAction<ExamSearchSubjectsProps>
   >;
   studentCopyGenerated: boolean;
-  cost: number;
   printTable: boolean;
 }) {
   // ANCHOR STATES && VARS  ||========================================================================

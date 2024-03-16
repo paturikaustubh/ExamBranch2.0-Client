@@ -1,8 +1,7 @@
 // React Components
 import { useState, useEffect } from 'react';
 // MUI Components
-import { Container, IconButton } from '@mui/material';
-import { Container, IconButton } from '@mui/material';
+import { Button, Container, IconButton } from '@mui/material';
 import HelpIcon from '@mui/icons-material/Help';
 import Box from '@mui/material/Box';
 import { DataGrid, GridActionsCellItem, GridColDef } from '@mui/x-data-grid';
@@ -38,6 +37,14 @@ export default function ManageCosts() {
       setRevalCost(res.data["rev"]);
     })
     Axios.get(`api/cost/costs?module=supple`)
+    .then((res) => {
+      setSuppleBaseCost(res.data.costs["sbc"]);
+      setSuppleAddCost(res.data.costs["sac"]);
+      setSuppleMaxCost(res.data.costs["sfc"]);
+      setFine1(res.data.fines["A"]);
+      setFine2(res.data.fines["B"]);
+      setFine3(res.data.fines["C"]);
+    })
   })
 
 const d1 = new Date("2024-03-14");
@@ -202,44 +209,38 @@ const supplementaryCols: GridColDef[] = [
 const rows = [
   {
     id: 'Supplementary',
-    basecost: 900,
-    additionalcost: 200,
-    maxcost: 1100
+    basecost: suppleBaseCost,
+    additionalcost: suppleAddCost,
+    maxcost: suppleMaxCost
   },
   {
     id: 'Revaluation',
-    basecost: 1000,
+    basecost: revalCost,
     additionalcost: 'NA',
-    maxcost: 1000
+    maxcost: 'NA'
   },
   {
     id: 'Written Test',
-    basecost: 200,
-    additionalcost: 100,
-    maxcost: 500
+    basecost: writtenBaseCost,
+    additionalcost: writtenAddCost,
+    maxcost: writtenMaxCost
   }
 ]
 
 const supplementaryRows = [
   {
     id: 'Supplemenatary Exam',
-    fine1: 100,
+    fine1: fine1,
     date1: d1,
-    fine2: 200,
+    fine2: fine2,
     date2: d2,
-    fine3: 500,
+    fine3: fine3,
     date3: d3
   }
 ]
-
-export default function ManageCosts() {
   // const [updateCosts, setUpdateCosts] = useState(false);
   // Effects
-  useEffect(() => {
-    
-  })
   return (
-    <>
     <>
     <Container>
     <div className="flex justify-center">
@@ -251,7 +252,6 @@ export default function ManageCosts() {
       </IconButton>
     </div>
     <Box sx={{ height: 266, width: '100%', background: 'white'}}>
-    <Box sx={{ height: 250, width: '100%', background: 'white'}}>
       <DataGrid 
         rows={rows}
         columns={columns}
@@ -270,6 +270,13 @@ export default function ManageCosts() {
     </Container>
     <Container sx={{marginTop: 5}}>
     <Title title="Update Fines" />
+    <div className='flex'>
+      <button
+      className='green-button-filled my-2'
+      >
+        Active Fine : {activeFine}
+      </button>
+    </div>
     <Box sx={{ height: 162, width: '100%', background: 'white'}}>
       <DataGrid 
         rows={supplementaryRows}

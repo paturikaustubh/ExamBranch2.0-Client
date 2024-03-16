@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import dayjs from "dayjs";
 import Axios from "axios";
 // Material UI Components
-import { Autocomplete, IconButton, MenuItem } from "@mui/material";
+import { Alert, Autocomplete, IconButton, MenuItem } from "@mui/material";
 import HelpIcon from '@mui/icons-material/Help';
 import { ListAltOutlined, SearchOutlined } from '@mui/icons-material';
 import Divider from '@mui/material/Divider';
@@ -14,6 +14,11 @@ import PrintIcon from '@mui/icons-material/Print';
 import Title from "../../components/Title";
 import { CustTextField } from "../../components/Custom/CustTextField";
 import { CustBarcode } from "../../components/Custom/Barcode";
+
+interface Subjects {
+    id: number;
+    name: string;
+}
 
 export default function CBT() {
     // States
@@ -37,7 +42,8 @@ export default function CBT() {
     const [branches, setBranches] = useState([]);
     const [years, setYears] = useState(["1", "2", "3", "4"]);
     const [semesters, setSemesters] = useState(["1", "2"]);
-    let subjectCodes: never[] = [];
+    const [subjectCodes, setSubjectCodes] = useState<never[][]>([[]]);
+    const [Alert, setAlert] = useState(false);
     // Effects
     useEffect(() => {
         setInterval(() => {
@@ -76,26 +82,26 @@ export default function CBT() {
         </div>
     );
     const calc = () => {
-        if (subCodes.length > 0) {
-          if (subCodes.length === 1) {
+        if (subjectCodes.length > 0) {
+          if (subjectCodes.length === 1) {
             return (
               <>
                 <h3>
                   {" "}
                   <>
-                    Grand Total: {baseCosts} ({subCodes.length} Subject)
+                    Grand Total: {baseCosts} ({subjectCodes.length} Subject)
                   </>
                 </h3>
               </>
             );
-          } else if (subCodes.length >= 5) {
+          } else if (subjectCodes.length >= 5) {
             return (
               <>
                 <h3>
                   {" "}
                   <br />
                   <>
-                    Grand Total: {maxCost} ({subCodes.length} Subjects)
+                    Grand Total: {maxCost} ({subjectCodes.length} Subjects)
                   </>
                 </h3>
               </>
@@ -110,7 +116,7 @@ export default function CBT() {
                     {" "}
                     <br />
                     <>
-                      Grand Total: {b + ad * (subCodes.length - 1)} ({subCodes.length}{" "}
+                      Grand Total: {b + ad * (subjectCodes.length - 1)} ({subjectCodes.length}{" "}
                       Subjects)
                     </>
                   </h3>
@@ -125,7 +131,7 @@ export default function CBT() {
                   {" "}
                   <br />
                   <>
-                    Grand Total: {b + ad * (subCodes.length)} ({subCodes.length}{" "}
+                    Grand Total: {b + ad * (subjectCodes.length)} ({subjectCodes.length}{" "}
                     Subjects)
                   </>
                 </h3>
@@ -256,14 +262,28 @@ export default function CBT() {
                     }}
                     disabled={searched}
                     />
+                    <div className="col-span-3 flex items-center">
                     <button
                     type="submit"
-                    className="blue-button-filled col-span-1 mr-auto h-fit flex items-center gap-2 my-auto"
+                    className="blue-button-filled mx-2"
                     disabled={rollNo.length !== 10 || branch === '' || year === '' || semester === '' || searched}
                     >
                     <SearchOutlined fontSize="small" />
                     Search
                     </button>
+                    {searched && (
+                    <button
+                    type="submit"
+                    className="green-button-filled"
+                    onClick={() => {
+                        setAlert(true);
+                    }}
+                    >
+                    <SearchOutlined fontSize="small" />
+                    Register
+                    </button>
+                    )}
+                    </div>
                 </div>
             </form>
             {/*Generation of Exam Branch Copy*/}
@@ -281,11 +301,8 @@ export default function CBT() {
                             readOnly={generateForm}
                             multiple
                             onChange={(_e, val) => {
-                                val.forEach((value) => (
-                                    subjectCodes.push(
-                                        value
-                                    )
-                                ))
+                                setSubjectCodes(val);
+                                console.log(subjectCodes);
                                 if (val.length === 0) {
                                     setEmpty(true);
                                 } else setEmpty(false);
@@ -333,8 +350,21 @@ export default function CBT() {
                             </span>
                         </div>
                         <div className="grid grid-cols-6 my-10">
-                            <CustTextField 
-                            label="Subjects"
+                        <Autocomplete
+                            readOnly={generateForm}
+                            multiple
+                            onChange={(_e, val) => {
+                                setSubjectCodes(val);
+                                console.log(subjectCodes);
+                                if (val.length === 0) {
+                                    setEmpty(true);
+                                } else setEmpty(false);
+                            }}
+                            disableCloseOnSelect
+                            options={subNames}
+                            defaultValue={subNames}
+                            filterSelectedOptions
+                            renderInput={(val) => <CustTextField {...val} label="Subjects" />}
                             className="col-span-4 col-start-2"
                             />
                         </div>
@@ -363,8 +393,21 @@ export default function CBT() {
                             </span>
                         </div>
                         <div className="grid grid-cols-6 my-10">
-                            <CustTextField 
-                            label="Subjects"
+                        <Autocomplete
+                            readOnly={generateForm}
+                            multiple
+                            onChange={(_e, val) => {
+                                setSubjectCodes(val);
+                                console.log(subjectCodes);
+                                if (val.length === 0) {
+                                    setEmpty(true);
+                                } else setEmpty(false);
+                            }}
+                            disableCloseOnSelect
+                            options={subNames}
+                            defaultValue={subNames}
+                            filterSelectedOptions
+                            renderInput={(val) => <CustTextField {...val} label="Subjects" />}
                             className="col-span-4 col-start-2"
                             />
                         </div>

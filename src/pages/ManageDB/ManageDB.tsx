@@ -16,6 +16,7 @@ import { CustDataGrid } from "../../components/Custom/CustDataGrid";
 import {
   GridActionsCellItem,
   GridColDef,
+  GridFooter,
   GridRowSelectionModel,
 } from "@mui/x-data-grid";
 import {
@@ -174,6 +175,7 @@ export default function ManageDB() {
           onChange={({ target: { value } }) => {
             setTable(value as AvailableDbTables);
             setResponseData([]);
+            setSelectedRows([]);
           }}
         >
           <MenuItem value={"studentInfo"}>Student Database</MenuItem>
@@ -229,8 +231,9 @@ export default function ManageDB() {
             inputProps={{ maxLength: 10 }}
             value={rollNo}
             onChange={({ target: { value } }) => {
-              setRollNo(value.toUpperCase());
+              setRollNo(value.trim().toUpperCase());
               setResponseData([]);
+              setSelectedRows([]);
             }}
             autoFocus
           />
@@ -280,6 +283,7 @@ export default function ManageDB() {
             //   const {row} = params
 
             // }}
+            sx={{ height: 600 }}
             rowSelectionModel={selectedRows}
             onRowSelectionModelChange={(ids) => setSelectedRows(ids)}
             slots={{
@@ -297,6 +301,19 @@ export default function ManageDB() {
                       table="studentInfo"
                     />
                   )}
+                </div>
+              ),
+              footer: () => (
+                <div className="flex flex-col p-4">
+                  <GridFooter />
+                  <MultiDeleteDialog
+                    rollNo={rollNo}
+                    table={table}
+                    setResponseData={setResponseData}
+                    selectedRows={selectedRows}
+                    setSelectedRows={setSelectedRows}
+                    responseData={responseData}
+                  />
                 </div>
               ),
             }}
@@ -780,6 +797,105 @@ function DeleteConfirmDialog({
                   console.log(e);
                   alert?.showAlert(
                     "There was an error while downloading.",
+                    "error"
+                  );
+                })
+                .finally(() => loading?.showLoading(false));
+            }}
+          >
+            Delete
+          </button>
+        </DialogActions>
+      </CustDialog>
+    </>
+  );
+}
+
+// ANCHOR MULTI DELETE CONFIRM DIALOG  ||================================================================
+function MultiDeleteDialog({
+  table,
+  setResponseData,
+  responseData,
+  rollNo,
+  selectedRows,
+  setSelectedRows,
+}: {
+  table: AvailableDbTables;
+  setResponseData: React.Dispatch<
+    React.SetStateAction<ManageDBResponseProps[]>
+  >;
+  responseData: ManageDBResponseProps[];
+  rollNo: string;
+  selectedRows: GridRowSelectionModel;
+  setSelectedRows: React.Dispatch<React.SetStateAction<GridRowSelectionModel>>;
+}) {
+  const alert = useContext(AlertContext);
+  const loading = useContext(LoadingContext);
+
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  let selectedRowsSubCodes: string[] = [];
+  selectedRows.forEach((rowId) => {
+    selectedRowsSubCodes.push(responseData[(rowId as number) - 1].subCode);
+  });
+
+  return (
+    <>
+      <button
+        className="red-button-outline ml-auto"
+        disabled={selectedRows.length === 0}
+        onClick={() => setOpenDeleteDialog(true)}
+      >
+        Delete Selected
+      </button>
+
+      <CustDialog
+        open={openDeleteDialog}
+        onClose={() => setOpenDeleteDialog(false)}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle component={"div"}>
+          <span className="text-4xl text-red-600 font-semibold">
+            Delete multiple records
+          </span>
+        </DialogTitle>
+        <DialogContent>
+          <div className="font-semibold">
+            All the following records will be deleted permanently.
+          </div>
+          <div className="mt-4">{selectedRowsSubCodes.join(", ")}</div>
+        </DialogContent>
+        <DialogActions>
+          <button
+            className="red-button"
+            onClick={() => setOpenDeleteDialog(false)}
+          >
+            Cancel
+          </button>
+          <button
+            className="blue-button"
+            onClick={() => {
+              loading?.showLoading(true);
+              Axios.delete(
+                `api/manage/database?rollNo=${rollNo}&subCode=${JSON.stringify(
+                  selectedRowsSubCodes
+                )}&tableName=${table}`
+              )
+                .then(({ data }) => {
+                  if (data.deleted) {
+                    alert?.showAlert("Record deleted", "success");
+                    setResponseData((prevVals) =>
+                      prevVals
+                        .filter(({ id }) => !selectedRows.includes(id))
+                        .map((row, indx) => ({ ...row, id: indx + 1 }))
+                    );
+                    setSelectedRows([]);
+                  }
+                })
+                .catch((e) => {
+                  console.log(e);
+                  alert?.showAlert(
+                    "There was an error while deleting",
                     "error"
                   );
                 })

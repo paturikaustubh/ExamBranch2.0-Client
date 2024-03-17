@@ -51,7 +51,7 @@ export interface ManageDBResponseProps {
   rollNo: string;
   subCode: string;
   subName: string;
-  grade: grades;
+  grade: Grades;
   acYear: 1 | 2 | 3 | 4;
   sem: 1 | 2;
   exYear: number;
@@ -67,9 +67,9 @@ export type ManageDBResponseArr = ManageDBResponseProps[];
 
 export type AvailableDbTables =
   | "studentInfo"
-  | "paidsupply"
-  | "printsupply"
-  | "paidreevaluation"
-  | "printreval"
-  | "paidcbt"
-  | "printcbt";
+  | "paidSupply"
+  | "printSupply"
+  | "paidReEvaluation"
+  | "printReval"
+  | "paidCBT"
+  | "printCBT";

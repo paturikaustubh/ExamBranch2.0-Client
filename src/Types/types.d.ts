@@ -9,4 +9,4 @@ interface LoginCredentialsProps {
   displayName: string;
 }
 
-type grades = "O" | "A+" | "A" | "B+" | "B" | "C" | "F";
+type Grades = "O" | "A+" | "A" | "B+" | "B" | "C" | "F";

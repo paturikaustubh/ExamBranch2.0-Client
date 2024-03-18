@@ -5,7 +5,12 @@ import Axios from "axios";
 import { LoadingContext } from "../../components/Context/Loading";
 import { AlertContext } from "../../components/Context/AlertDetails";
 import { CustDataGrid } from "../../components/Custom/CustDataGrid";
-import { GridActionsCellItem, GridColDef } from "@mui/x-data-grid";
+import {
+  GridActionsCellItem,
+  GridColDef,
+  GridFooter,
+  GridRowSelectionModel,
+} from "@mui/x-data-grid";
 import {
   Checkbox,
   Container,
@@ -19,10 +24,13 @@ import { DeleteOutline, EditOutlined } from "@mui/icons-material";
 import { CustDialog } from "../../components/Custom/CustDialog";
 import { CustTextField } from "../../components/Custom/CustTextField";
 
+// ANCHOR EXPORT FUNCTION  ||========================================================================
 export default function ManageUsers() {
+  // ANCHOR CONTEXTS  ||========================================================================
   const alert = useContext(AlertContext);
   const loading = useContext(LoadingContext);
 
+  // ANCHOR STATES && VARS  ||========================================================================
   const [userDetailsResponse, setUserDetailsResponse] = useState<UsersTableArr>(
     []
   );
@@ -68,7 +76,10 @@ export default function ManageUsers() {
       },
     },
   ];
+  const [rowSelectionModel, setRowSelectionModel] =
+    useState<GridRowSelectionModel>([]);
 
+  // ANCHOR EFFECTS  ||========================================================================
   useLayoutEffect(() => {
     loading?.showLoading(true);
     Axios.get("api/manage/users")
@@ -85,6 +96,7 @@ export default function ManageUsers() {
       .finally(() => loading?.showLoading(false));
   }, []);
 
+  // ANCHOR JSX  ||========================================================================
   return (
     <>
       <Title title="Manage Users" />
@@ -92,18 +104,42 @@ export default function ManageUsers() {
         <CustDataGrid
           rows={userDetailsResponse}
           columns={usersColumns}
+          sx={{ height: 520 }}
           disableRowSelectionOnClick
           checkboxSelection
+          rowSelectionModel={rowSelectionModel}
+          onRowSelectionModelChange={(newRowSelectionModel) =>
+            setRowSelectionModel(newRowSelectionModel)
+          }
+          isRowSelectable={({ row }) => row.username !== "admin"}
+          initialState={{
+            pagination: {
+              paginationModel: {
+                pageSize: 10,
+              },
+            },
+          }}
           slots={{
             toolbar: () => (
               <div className="flex justify-between items-center p-4">
-                <span className="lg:text-3xl text-2xl text-blue-600 font-semibold">
+                <span className="lg:text-4xl text-2xl text-blue-600 font-semibold">
                   Active Users
                 </span>
                 <ManageUserDetails
                   type="add"
                   userDetailsResponse={userDetailsResponse}
                   setUserDetailsResponse={setUserDetailsResponse}
+                />
+              </div>
+            ),
+            footer: () => (
+              <div className="flex flex-col p-4">
+                <GridFooter />
+                <MultipleUsersDelete
+                  rowSelectionModel={rowSelectionModel}
+                  setUserDetailsResponse={setUserDetailsResponse}
+                  userDetailsResponse={userDetailsResponse}
+                  setRowSelectionModel={setRowSelectionModel}
                 />
               </div>
             ),
@@ -114,6 +150,7 @@ export default function ManageUsers() {
   );
 }
 
+// ANCHOR USER DETAILS DIALOG  ||========================================================================
 function ManageUserDetails({
   row,
   type,
@@ -125,9 +162,11 @@ function ManageUserDetails({
   userDetailsResponse: UsersTableArr;
   setUserDetailsResponse: React.Dispatch<React.SetStateAction<UsersTableArr>>;
 }) {
+  // CONTEXTS  ||========================================================================
   const alert = useContext(AlertContext);
   const loading = useContext(LoadingContext);
 
+  // STATES && VARS  ||========================================================================
   const [openManageUsersDialog, setOpenManageUsersDialog] = useState(false);
   const [newUserDetails, setNewUserDetails] = useState(
     row ?? { username: "", displayName: "", password: "", confirmPassword: "" }
@@ -135,6 +174,7 @@ function ManageUserDetails({
   const [userExists, setUserExists] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
+  // METHODS  ||========================================================================
   const isSaveable = (): boolean => {
     const { username, displayName, password, confirmPassword } = newUserDetails;
 
@@ -149,11 +189,12 @@ function ManageUserDetails({
     return true;
   };
 
+  // JSX  ||========================================================================
   return (
     <>
       {type === "add" ? (
         <button
-          className="md:blue-button-filled blue-button-filled-sm"
+          className="blue-button-filled"
           onClick={() => setOpenManageUsersDialog(true)}
           disabled={sessionStorage.getItem("username") !== "admin"}
         >
@@ -171,6 +212,7 @@ function ManageUserDetails({
           }
         />
       )}
+      {/* ANCHOR MANAGE DIALOG  ||======================================================================== */}
       <CustDialog
         open={openManageUsersDialog}
         onClose={() => {
@@ -255,6 +297,7 @@ function ManageUserDetails({
             }
           }}
         >
+          {/* ANCHOR MANAGE DIALOG CONTENT  ||======================================================================== */}
           <DialogContent>
             <div className="grid md:grid-cols-2 grid-cols-1 gap-4 md:justify-between md:items-center justify-center">
               <CustTextField
@@ -364,6 +407,7 @@ function ManageUserDetails({
   );
 }
 
+// ANCHOR DELETE DIALOG  ||========================================================================
 function DeleteUser({
   row,
   setUserDetailsResponse,
@@ -371,11 +415,14 @@ function DeleteUser({
   row: UserDetailsProps;
   setUserDetailsResponse: React.Dispatch<React.SetStateAction<UsersTableArr>>;
 }) {
+  // CONTEXTS  ||========================================================================
   const alert = useContext(AlertContext);
   const loading = useContext(LoadingContext);
 
+  // STATES  ||========================================================================
   const [openDeleteConfirmDialog, setOpenDeleteConfirmDialog] = useState(false);
 
+  // JSX  ||========================================================================
   return (
     <>
       <GridActionsCellItem
@@ -391,12 +438,14 @@ function DeleteUser({
         Delete
       </GridActionsCellItem>
 
+      {/* ANCHOR DELETE CONFIRM DIALOG ||======================================================================== */}
       <CustDialog open={openDeleteConfirmDialog} maxWidth="md" fullWidth>
         <DialogTitle component={"div"}>
           <span className="text-4xl font-semibold text-red-600">
             Cofirm delete
           </span>
         </DialogTitle>
+        {/* ANCHOR DELETE CONFIRM DIALOG CONTENT ||======================================================================== */}
         <DialogContent>
           <span className="text-xl">
             This will delete the user {row?.username} permanatly.
@@ -428,6 +477,104 @@ function DeleteUser({
                       `Deleted user ${row?.username}`,
                       "success"
                     );
+                  }
+                })
+                .catch((err) => {
+                  console.log(err);
+                  alert?.showAlert(
+                    "There was an error while deleting  ",
+                    "error"
+                  );
+                })
+                .finally(() => loading?.showLoading(false));
+            }}
+          >
+            Delete
+          </button>
+        </DialogActions>
+      </CustDialog>
+    </>
+  );
+}
+
+function MultipleUsersDelete({
+  rowSelectionModel,
+  userDetailsResponse,
+  setUserDetailsResponse,
+  setRowSelectionModel,
+}: {
+  rowSelectionModel: GridRowSelectionModel;
+  userDetailsResponse: UsersTableArr;
+  setUserDetailsResponse: React.Dispatch<React.SetStateAction<UsersTableArr>>;
+  setRowSelectionModel: React.Dispatch<
+    React.SetStateAction<GridRowSelectionModel>
+  >;
+}) {
+  const alert = useContext(AlertContext);
+  const loading = useContext(LoadingContext);
+
+  const [openDeleteConfirmDialog, setOpenDeleteConfirmDialog] = useState(false);
+  let selectedRowsUsernames: string[] = [];
+  rowSelectionModel.forEach((rowId) => {
+    selectedRowsUsernames.push(
+      userDetailsResponse[(rowId as number) - 1]?.username
+    );
+  });
+  return (
+    <>
+      <button
+        className="red-button-outline ml-auto"
+        disabled={!rowSelectionModel.length}
+        onClick={() => setOpenDeleteConfirmDialog(true)}
+      >
+        Delete Selected
+      </button>
+
+      <CustDialog open={openDeleteConfirmDialog} maxWidth="md" fullWidth>
+        <DialogTitle component={"div"}>
+          <span className="text-red-600 text-4xl text-semibold">
+            Delete selected rows
+          </span>
+        </DialogTitle>
+        <DialogContent>
+          <span className="text-lg font-semibold">
+            This action will delete the following users and this action cannot
+            be undone.
+          </span>
+          <div className="mt-4">{selectedRowsUsernames.join(", ")}</div>
+        </DialogContent>
+        <DialogActions>
+          <button
+            className="red-button"
+            onClick={() => setOpenDeleteConfirmDialog(false)}
+          >
+            Cancel
+          </button>
+          <button
+            className="blue-button"
+            onClick={() => {
+              loading?.showLoading(true);
+              Axios.delete(
+                `api/manage/user?username=${JSON.stringify(
+                  selectedRowsUsernames
+                )}`
+              )
+                .then(({ data }) => {
+                  if (data.deleted) {
+                    setRowSelectionModel([]);
+                    setOpenDeleteConfirmDialog(false);
+                    setUserDetailsResponse((prevVals) =>
+                      prevVals
+                        .filter(
+                          ({ username }) =>
+                            !selectedRowsUsernames.includes(username)
+                        )
+                        .map((details, indx) => ({
+                          ...details,
+                          id: indx + 1,
+                        }))
+                    );
+                    alert?.showAlert(`Users deleted`, "success");
                   }
                 })
                 .catch((err) => {

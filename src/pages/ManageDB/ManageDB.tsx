@@ -114,7 +114,7 @@ export default function ManageDB() {
       minWidth: 130,
     },
     {
-      field: "total",
+      field: "grandTotal",
       headerName: "Amount Paid",
       flex: 1,
       minWidth: 150,
@@ -373,7 +373,7 @@ function ManageRowDetails({
     <>
       {type === "add" ? (
         <button
-          className={`flex items-center lg:gap-2 gap-1 blue-button-outline-sm`}
+          className={`flex items-center lg:gap-2 gap-1 blue-button-outline`}
           onClick={() => {
             setOpenRowDetailsDialog(true);
           }}
@@ -756,6 +756,7 @@ function DeleteConfirmDialog({
         className="textPrimary"
         onClick={() => setOpenDeleteConfirmDialog(true)}
         color="error"
+        disabled={table.substring(0, 5) === "print"}
       />
       <CustDialog
         open={openDeleteConfirmDialog}

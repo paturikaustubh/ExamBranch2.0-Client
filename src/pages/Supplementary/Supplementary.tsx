@@ -25,7 +25,6 @@ export default function Supple() {
   const [currDateTime, setCurrDateTime] = useState<string>(
     dayjs().format("DD MMM, YYYY (hh:mm A)")
   );
-  const cost: number = 100;
   const [studentCopyGenerated, setStudentCopyGenerated] = useState(false);
   const [searched, setSearched] = useState(false);
   const [printTable, setPrintTable] = useState(false);
@@ -36,6 +35,7 @@ export default function Supple() {
       setCurrDateTime(dayjs().format("DD MMM, YYYY (hh:mm A)"));
     }, 500);
   }, []);
+
   const FormSectionHeader = ({
     copyType,
   }: {
@@ -84,8 +84,8 @@ export default function Supple() {
       totalSubs >= 4 && totalSubs !== 0
         ? maxcost
         : totalSubs > 0
-        ? basecosts + (totalSubs - 1) * addcost
-        : 0;
+          ? basecosts + (totalSubs - 1) * addcost
+          : 0;
     return { cost, totalSubs };
   };
 
@@ -121,12 +121,13 @@ export default function Supple() {
           } else alert?.showAlert("No data found", "warning");
         }}
       >
-        <div className="row-start-3 col-span-3 grid md:grid-cols-3 grid-cols-2 gap-4 items-center">
+        <div className="col-span-2 row-start-2 flex gap-4">
           <CustTextField
             label="Roll Number"
             className="lg:col-span-2 col-span-1"
             inputProps={{ maxLength: 10 }}
             value={rollNo}
+            autoFocus
             onChange={({ target: { value } }) => {
               setRollNo(value.toUpperCase());
               setShowForm(false);
@@ -135,6 +136,8 @@ export default function Supple() {
               setPrintTable(false);
             }}
           />
+        </div>
+        <div className="row-start-2 col-span-2 grid md:grid-cols-3 grid-cols-2 gap-4 items-center">
           {!printTable ? (
             <button
               type="submit"
@@ -153,7 +156,7 @@ export default function Supple() {
                   const { data } = await Axios.post(
                     `api/supple/paid/${rollNo}`,
                     {
-                      selectedSubjects,
+                      subjects: selectedSubjects,
                       username: sessionStorage.getItem("username"),
                       grandTotal:
                         calculateCostPerYear(1).cost +
@@ -169,7 +172,7 @@ export default function Supple() {
                     setShowForm(false);
                     setSearched(false);
                   } else {
-                    alert?.showAlert(data.error, "error");
+                    alert?.showAlert(data.error.message, "error");
                   }
                 }}
               >
@@ -197,7 +200,6 @@ export default function Supple() {
               <FormSectionHeader copyType={"Exam Branch"} />
               <SubDetails
                 printTable={printTable}
-                cost={cost}
                 supplySubs={availableSubs as ExamSearchSubjectsProps}
                 calculateCostPerYear={calculateCostPerYear}
                 setSelectedSubjects={
@@ -215,7 +217,6 @@ export default function Supple() {
                   <FormSectionHeader copyType={"Student"} />
                   <SubDetails
                     printTable={printTable}
-                    cost={cost}
                     supplySubs={selectedSubjects as ExamSearchSubjectsProps}
                     calculateCostPerYear={calculateCostPerYear}
                     setSelectedSubjects={
@@ -236,7 +237,6 @@ export default function Supple() {
                   <FormSectionHeader copyType={"Accounts"} />
                   <SubDetails
                     printTable={printTable}
-                    cost={cost}
                     supplySubs={selectedSubjects as ExamSearchSubjectsProps}
                     calculateCostPerYear={calculateCostPerYear}
                     setSelectedSubjects={
@@ -308,7 +308,6 @@ function SubDetails({
     React.SetStateAction<ExamSearchSubjectsProps>
   >;
   studentCopyGenerated: boolean;
-  cost: number;
   printTable: boolean;
 }) {
   // ANCHOR STATES && VARS  ||========================================================================
@@ -432,9 +431,9 @@ function SubDetails({
         Grand Total:{" "}
         {formatCost(
           calculateCostPerYear(1).cost +
-            calculateCostPerYear(2).cost +
-            calculateCostPerYear(3).cost +
-            calculateCostPerYear(4).cost
+          calculateCostPerYear(2).cost +
+          calculateCostPerYear(3).cost +
+          calculateCostPerYear(4).cost
         )}
         (
         {calculateCostPerYear(1).totalSubs +

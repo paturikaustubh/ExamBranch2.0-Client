@@ -26,7 +26,7 @@ export function CustAutocomplete({
       disableCloseOnSelect
       filterSelectedOptions
       options={options}
-      defaultValue={[...options]}
+      defaultValue={options}
       renderInput={(params) => (
         <TextField {...params} label={label} variant="outlined" />
       )}

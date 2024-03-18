@@ -105,7 +105,7 @@ export default function Navbar({
                     to={activePage}
                     className={`nav-link relative ${
                       activePage === pageLocation ? "active" : ""
-                    } lg:flex hidden items-center gap-2 rounded-sm px-3 py-2 hover:bg-zinc-800 duration-300`}
+                    } lg:flex hidden items-center gap-2 rounded-t-sm px-3 py-2 hover:bg-zinc-800 duration-300`}
                   >
                     {icon}
                     {name}
@@ -119,7 +119,9 @@ export default function Navbar({
                   <Link
                     key={indx}
                     to={activePage}
-                    className={`nav-link lg:flex hidden items-center gap-2 rounded-sm px-3 py-2 hover:bg-zinc-800 duration-300`}
+                    className={`nav-link relative ${
+                      activePage === pageLocation ? "active" : ""
+                    } lg:flex hidden items-center gap-2 rounded-t-sm px-3 py-2 hover:bg-zinc-800 duration-300`}
                   >
                     {icon}
                     {name}

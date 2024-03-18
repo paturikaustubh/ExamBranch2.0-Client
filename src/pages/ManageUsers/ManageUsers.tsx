@@ -1,440 +1,449 @@
-import React, { useState } from "react";
+import { useContext, useLayoutEffect, useState } from "react";
+import Title from "../../components/Title";
+import { UsersTableArr, UserDetailsProps } from "../../Types/responseTypes";
 import Axios from "axios";
+import { LoadingContext } from "../../components/Context/Loading";
+import { AlertContext } from "../../components/Context/AlertDetails";
+import { CustDataGrid } from "../../components/Custom/CustDataGrid";
+import { GridActionsCellItem, GridColDef } from "@mui/x-data-grid";
 import {
-  Alert,
   Checkbox,
   Container,
-  Dialog,
   DialogActions,
   DialogContent,
-  DialogContentText,
   DialogTitle,
-  Divider,
-  FormGroup,
-  Grid,
-  IconButton,
-  MenuItem,
-  Paper,
-  Snackbar,
-  TextField,
-  Tooltip,
-  Typography,
-  Button,
   FormControlLabel,
+  FormGroup,
 } from "@mui/material";
+import { DeleteOutline, EditOutlined } from "@mui/icons-material";
+import { CustDialog } from "../../components/Custom/CustDialog";
+import { CustTextField } from "../../components/Custom/CustTextField";
 
-import HelpIcon from "@mui/icons-material/Help";
+export default function ManageUsers() {
+  const alert = useContext(AlertContext);
+  const loading = useContext(LoadingContext);
 
-// interface AddUserProps {
-//   ip: string;
-// }
+  const [userDetailsResponse, setUserDetailsResponse] = useState<UsersTableArr>(
+    []
+  );
+  const usersColumns: GridColDef[] = [
+    {
+      field: "id",
+      headerName: "S No.",
+      minWidth: 80,
+    },
+    {
+      field: "username",
+      headerName: "Username",
+      flex: 1,
+      minWidth: 170,
+    },
+    {
+      field: "displayName",
+      headerName: "Display Name",
+      flex: 1,
+      minWidth: 170,
+    },
+    {
+      field: "actions",
+      type: "actions",
+      headerName: "Actions",
+      width: 130,
+      cellClassName: "actions",
+      renderCell: ({ row }) => {
+        return [
+          <ManageUserDetails
+            row={row}
+            type="edit"
+            userDetailsResponse={userDetailsResponse}
+            setUserDetailsResponse={setUserDetailsResponse}
+            key={1}
+          />,
+          <DeleteUser
+            row={row}
+            setUserDetailsResponse={setUserDetailsResponse}
+            key={2}
+          />,
+        ];
+      },
+    },
+  ];
 
-// const AddUser: React.FC<AddUserProps> = ({ ip }) => {
-const ManageUsers = () => {
-  const [userName, setUserName] = useState("");
-  const [password, setPassword] = useState("");
-  const [cpassword, setCPassword] = useState("");
-  const [delName, setDelName] = useState("");
-  const [added, setAdded] = useState(false);
-  const [existed, setExisted] = useState(false);
-  const [wrongPass, setWrongPass] = useState(false);
-  const [deleted, setDeleted] = useState(false);
-  const [action, setAction] = useState<"add" | "delete">("add");
-  const [showPass, setShowPass] = useState(false);
-  const [openHelp, setOpenHelp] = useState(false);
+  useLayoutEffect(() => {
+    loading?.showLoading(true);
+    Axios.get("api/manage/users")
+      .then(({ data }) => {
+        const { users }: { users: UsersTableArr } = data;
+        setUserDetailsResponse(
+          users.map((user, indx) => ({ ...user, id: indx + 1 }))
+        );
+      })
+      .catch((err) => {
+        console.log(err);
+        alert?.showAlert("There was an error while geting data", "error");
+      })
+      .finally(() => loading?.showLoading(false));
+  }, []);
 
   return (
-    <Container maxWidth="xl">
-      <title>Manage Users</title>
-      <Grid container display={"flex"} justifyContent="center" mb={4}>
-        <Typography
-          variant="h3"
-          component="span"
-          fontWeight="600"
-          color="info.main"
-        >
-          Manage Users
-          <Tooltip title="Help">
-            <IconButton
-              size="large"
-              onClick={() => {
-                setOpenHelp(true);
-              }}
-              color="primary"
-            >
-              <HelpIcon />
-            </IconButton>
-          </Tooltip>
-        </Typography>
-      </Grid>
-      <Grid container spacing={2} mb={4}>
-        <Grid item xs={12} sm={6} md={2}>
-          <TextField
-            fullWidth
-            select
-            label="Action"
-            style={{
-              backgroundColor: "white",
-            }}
-            onChange={(e) => {
-              setAction(e.target.value as "add" | "delete");
-            }}
-            value={action}
-          >
-            <MenuItem value={"add"}>Add User</MenuItem>
-            <MenuItem value={"delete"}>Delete User</MenuItem>
-          </TextField>
-        </Grid>
-      </Grid>
-
-      <Container maxWidth="md">
-        <Paper style={{ padding: "4%" }}>
-          {action === "add" && (
-            <>
-              <Grid container spacing={1} mb={4}>
-                <Grid item>
-                  <Typography
-                    variant="h3"
-                    color="primary.main"
-                    fontWeight={500}
-                  >
-                    Add User
-                  </Typography>
-                </Grid>
-              </Grid>
-
-              <Grid container spacing={1} mb={4}>
-                <Grid item xs={12}>
-                  <Typography variant="h6">Enter Username</Typography>
-                </Grid>
-                <Grid item xs={12}>
-                  <TextField
-                    fullWidth
-                    error={userName.length > 15}
-                    placeholder="Username"
-                    style={{ backgroundColor: "white" }}
-                    autoFocus
-                    value={userName}
-                    onChange={(e) => {
-                      setUserName(e.target.value);
-                    }}
-                  />
-                </Grid>
-              </Grid>
-
-              <Grid container spacing={1} mb={2}>
-                <Grid item xs={12}>
-                  <Typography variant="h6">Enter Password</Typography>
-                </Grid>
-                <Grid item xs={12}>
-                  <TextField
-                    fullWidth
-                    disabled={userName === "" || userName.length > 15}
-                    type={showPass ? "text" : "password"}
-                    error={password !== cpassword && cpassword.length > 0}
-                    value={password}
-                    color={
-                      password === cpassword &&
-                      password.length > 0 &&
-                      cpassword.length > 0
-                        ? "success"
-                        : "primary"
-                    }
-                    placeholder="Password"
-                    style={{ backgroundColor: "white" }}
-                    onChange={(e) => {
-                      setPassword(e.target.value);
-                    }}
-                  />
-                </Grid>
-              </Grid>
-
-              <Grid container spacing={1} mb={2}>
-                <Grid item xs={12}>
-                  <TextField
-                    fullWidth
-                    disabled={userName === "" || userName.length > 15}
-                    type={showPass ? "text" : "password"}
-                    error={password !== cpassword && cpassword.length > 0}
-                    value={cpassword}
-                    color={
-                      password === cpassword &&
-                      password.length > 0 &&
-                      cpassword.length > 0
-                        ? "success"
-                        : "primary"
-                    }
-                    placeholder="Confirm Password"
-                    style={{ backgroundColor: "white" }}
-                    onChange={(e) => {
-                      setCPassword(e.target.value);
-                    }}
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <FormGroup>
-                    <FormControlLabel
-                      label="Show Password"
-                      control={
-                        <Checkbox
-                        //   onClick={(e) => {
-                        //     if (e.target.checked) {
-                        //       setShowPass(true);
-                        //     } else setShowPass(false);
-                        //   }}
-                        />
-                      }
-                    ></FormControlLabel>
-                  </FormGroup>
-                </Grid>
-                <Grid item xs={12} textAlign={"right"} mt={2}>
-                  <Button
-                    size="large"
-                    disabled={
-                      userName === "" ||
-                      password !== cpassword ||
-                      password === ""
-                    }
-                    variant="contained"
-                    type="submit"
-                    // onClick={() => {
-                    //   if (password === cpassword) {
-                    //     Axios.post(`http://${ip}:6969/AddUser`, {
-                    //       userName: userName,
-                    //       password: password,
-                    //     }).then((resp) => {
-                    //       if (resp.data["Valid"]) {
-                    //         setAdded(true);
-                    //         setUserName("");
-                    //         setPassword("");
-                    //         setCPassword("");
-                    //       } else {
-                    //         setExisted(true);
-                    //       }
-                    //     });
-                    //   } else {
-                    //     setWrongPass(true);
-                    //   }
-                    // }}
-                  >
-                    Add User
-                  </Button>
-                </Grid>
-              </Grid>
-            </>
-          )}
-
-          {action === "delete" && (
-            <>
-              <Grid container spacing={1} mb={4}>
-                <Grid item>
-                  <Typography variant="h3" color="error.main" fontWeight={500}>
-                    Delete User
-                  </Typography>
-                </Grid>
-              </Grid>
-              <Grid container spacing={1} mb={2} alignItems="center">
-                <Grid item xs={12}>
-                  <Typography variant="h6">Enter Username</Typography>
-                </Grid>
-                <Grid item xs={12}>
-                  <TextField
-                    fullWidth
-                    value={delName}
-                    autoFocus
-                    placeholder="Username"
-                    style={{ backgroundColor: "white" }}
-                    onChange={(e) => {
-                      setDelName(e.target.value);
-                    }}
-                  />
-                </Grid>
-                <Grid item xs={12} textAlign={"right"}>
-                  <Button
-                    size="large"
-                    color="error"
-                    variant="contained"
-                    disabled={delName === "" || delName === "admin"}
-                    // onClick={() => {
-                    //   Axios.post(`http://${ip}:6969/DelUser`, {
-                    //     userName: delName,
-                    //   }).then((resp) => {
-                    //     if (resp.data["done"]) {
-                    //       setDeleted(true);
-                    //       setDelName("");
-                    //     }
-                    //   });
-                    // }}
-                  >
-                    Delete User
-                  </Button>
-                </Grid>
-              </Grid>
-            </>
-          )}
-        </Paper>
+    <>
+      <Title title="Manage Users" />
+      <Container maxWidth="lg" className={`bg-white py-4`}>
+        <CustDataGrid
+          rows={userDetailsResponse}
+          columns={usersColumns}
+          disableRowSelectionOnClick
+          checkboxSelection
+          slots={{
+            toolbar: () => (
+              <div className="flex justify-between items-center p-4">
+                <span className="lg:text-3xl text-2xl text-blue-600 font-semibold">
+                  Active Users
+                </span>
+                <ManageUserDetails
+                  type="add"
+                  userDetailsResponse={userDetailsResponse}
+                  setUserDetailsResponse={setUserDetailsResponse}
+                />
+              </div>
+            ),
+          }}
+        />
       </Container>
+    </>
+  );
+}
 
-      <Dialog
-        sx={{ backdropFilter: "blur(1px)" }}
-        open={openHelp}
-        onClose={() => setOpenHelp(false)}
-      >
-        <DialogTitle
-          justifyContent={"space-between"}
-          display="flex"
-          alignItems={"center"}
+function ManageUserDetails({
+  row,
+  type,
+  userDetailsResponse,
+  setUserDetailsResponse,
+}: {
+  row?: UserDetailsProps;
+  type: "edit" | "add";
+  userDetailsResponse: UsersTableArr;
+  setUserDetailsResponse: React.Dispatch<React.SetStateAction<UsersTableArr>>;
+}) {
+  const alert = useContext(AlertContext);
+  const loading = useContext(LoadingContext);
+
+  const [openManageUsersDialog, setOpenManageUsersDialog] = useState(false);
+  const [newUserDetails, setNewUserDetails] = useState(
+    row ?? { username: "", displayName: "", password: "", confirmPassword: "" }
+  );
+  const [userExists, setUserExists] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+
+  const isSaveable = (): boolean => {
+    const { username, displayName, password, confirmPassword } = newUserDetails;
+
+    if (username === "") return false;
+    if (displayName === "") return false;
+    if (type === "add") if (password === "") return false;
+    if (password) {
+      if (password !== confirmPassword) return false;
+      if (password.length < 8) return false;
+    }
+    if (userExists) return false;
+    return true;
+  };
+
+  return (
+    <>
+      {type === "add" ? (
+        <button
+          className="md:blue-button-filled blue-button-filled-sm"
+          onClick={() => setOpenManageUsersDialog(true)}
+          disabled={sessionStorage.getItem("username") !== "admin"}
         >
-          <Typography variant="h3" color="primary.main" fontWeight={600}>
-            Manage Users
-          </Typography>
+          Add New User
+        </button>
+      ) : (
+        <GridActionsCellItem
+          icon={<EditOutlined />}
+          label="Edit"
+          onClick={() => setOpenManageUsersDialog(true)}
+          color="inherit"
+          disabled={
+            sessionStorage.getItem("username") !== "admin" &&
+            sessionStorage.getItem("username") !== row?.username
+          }
+        />
+      )}
+      <CustDialog
+        open={openManageUsersDialog}
+        onClose={() => {
+          setOpenManageUsersDialog(false);
+          setNewUserDetails(() => {
+            if (type === "add")
+              return {
+                username: "",
+                displayName: "",
+                password: "",
+                confirmPassword: "",
+              };
+            return row as UserDetailsProps;
+          });
+        }}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle component={"div"}>
+          {type === "add" ? (
+            <span className="text-4xl font-semibold text-blue-600">
+              Add New User
+            </span>
+          ) : (
+            <span className="text-4xl font-semibold text-blue-600">
+              Edit User {row?.username}
+            </span>
+          )}
+        </DialogTitle>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            loading?.showLoading(true);
+            if (type === "edit") {
+              Axios.patch(`api/manage/user`, {
+                details: { ...newUserDetails, oldUsername: row?.username },
+              })
+                .then(({ data }) => {
+                  if (data.done) {
+                    setOpenManageUsersDialog(false);
+                    alert?.showAlert(
+                      `Updated ${newUserDetails?.username}`,
+                      "success"
+                    );
+                    setUserDetailsResponse((prevVals) =>
+                      prevVals.map((details) => {
+                        if (details.username === row?.username) {
+                          return newUserDetails;
+                        }
+                        return details;
+                      })
+                    );
+                  }
+                })
+                .catch((err) => {
+                  alert?.showAlert(
+                    `There was an error while updating ${newUserDetails?.username}`,
+                    "error"
+                  );
+                  console.log(err);
+                })
+                .finally(() => loading?.showLoading(false));
+            } else {
+              Axios.post(`api/manage/user`, {
+                details: newUserDetails,
+              })
+                .then(({ data }) => {
+                  if (data.done) {
+                    setOpenManageUsersDialog(false);
+                    alert?.showAlert("Added new user", "success");
+                    setUserDetailsResponse((prevVals) => [
+                      ...prevVals,
+                      { ...newUserDetails, id: prevVals.length + 1 },
+                    ]);
+                  }
+                })
+                .catch((err) => {
+                  alert?.showAlert(`There was an error while adding`, "error");
+                  console.log(err);
+                })
+                .finally(() => loading?.showLoading(false));
+            }
+          }}
+        >
+          <DialogContent>
+            <div className="grid md:grid-cols-2 grid-cols-1 gap-4 md:justify-between md:items-center justify-center">
+              <CustTextField
+                label="Username"
+                value={newUserDetails?.username}
+                onChange={({ target: { value } }) =>
+                  setNewUserDetails({
+                    ...newUserDetails,
+                    username: value.toLowerCase().trim(),
+                  })
+                }
+                onBlur={() => {
+                  if (
+                    userDetailsResponse?.find(
+                      (user) => user.username === newUserDetails?.username
+                    ) &&
+                    newUserDetails.username !== row?.username
+                  ) {
+                    alert?.showAlert("Username already taken", "warning");
+                    setUserExists(true);
+                  } else {
+                    setUserExists(false);
+                  }
+                }}
+              />
+              <CustTextField
+                label="Display Name"
+                value={newUserDetails?.displayName}
+                onChange={({ target: { value } }) =>
+                  setNewUserDetails({
+                    ...newUserDetails,
+                    displayName: value,
+                  })
+                }
+              />
+              <CustTextField
+                label={type === "add" ? "Password" : "Edit Password"}
+                type={showPassword ? "text" : "password"}
+                value={newUserDetails?.password ?? ""}
+                onChange={({ target: { value } }) =>
+                  setNewUserDetails({
+                    ...newUserDetails,
+                    password: value,
+                  })
+                }
+                error={
+                  newUserDetails?.password?.trim()?.length < 8 &&
+                  newUserDetails?.password?.trim()?.length > 0
+                }
+              />
+              <CustTextField
+                label="Confirm Password"
+                type={showPassword ? "text" : "password"}
+                value={newUserDetails?.confirmPassword ?? ""}
+                onChange={({ target: { value } }) =>
+                  setNewUserDetails({
+                    ...newUserDetails,
+                    confirmPassword: value,
+                  })
+                }
+                error={
+                  newUserDetails?.password !==
+                    newUserDetails?.confirmPassword &&
+                  newUserDetails?.password?.trim()?.length >= 8
+                }
+                helperText={
+                  newUserDetails?.password !==
+                    newUserDetails?.confirmPassword &&
+                  newUserDetails?.confirmPassword?.trim()?.length > 0
+                    ? "Passwords do not match"
+                    : ""
+                }
+                disabled={!Boolean(newUserDetails?.password)}
+              />
+              <FormGroup sx={{ marginRight: "auto" }}>
+                <FormControlLabel
+                  label="Show password"
+                  control={
+                    <Checkbox
+                      onClick={() => setShowPassword((prev) => !prev)}
+                      disabled={!Boolean(newUserDetails.password)}
+                    />
+                  }
+                />
+              </FormGroup>
+            </div>
+          </DialogContent>
+          <DialogActions>
+            <button
+              type="button"
+              className="red-button"
+              onClick={() => setOpenManageUsersDialog(false)}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="blue-button"
+              disabled={!isSaveable()}
+            >
+              Save
+            </button>
+          </DialogActions>
+        </form>
+      </CustDialog>
+    </>
+  );
+}
+
+function DeleteUser({
+  row,
+  setUserDetailsResponse,
+}: {
+  row: UserDetailsProps;
+  setUserDetailsResponse: React.Dispatch<React.SetStateAction<UsersTableArr>>;
+}) {
+  const alert = useContext(AlertContext);
+  const loading = useContext(LoadingContext);
+
+  const [openDeleteConfirmDialog, setOpenDeleteConfirmDialog] = useState(false);
+
+  return (
+    <>
+      <GridActionsCellItem
+        icon={<DeleteOutline />}
+        label="Delete"
+        color="error"
+        onClick={() => setOpenDeleteConfirmDialog(true)}
+        disabled={
+          row?.username === "admin" ||
+          sessionStorage.getItem("username") !== "admin"
+        }
+      >
+        Delete
+      </GridActionsCellItem>
+
+      <CustDialog open={openDeleteConfirmDialog} maxWidth="md" fullWidth>
+        <DialogTitle component={"div"}>
+          <span className="text-4xl font-semibold text-red-600">
+            Cofirm delete
+          </span>
         </DialogTitle>
         <DialogContent>
-          <DialogContentText textAlign="justify" fontWeight={500}>
-            <h2 className="help">
-              <>Overview</>
-            </h2>
-            <p>You can either add/delete users from the database.</p>
-            <Divider />
-            <br />
-            <h2 className="help">
-              <>Parameters</>
-            </h2>
-            <p>
-              <span className="helpHead">Username</span> - Username that you
-              wnat to add/delete
-            </p>
-            <p>
-              <span className="helpHead">Password</span> - Password for that
-              user. This should be unique to all the users
-            </p>
-            <p>
-              <Typography
-                variant="h5"
-                component={"span"}
-                color="error"
-                fontWeight={500}
-              >
-                Do not share your password with anyone other than department
-                staff.
-              </Typography>
-            </p>
-            <Divider />
-            <br />
-            <h2 className="help">
-              <>Procedure</>
-            </h2>
-            <p>
-              If you want to add a user, select <code>Add User</code> from the{" "}
-              <code>Action</code> menu. Then, enter their userName and password.
-              You must confirm your password by re-entering it for a second
-              time, and then click <code>Add User</code> button.
-            </p>
-            <p>
-              If you want to delete a user, select <code>Delete User</code> from
-              the <code>Action</code> menu. Then enter the userName and click{" "}
-              <code>Delete</code> button.
-            </p>
-            <Divider />
-            <br />
-            <h2 className="help">
-              <>Exceptions</>
-            </h2>
-            <p>
-              If you want to change your password, you first need to delte your
-              account from <code>Delete User</code> tab and create a new one
-              from <code>Add User</code> tab.
-            </p>
-          </DialogContentText>
+          <span className="text-xl">
+            This will delete the user {row?.username} permanatly.
+          </span>
         </DialogContent>
         <DialogActions>
-          <Button
+          <button
+            className="red-button"
+            onClick={() => setOpenDeleteConfirmDialog(false)}
+          >
+            Cancel
+          </button>
+          <button
+            className="blue-button"
             onClick={() => {
-              setOpenHelp(false);
+              loading?.showLoading(true);
+              Axios.delete(
+                `api/manage/user?username=${JSON.stringify([row?.username])}`
+              )
+                .then(({ data }) => {
+                  if (data.deleted) {
+                    setOpenDeleteConfirmDialog(false);
+                    setUserDetailsResponse((prevVals) =>
+                      prevVals
+                        .filter(({ username }) => username !== row?.username)
+                        .map((details, indx) => ({ ...details, id: indx + 1 }))
+                    );
+                    alert?.showAlert(
+                      `Deleted user ${row?.username}`,
+                      "success"
+                    );
+                  }
+                })
+                .catch((err) => {
+                  console.log(err);
+                  alert?.showAlert(
+                    "There was an error while deleting  ",
+                    "error"
+                  );
+                })
+                .finally(() => loading?.showLoading(false));
             }}
           >
-            okay
-          </Button>
+            Delete
+          </button>
         </DialogActions>
-      </Dialog>
-
-      <Snackbar
-        open={added}
-        onClose={() => {
-          setAdded(false);
-        }}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-        autoHideDuration={2500}
-      >
-        <Alert
-          severity="success"
-          variant="standard"
-          onClose={() => {
-            setAdded(false);
-          }}
-        >
-          {`User added successfully`}
-        </Alert>
-      </Snackbar>
-
-      <Snackbar
-        open={existed}
-        onClose={() => {
-          setExisted(false);
-        }}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-        autoHideDuration={2500}
-      >
-        <Alert
-          severity="warning"
-          variant="standard"
-          onClose={() => {
-            setExisted(false);
-          }}
-        >
-          {`${userName} already exists`}
-        </Alert>
-      </Snackbar>
-
-      <Snackbar
-        open={wrongPass}
-        onClose={() => {
-          setWrongPass(false);
-        }}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-        autoHideDuration={2500}
-      >
-        <Alert
-          severity="error"
-          variant="standard"
-          onClose={() => {
-            setWrongPass(false);
-          }}
-        >
-          Incorrect credentials
-        </Alert>
-      </Snackbar>
-
-      <Snackbar
-        open={deleted}
-        onClose={() => {
-          setDeleted(false);
-        }}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-        autoHideDuration={2500}
-      >
-        <Alert
-          severity="success"
-          variant="standard"
-          onClose={() => {
-            setDeleted(false);
-          }}
-        >
-          {`Deleted user`}
-        </Alert>
-      </Snackbar>
-    </Container>
+      </CustDialog>
+    </>
   );
-};
-
-export default ManageUsers;
+}

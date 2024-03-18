@@ -115,7 +115,7 @@ code {
 }
 
 .blue-button-outline-sm {
-  @apply text-blue-500 hover:text-white hover:bg-blue-500 border border-blue-500 rounded-md duration-300 px-3 py-2;
+  @apply text-blue-500 hover:text-white hover:bg-blue-500 border border-blue-500 rounded-md duration-300 px-2 py-1;
 }
 
 /* ANCHOR GREEN BUTTONS ||======================================================================== */

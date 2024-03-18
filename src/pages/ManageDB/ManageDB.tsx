@@ -8,7 +8,12 @@ import {
 import { CustTextField } from "../../components/Custom/CustTextField";
 import Title from "../../components/Title";
 import { useContext, useState } from "react";
-import { Add, Delete, Edit, SearchOutlined } from "@mui/icons-material";
+import {
+  Add,
+  DeleteOutlined,
+  EditOutlined,
+  SearchOutlined,
+} from "@mui/icons-material";
 import Axios from "axios";
 import { AlertContext } from "../../components/Context/AlertDetails";
 import { LoadingContext } from "../../components/Context/Loading";
@@ -250,7 +255,7 @@ export default function ManageDB() {
       {/* ANCHOR DATAGRID ||======================================================================== */}
       {responseData.length > 0 && (
         <div className={`bg-white p-4 rounded-sm mt-8 h-fit`}>
-          <div className="flex mb-4 items-center justify-between text-6xl font-semibold text-blue-500">
+          <div className="flex mb-4 items-center justify-between lg:text-6xl text-4xl font-semibold text-blue-500">
             <span className="">{rollNo}</span>
             {table === "studentInfo" && (
               <span>
@@ -258,7 +263,7 @@ export default function ManageDB() {
                   {responseData.filter(({ grade }) => grade === "F").length}
                 </span>
 
-                <span className="text-4xl font-normal">
+                <span className="lg:text-4xl text-2xl font-normal">
                   /{responseData.length}
                 </span>
               </span>
@@ -289,7 +294,7 @@ export default function ManageDB() {
             slots={{
               toolbar: () => (
                 <div className="flex items-center gap-2 justify-between p-4">
-                  <div className="text-blue-500 text-4xl">
+                  <div className="text-blue-500 lg:text-4xl text-2xl">
                     {tablesNames[table]}
                   </div>
                   {table === "studentInfo" && (
@@ -368,7 +373,7 @@ function ManageRowDetails({
     <>
       {type === "add" ? (
         <button
-          className={`flex items-center gap-2 blue-button-outline`}
+          className={`flex items-center lg:gap-2 gap-1 blue-button-outline-sm`}
           onClick={() => {
             setOpenRowDetailsDialog(true);
           }}
@@ -377,7 +382,7 @@ function ManageRowDetails({
         </button>
       ) : (
         <GridActionsCellItem
-          icon={<Edit />}
+          icon={<EditOutlined />}
           label="Edit"
           className="textPrimary"
           onClick={() => {
@@ -407,7 +412,9 @@ function ManageRowDetails({
       >
         <DialogTitle component={"div"}>
           <span className="text-3xl font-semibold text-blue-500">
-            {`Add new record for ${rollNo}`}
+            {type === "add"
+              ? `Add new record for ${rollNo}`
+              : `Edit ${row?.subCode} - ${row?.subName}`}
           </span>
         </DialogTitle>
         <form
@@ -744,11 +751,11 @@ function DeleteConfirmDialog({
   return (
     <>
       <GridActionsCellItem
-        icon={<Delete />}
+        icon={<DeleteOutlined />}
         label="Delete"
         className="textPrimary"
         onClick={() => setOpenDeleteConfirmDialog(true)}
-        color="inherit"
+        color="error"
       />
       <CustDialog
         open={openDeleteConfirmDialog}

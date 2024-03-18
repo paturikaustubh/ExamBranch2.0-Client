@@ -48,12 +48,11 @@ export default function LoginForm({
             e.preventDefault();
             loading?.showLoading(true);
 
-            Axios.get(
-              `api/login?username=${loginCreds.username}&password=${loginCreds.password}`,
-              {
-                withCredentials: true,
-              }
-            )
+            Axios.post(`api/login`, {
+              withCredentials: true,
+              username: loginCreds.username,
+              password: loginCreds.password,
+            })
               .then(({ data }) => {
                 setGoAhead(data.goahead);
                 if (!data.goahead)
@@ -108,7 +107,7 @@ export default function LoginForm({
                 control={
                   <Checkbox onClick={() => setShowPass((prev) => !prev)} />
                 }
-              ></FormControlLabel>
+              />
             </FormGroup>
             <button
               type="submit"

@@ -52,6 +52,7 @@ export default function Navbar({
     { name: "Revaluation", icon: <PlagiarismOutlined /> },
     { name: "Supplementary", icon: <ArticleOutlined /> },
     { name: "Manage Database", icon: <StorageOutlined /> },
+    { name: "Manage Users", icon: <PeopleAltOutlined /> },
   ];
 
   const miscLinks: NavLinkProps[] = [

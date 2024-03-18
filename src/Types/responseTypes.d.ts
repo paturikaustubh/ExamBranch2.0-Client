@@ -73,3 +73,12 @@ export type AvailableDbTables =
   | "printReval"
   | "paidCBT"
   | "printCBT";
+
+export interface UserDetailsProps {
+  username: string;
+  displayName: string;
+  password: string;
+  confirmPassword: string;
+}
+
+export type UsersTableArr = UserDetailsProps[];

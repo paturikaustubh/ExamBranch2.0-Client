@@ -46,7 +46,7 @@ export default function Download() {
         <span className="page-title">Download</span>
       </div>
 
-      <div className="grid lg:grid-cols-6 md:grid-cols-3 grid-cols-2 gap-x-4 gap-y-6 no-print">
+      <div className="grid lg:grid-cols-6 md:grid-cols-3 grid-cols-2 gap-4 no-print">
         <CustTextField
           select
           label="Exam"

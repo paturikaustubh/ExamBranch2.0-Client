@@ -1,49 +1,47 @@
 // React Elements
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import dayjs from "dayjs";
 import Axios from "axios";
 // Material UI Components
-import { Alert, Autocomplete, IconButton, MenuItem } from "@mui/material";
+import { Autocomplete, IconButton, MenuItem } from "@mui/material";
 import HelpIcon from '@mui/icons-material/Help';
-import { ListAltOutlined, SearchOutlined } from '@mui/icons-material';
+import { HowToRegOutlined, ListAltOutlined, SearchOutlined } from '@mui/icons-material';
 import Divider from '@mui/material/Divider';
-import Button from "@mui/material/Button";
-import EditIcon from '@mui/icons-material/Edit';
-import PrintIcon from '@mui/icons-material/Print';
 // Custom Components
 import Title from "../../components/Title";
 import { CustTextField } from "../../components/Custom/CustTextField";
 import { CustBarcode } from "../../components/Custom/Barcode";
-
-interface Subjects {
-    id: number;
-    name: string;
-}
+import { AlertContext } from "../../components/Context/AlertDetails";
+import { LoadingContext } from "../../components/Context/Loading";
+import { ExamSemProps } from "../../Types/responseTypes";
+import { formatCost } from "../../misc/CostFormater";
+import { Print } from "../../components/Custom/Print";
 
 export default function CBT() {
+    const alert = useContext(AlertContext);
+    const loading = useContext(LoadingContext);
     // States
     const [examYear, setExamYear] = useState(dayjs().year());
-    const [branch, setBranch] = useState('');
-    const [year, setYear] = useState('');
-    const [semester, setSemester] = useState('');
-    const [rollNo, setRollNo] = useState('');
-    const [searched, setSearched] = useState(false);
-    const [currDateTime, setCurrDateTime] = useState('');
-    const [generateForm, setGenerateForm] = useState(false);
-    const [subCodes, setSubCodes] = useState([]);
-    const [subNames, setSubNames] = useState([]);
-    const [mapper, setMapper] = useState({});
-    const [printTableExist, setPrintTableExist] = useState(false);
-    const [loading, setLoading] = useState(false);
-    const [empty, setEmpty] = useState(false);
-    const [baseCosts, setBaseCosts] = useState("");
-    const [additionalCost, setAdditionalCost] = useState("");
-    const [maxCost, setMaxCost] = useState("");
-    const [branches, setBranches] = useState([]);
-    const [years, setYears] = useState(["1", "2", "3", "4"]);
-    const [semesters, setSemesters] = useState(["1", "2"]);
-    const [subjectCodes, setSubjectCodes] = useState<never[][]>([[]]);
-    const [Alert, setAlert] = useState(false);
+    const [branch, setBranch] = useState<string>('');
+    const [year, setYear] = useState<number>(0);
+    const [semester, setSemester] = useState<number>(0);
+    const [rollNo, setRollNo] = useState<string>('');
+    const [searched, setSearched] = useState<boolean>(false);
+    const [currDateTime, setCurrDateTime] = useState<string>('');
+    const [generateForm, setGenerateForm] = useState<boolean>(false);
+    const [subCodes, setSubCodes] = useState<string[]>([]);
+    const [subNames, setSubNames] = useState<string[]>([]);
+    const [printTableExist, setPrintTableExist] = useState<boolean>(false);
+    const [empty, setEmpty] = useState<boolean>(false);
+    const [baseCost, setBaseCost] = useState<number>(0);
+    const [additionalCost, setAdditionalCost] = useState<number>(0);
+    const [maxCost, setMaxCost] = useState<number>(0);
+    const [branches, setBranches] = useState<string[]>([]);
+    const [selectedSubjectNames, setSelectedSubjectNames] = useState<string[]>([]);    
+    const [grandTotal, setGrandTotal] = useState(0);
+    let subs: string[] = [];
+    const years = ['1', '2', '3', '4'];
+    const semesters = ["1", "2"];
     // Effects
     useEffect(() => {
         setInterval(() => {
@@ -53,20 +51,13 @@ export default function CBT() {
     useEffect(() => {
         Axios.get(`api/cbt/branchs`)
         .then((response) => {
-            setBranches(() =>
-                response.data["branch"].map((branch: string) => (
-                    <MenuItem value={branch} key={branch}>
-                    {branch}
-                    </MenuItem>
-                ))
-            )
-            console.log(branches);
+            setBranches(response.data["branch"]);
         });
         Axios.get(`api/cost/costs?module=cbt`)
-        .then((res) => {
-            setBaseCosts(res.data["cbc"]);
-            setAdditionalCost(res.data["cac"]);
-            setMaxCost(res.data["cfc"]);
+        .then((response) => {
+            setBaseCost(response.data["cbc"]);
+            setAdditionalCost(response.data["cac"]);
+            setMaxCost(response.data["cfc"]);
         });
     }, [false]);
     // Functions
@@ -81,57 +72,60 @@ export default function CBT() {
           <span className="lg:text-xl text-lg">{currDateTime}</span>
         </div>
     );
-    const calc = () => {
-        if (subjectCodes.length > 0) {
-          if (subjectCodes.length === 1) {
+    const CalcTotalCost = () => {
+        if (selectedSubjectNames.length > 0) {
+          if (selectedSubjectNames.length == 1) {
+            setGrandTotal(baseCost);
             return (
               <>
                 <h3>
                   {" "}
                   <>
-                    Grand Total: {baseCosts} ({subjectCodes.length} Subject)
+                    Grand Total: {baseCost} ({selectedSubjectNames.length} Subject)
                   </>
                 </h3>
               </>
             );
-          } else if (subjectCodes.length >= 5) {
+          } else if (selectedSubjectNames.length >= 5) {
+            setGrandTotal(maxCost);
             return (
               <>
                 <h3>
                   {" "}
                   <br />
                   <>
-                    Grand Total: {maxCost} ({subjectCodes.length} Subjects)
+                    Grand Total: {maxCost} ({selectedSubjectNames.length} Subjects)
                   </>
                 </h3>
               </>
             );
           } else {
-            if (!isNaN(parseInt(baseCosts)) && !isNaN(parseInt(additionalCost))) {
-              let b = parseInt(baseCosts);
-              let ad = parseInt(additionalCost);
+            if (!isNaN(baseCost) && !isNaN(additionalCost)) {
+              let b = baseCost;
+              let ad = additionalCost;
               return (
                 <>
                   <h3>
                     {" "}
                     <br />
                     <>
-                      Grand Total: {b + ad * (subjectCodes.length - 1)} ({subjectCodes.length}{" "}
+                      Grand Total: {b + ad * (selectedSubjectNames.length - 1)} ({selectedSubjectNames.length}{" "}
                       Subjects)
                     </>
                   </h3>
                 </>
               );
             }
-            let b = parseInt(baseCosts);
-            let ad = parseInt(additionalCost);
+            let b = baseCost;
+            let ad = additionalCost;
+            setGrandTotal(b + ad * (selectedSubjectNames.length));
             return (
               <>
                 <h3>
                   {" "}
                   <br />
                   <>
-                    Grand Total: {b + ad * (subjectCodes.length)} ({subjectCodes.length}{" "}
+                    Grand Total: {b + ad * (selectedSubjectNames.length)} ({selectedSubjectNames.length}{" "}
                     Subjects)
                   </>
                 </h3>
@@ -139,6 +133,11 @@ export default function CBT() {
             );
           }
         }
+    };
+    const reset = () => {
+        setPrintTableExist(false);
+        setSearched(false);
+        setGenerateForm(false);
     };
     return (
         <div>
@@ -150,85 +149,119 @@ export default function CBT() {
                     />
                 </IconButton>
             </div>
-            <div className="grid grid-cols-6 gap-4">
+            <div className="grid lg:grid-cols-6 md:grid-cols-3 sm:grid-cols-2 gap-4">
                 {
                     <>
                     <CustTextField
                     label = {"Base Cost"}
-                    className="col-span-1"
-                    value = {baseCosts}
+                    className="text-justify"
+                    value = {formatCost(baseCost)}
                     disabled
+                    inputProps={{ style: { textAlign: "right" } }}
                     />
                     <CustTextField
                     label = {"Additional Cost"}
-                    className="col-span-1"
-                    value = {additionalCost}
+                    value = {formatCost(additionalCost)}
                     disabled
+                    inputProps={{ style: { textAlign: "right" } }}
                     />
                     <CustTextField
                     label = {"Max Cost"}
-                    className="col-span-1"
-                    value = {maxCost}
+                    value = {formatCost(maxCost)}
                     disabled
+                    inputProps={{ style: { textAlign: "right" } }}
                     />
                     </>
                 }
             </div>
             <form
+            className="no-print"
             onSubmit={(e) => {
                 e.preventDefault();
-                Axios.get(`api/cbt/search?acYear=${year}&sem=${semester}&reg=${examYear}&branch=${branch}&rollNo=${rollNo}`).
-                then((res) => {
-                    console.log(res.data);
-                    if(res.data["subCodes"].length > 0) {
-                        setSubCodes(res.data["subCodes"]);
-                        setSubNames(res.data["subNames"]);
-                        setPrintTableExist(res.data["printTableExist"]);
-                        setSearched(true);
+                onchange=(() => {
+                    setSearched(false);
+                })
+                loading?.showLoading(true);
+                Axios.get(`api/cbt/search?acYear=${year}&sem=${semester}&reg=${examYear}&branch=${branch}&rollNo=${rollNo}`)
+                .then(({data}) => {
+                    const {
+                        error
+                    }: {
+                        error: {message: string}
+                    } = data;
+                    if(!error) {
+                        if(data.subCodes.length) {
+                            setSubCodes(data.subCodes);
+                            setSubNames(data.subNames);
+                            setSelectedSubjectNames(data.subNames);
+                            subs.push(data.subCodes);
+                            setPrintTableExist(data.printTableExist);
+                            setSearched(true);
+                        }
                     }
+                    else {
+                        alert?.showAlert(error.message, "error");
+                    }
+                })
+                .catch(() => {
+                    alert?.showAlert("There was an error while connecting to the server", "error");
+                })
+                .finally(() => {
+                    loading?.showLoading(false);
                 })
             }}
             >
-                <div className="grid grid-cols-6 gap-4 py-8">
+                <div className="grid lg:grid-cols-6 md:grid-cols-3 sm:grid-cols-2 gap-4 py-4">
                     <CustTextField
                     type="number"
                     label="Exam Year"
                     onChange={({target: {value}}) => {
                         setExamYear(parseInt(value) > 0 ? parseInt(value) : dayjs().year() - 1);
+                        setSearched(false);
+                        setGenerateForm(false);
                     }}
                     InputProps={{
                         inputProps: { min: dayjs().year() - 1, max: dayjs().year() },
                     }}
                     value={examYear}
-                    disabled={searched}
                     />
                     <CustTextField 
                     select
                     label="Branch"
                     className="col-span-1"
+                    defaultValue={''}
                     onChange={({ target: { value } }) => {
                         setBranch(value);
+                        setSearched(false);
+                        setGenerateForm(false);
                     }}
-                    disabled={searched}
                     >
                       {
-                        branches
+                        branches.map((value, indx) => {
+                            return (
+                                <MenuItem value={value} key={indx}>
+                                    {value}
+                                </MenuItem>
+                            )
+                        })
                       }
                     </CustTextField>
                 </div>
-                <div className="grid grid-cols-6 gap-4">
+                <div className="grid lg:grid-cols-6 md:grid-cols-3 sm:grid-cols-2 gap-4">
                     <CustTextField 
                     select
                     label="Year"
                     className="col-span-1"
+                    defaultValue={''}
                     onChange={({ target: { value } }) => {
-                        setYear(value);
+                        setYear(parseInt(value));
+                        setSearched(false);
+                        setGenerateForm(false);
                     }}
-                    disabled={searched}
                     >
                         {
-                            years.map((year) => (
-                                <MenuItem value={year} key={year}>
+                            years.map((year, indx) => (
+                                <MenuItem value={year} key={indx}>
                                     {year}
                                 </MenuItem>
                             ))
@@ -238,10 +271,12 @@ export default function CBT() {
                     select
                     label="Semester"
                     className="col-span-1"
+                    defaultValue={''}
                     onChange={({ target: { value } }) => {
-                        setSemester(value);
+                        setSemester(parseInt(value));
+                        setSearched(false);
+                        setGenerateForm(false);
                     }}
-                    disabled={searched}
                     >
                         {
                             semesters.map((semester) => (
@@ -252,34 +287,69 @@ export default function CBT() {
                         }
                     </CustTextField>
                 </div>
-                <div className="grid grid-cols-6 gap-4 py-8">
+                <div className="grid lg:grid-cols-6 md:grid-cols-3 gap-4 py-4">
                     <CustTextField 
                     label="Roll Number"
                     className="col-span-2"
+                    value={rollNo}
+                    autoFocus
                     inputProps={{maxLength: 10}}
                     onChange={({ target: { value } }) => {
                         setRollNo(value.toUpperCase());
+                        setSearched(false);
+                        setGenerateForm(false);
                     }}
-                    disabled={searched}
                     />
                     <div className="col-span-3 flex items-center">
                     <button
                     type="submit"
                     className="blue-button-filled mx-2"
-                    disabled={rollNo.length !== 10 || branch === '' || year === '' || semester === '' || searched}
+                    disabled={rollNo.length !== 10 || branch === '' || year === 0 || semester === parseInt('') || searched}
                     >
                     <SearchOutlined fontSize="small" />
                     Search
                     </button>
-                    {searched && (
+                    {(printTableExist && searched) && (
                     <button
                     type="submit"
                     className="green-button-filled"
                     onClick={() => {
-                        setAlert(true);
-                    }}
+                        loading?.showLoading(true);
+      
+                        Axios.post(`api/cbt/paid/${rollNo}`, { 
+                            acYear: year,
+                            sem: semester,
+                            subjects: {subCodes, subNames} as ExamSemProps,
+                            branch: branch,
+                            username: sessionStorage.getItem("username")
+                        })
+                          .then(
+                            ({
+                              data: { done, error },
+                            }: {
+                              data: { done: boolean; error: string };
+                            }) => {
+                              if (done) {
+                                alert?.showAlert(
+                                  `Registered for ${rollNo}`,
+                                  "success"
+                                );
+                                reset();
+                              } else {
+                                alert?.showAlert(error, "error");
+                              }
+                            }
+                          )
+                          .catch(() =>
+                            alert?.showAlert(
+                              "There was an error while connecting to the server.",
+                              "error"
+                            )
+                          )
+                          .finally(() => loading?.showLoading(false));
+                      }}
                     >
-                    <SearchOutlined fontSize="small" />
+                    <HowToRegOutlined />
                     Register
                     </button>
                     )}
@@ -298,31 +368,41 @@ export default function CBT() {
                         </div>
                         <div className="grid grid-cols-6 my-10">
                             <Autocomplete
-                            readOnly={generateForm}
+                            readOnly={generateForm || printTableExist}
                             multiple
                             onChange={(_e, val) => {
-                                setSubjectCodes(val);
-                                console.log(subjectCodes);
+                                subs = [];
+                                setSelectedSubjectNames(val);
+                                val.forEach((value) => {
+                                    for(let i = 0; i < subNames.length; i++) {
+                                        if(value == subNames[i]) {
+                                            subs.push(subCodes[i]);
+                                        }
+                                        else {
+                                            continue;
+                                        }
+                                    }
+                                });
                                 if (val.length === 0) {
                                     setEmpty(true);
                                 } else setEmpty(false);
                             }}
                             disableCloseOnSelect
                             options={subNames}
-                            defaultValue={subNames}
+                            value={selectedSubjectNames}
                             filterSelectedOptions
                             renderInput={(val) => <CustTextField {...val} label="Subjects" />}
                             className="col-span-4 col-start-2"
                             />
                         </div>
-                        <div className="grid grid-cols-8">
-                            <span className="lg:text-xl text-lg font-semibold col-span-2 col-start-4">
-                                {calc()}
+                        <div className="flex justify-around">
+                            <span className="lg:text-xl text-lg font-semibold">
+                                <CalcTotalCost />
                             </span>
                         </div>
-                        <div className="grid grid-cols-8">
-                            <span className="lg:text-xl text-lg font-semibold col-span-2 col-start-4 my-4">
-                                <CustBarcode rollNo = {rollNo}/>
+                        <div className="flex justify-around">
+                            <span className="lg:text-xl text-lg font-semibold">
+                                <CustBarcode rollNo={rollNo} />
                             </span>
                         </div>
                         {!generateForm && (
@@ -354,28 +434,26 @@ export default function CBT() {
                             readOnly={generateForm}
                             multiple
                             onChange={(_e, val) => {
-                                setSubjectCodes(val);
-                                console.log(subjectCodes);
                                 if (val.length === 0) {
                                     setEmpty(true);
                                 } else setEmpty(false);
                             }}
                             disableCloseOnSelect
                             options={subNames}
-                            defaultValue={subNames}
+                            value={selectedSubjectNames}
                             filterSelectedOptions
                             renderInput={(val) => <CustTextField {...val} label="Subjects" />}
                             className="col-span-4 col-start-2"
                             />
                         </div>
-                        <div className="grid grid-cols-8">
-                            <span className="lg:text-xl text-lg font-semibold col-span-2 col-start-4">
-                                {calc()}
+                        <div className="flex justify-around">
+                            <span className="lg:text-xl text-lg font-semibold">
+                                <CalcTotalCost />
                             </span>
                         </div>
-                        <div className="grid grid-cols-8">
-                            <span className="lg:text-xl text-lg font-semibold col-span-2 col-start-4 my-4">
-                                <CustBarcode rollNo = {rollNo}/>
+                        <div className="flex justify-around">
+                            <span className="lg:text-xl text-lg font-semibold">
+                                <CustBarcode rollNo={rollNo} />
                             </span>
                         </div>
                         <div className="flex justify-around my-10">
@@ -397,44 +475,40 @@ export default function CBT() {
                             readOnly={generateForm}
                             multiple
                             onChange={(_e, val) => {
-                                setSubjectCodes(val);
-                                console.log(subjectCodes);
                                 if (val.length === 0) {
                                     setEmpty(true);
                                 } else setEmpty(false);
                             }}
                             disableCloseOnSelect
                             options={subNames}
-                            defaultValue={subNames}
+                            value={selectedSubjectNames}
                             filterSelectedOptions
                             renderInput={(val) => <CustTextField {...val} label="Subjects" />}
                             className="col-span-4 col-start-2"
                             />
                         </div>
-                        <div className="grid grid-cols-8">
-                            <span className="lg:text-xl text-lg font-semibold col-span-2 col-start-4">
-                                {calc()}
+                        <div className="flex justify-around">
+                            <span className="lg:text-xl text-lg font-semibold">
+                                <CalcTotalCost />
                             </span>
                         </div>
-                        <div className="grid grid-cols-8">
-                            <span className="lg:text-xl text-lg font-semibold col-span-2 col-start-4 my-4">
-                                <CustBarcode rollNo = {rollNo}/>
+                        <div className="flex justify-around">
+                            <span className="lg:text-xl text-lg font-semibold">
+                                <CustBarcode rollNo={rollNo} />
                             </span>
                         </div>
-                        <div className="flex gap-2 ml-auto justify-end">
-                            <Button 
-                            variant="outlined"
-                            onClick={() => {
-                                setGenerateForm(false);
-                            }}
-                            >
-                                <EditIcon />
-                                Edit Values
-                            </Button>
-                            <Button variant="contained">
-                                <PrintIcon />
-                                Print
-                            </Button>
+                        <div className="flex gap-2 ml-auto justify-end">  
+                            <Print
+                            rollNo={rollNo}
+                            exam="cbt"
+                            setStudentCopyGenerated={setGenerateForm}
+                            printTable={printTableExist}
+                            acYear={year}
+                            sem={semester}
+                            selectedSubjects={{subCodes, subNames} as ExamSemProps}
+                            branch={branch}
+                            reset={reset}
+                            />
                         </div>              
                     </div>
                     </>

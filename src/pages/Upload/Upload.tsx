@@ -1,10 +1,11 @@
 import { MenuItem } from "@mui/material";
 import Title from "../../components/Title";
-import { useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { CustTextField } from "../../components/Custom/CustTextField";
 import dayjs from "dayjs";
 import { UploadOutlined } from "@mui/icons-material";
 import Axios from "axios";
+import { AlertContext } from "../../components/Context/AlertDetails";
 
 export default function Upload() {
     const [type, setType] = useState("results");
@@ -14,12 +15,18 @@ export default function Upload() {
     const [acYear, setAcYear] = useState(0);
     const [sem, setSem] = useState(0);
     const [exam, setExam] = useState("supple");
+    const alert = useContext(AlertContext);
+    const folderLocationRef = useRef<HTMLInputElement>();
+
+    useEffect(() => {
+        folderLocationRef.current?.focus();
+    }, [type]);
 
     return (
         <>
             <Title title="Upload" />
             {/* Results... registered Entries... code Names... Written-Test*/}
-            <div className="grid lg:grid-cols-6 md:grid-cols-3 grid-cols-2 gap-x-4 gap-y-6 no-print">
+            <div className="grid lg:grid-cols-6 md:grid-cols-3 grid-cols-2 gap-x-4 gap-y-4 no-print">
                 <CustTextField
                     select
                     label="Type"
@@ -41,7 +48,7 @@ export default function Upload() {
                 {(type === "results" || type === "cbt") && (
                     <>
 
-                        <div className="flex w-full col-span-2 row-start-2 gap-4">
+                        <div className="col-span-2 row-start-2 flex gap-4">
                             <CustTextField
                                 fullWidth
                                 select
@@ -73,7 +80,8 @@ export default function Upload() {
 
                             </CustTextField>
                         </div>
-                        <div className="flex w-full col-span-2 row-start-3 gap-4">
+
+                        <div className="col-span-1 row-start-3 flex gap-4">
                             <CustTextField
                                 type="number"
                                 label="Exam Year"
@@ -88,18 +96,21 @@ export default function Upload() {
                                 }}
 
                             />
-                            <CustTextField
-                                type="number"
-                                label="Exam Month"
-                                InputProps={{
-                                    inputProps: { min: 1, max: 12 },
-                                }}
-                                value={examMonth}
-                                onChange={({ target: { value } }) => {
-                                    setExamMonth(parseInt(value) > 0 ? parseInt(value) : 0);
-                                }}
-                            />
-
+                        </div>
+                        <div className="col-span-1 row-start-3 flex gap-4">
+                            {type === "results" && (
+                                <CustTextField
+                                    type="number"
+                                    label="Exam Month"
+                                    InputProps={{
+                                        inputProps: { min: 1, max: 12 },
+                                    }}
+                                    value={examMonth}
+                                    onChange={({ target: { value } }) => {
+                                        setExamMonth(parseInt(value) > 0 ? parseInt(value) : 0);
+                                    }}
+                                />
+                            )}
                         </div>
                     </>
                 )
@@ -108,7 +119,7 @@ export default function Upload() {
                 {/* type === Registered Entries */}
                 {type === "registeredEntries" && (
                     <>
-                        <div className="flex w-full col-span-1 row-start-2 gap-4">
+                        <div className="col-span-1 row-start-2 flex gap-4">
                             <CustTextField
                                 fullWidth
                                 select
@@ -129,19 +140,24 @@ export default function Upload() {
 
                 {type === "codeNames" && (
                     <>
-                        <div className="text-red-600 text-l font-bold text-2xl flex w-full col-span-1 row-start-2 gap-4 whitespace-nowrap">
+                        <div className="text-red-600 text-l font-bold text-2xl col-span-2 row-start-2 flex gap-4 whitespace-nowrap">
                             The file name MUST be <code>code-names.csv</code>
                         </div>
                     </>
                 )}
+            </div>
 
-                {/* Folder loaction */}
-                <div className="flex w-full col-span-2 row-start-4 gap-4">
+            {/* Folder loaction */}
+            <div className="grid lg:grid-cols-6 md:grid-cols-3 grid-cols-2 gap-x-4 gap-y-1 no-print">
+
+                <div className="col-span-2 row-start-4 flex gap-4">
                     <CustTextField
                         fullWidth
                         type="string"
                         label="Folder Location"
                         value={loc}
+
+                        inputRef={folderLocationRef}
                         onChange={({ target: { value } }) => {
                             setLoc(value)
                         }}
@@ -149,7 +165,7 @@ export default function Upload() {
                 </div>
 
                 {/* button */}
-                <div className="flex w-full col-span-2 gap-4 row-start-4 items-end">
+                <div className="row-start-4 col-span-2 grid md:grid-cols-3 grid-cols-2 gap-4 items-center">
                     <button
                         type="submit"
                         className="blue-button-filled h-fit flex items-center gap-2"
@@ -167,56 +183,81 @@ export default function Upload() {
                                     exYear: examYear,
                                     exMonth: examMonth
                                 })
-                                    .then(response => {
-                                        console.log(response.data);
+                                    .then(({ data }) => {
+                                        console.log(data);
+                                        if (data.done)
+                                            alert?.showAlert("Uploaded", "success");
+                                        else
+                                            alert?.showAlert("Failed to upload", "error");
                                     })
-                                    .catch(error => {
-                                        console.error('Error uploading data:', error);
-                                    })
+                                    .catch(() => {
+                                        alert?.showAlert("Error while Uploading file", "error")
+                                        // console.error('Error uploading data:', error);
+                                    });
                             }
                             else if (type === "registeredEntries" && exam === "supple") {
                                 await Axios.post('/api/upload/table/paidsupple', {
                                     loc: loc
                                 })
-                                    .then(response => {
-                                        console.log(response.data);
+                                    .then(({ data }) => {
+                                        console.log(data);
+                                        if (data.done)
+                                            alert?.showAlert("Uploaded", "success");
+                                        else
+                                            alert?.showAlert("Failed to upload", "error");
                                     })
-                                    .catch(error => {
-                                        console.error('Error uploading data:', error);
-                                    })
+                                    .catch(() => {
+                                        alert?.showAlert("Error while Uploading file", "error")
+                                        // console.error('Error uploading data:', error);
+                                    });
                             }
                             else if (type === "registeredEntries" && exam === "reval") {
                                 await Axios.post('/api/upload/table/paidreevaluation', {
                                     loc: loc
                                 })
-                                    .then(response => {
-                                        console.log(response.data);
+                                    .then(({ data }) => {
+                                        console.log(data);
+                                        if (data.done)
+                                            alert?.showAlert("Uploaded", "success");
+                                        else
+                                            alert?.showAlert("Failed to upload", "error");
                                     })
-                                    .catch(error => {
-                                        console.error('Error uploading data:', error);
-                                    })
+                                    .catch(() => {
+                                        alert?.showAlert("Error while Uploading file", "error")
+                                        // console.error('Error uploading data:', error);
+                                    });
                             }
                             else if (type === "registeredEntries" && exam === "cbt") {
                                 await Axios.post('/api/upload/table/paidcbt', {
                                     loc: loc
                                 })
-                                    .then(response => {
-                                        console.log(response.data);
+                                    .then(({ data }) => {
+                                        console.log(data);
+                                        if (data.done)
+                                            alert?.showAlert("Uploaded", "success");
+                                        else
+                                            alert?.showAlert("Failed to upload", "error");
                                     })
-                                    .catch(error => {
-                                        console.error('Error uploading data:', error);
-                                    })
+                                    .catch(() => {
+                                        alert?.showAlert("Error while Uploading file", "error")
+                                        // console.error('Error uploading data:', error);
+                                    });
                             }
                             else if (type === "codeNames") {
                                 await Axios.post('/api/upload/table/codeNames', {
                                     loc: loc
                                 })
-                                    .then(response => {
-                                        console.log(response.data);
+                                    .then(({ data }) => {
+                                        console.log(data);
+                                        if (data.done)
+                                            alert?.showAlert("Uploaded", "success");
+                                        else
+                                            alert?.showAlert("Failed to upload", "error");
                                     })
-                                    .catch(error => {
-                                        console.error('Error uploading data:', error);
-                                    })
+                                    .catch(() => {
+                                        alert?.showAlert("Error while Uploading file", "error")
+                                        // console.error('Error uploading data:', error);
+                                    });
                             }
                             else if (type === "cbt") {
                                 await Axios.post('/api/upload/cbtsubjects', {
@@ -226,12 +267,17 @@ export default function Upload() {
                                     sem: sem,
                                     regYear: examMonth,
                                 })
-                                    .then(response => {
-                                        console.log(response.data);
+                                    .then(({ data }) => {
+                                        console.log(data);
+                                        if (data.done)
+                                            alert?.showAlert("Uploaded", "success");
+                                        else
+                                            alert?.showAlert("Failed to upload", "error");
                                     })
-                                    .catch(error => {
-                                        console.error('Error uploading data:', error);
-                                    })
+                                    .catch(() => {
+                                        alert?.showAlert("Error while Uploading file", "error")
+                                        // console.error('Error uploading data:', error);
+                                    });
                             }
                         }}
                     >
@@ -240,6 +286,8 @@ export default function Upload() {
                     </button>
                 </div>
             </div>
+
         </>
     )
 }
+

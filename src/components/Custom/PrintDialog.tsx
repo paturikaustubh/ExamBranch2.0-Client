@@ -36,13 +36,13 @@ export function PrintDialog({
   const [openPrintDialog, setOpenPrintDialog] = useState(false);
   const alert = useContext(AlertContext);
   const loading = useContext(LoadingContext);
-  console.log( rollNo,
-    exam,
-    setStudentCopyGenerated,
-    selectedSubjects,
-    printTable,
-    reset,
-    grandTotal,);
+  // console.log( rollNo,
+  //   exam,
+  //   setStudentCopyGenerated,
+  //   selectedSubjects,
+  //   printTable,
+  //   reset,
+  //   grandTotal,);
 
   // ANCHOR JSX  ||========================================================================
   return (

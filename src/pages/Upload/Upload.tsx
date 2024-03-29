@@ -6,6 +6,7 @@ import dayjs from "dayjs";
 import { UploadOutlined } from "@mui/icons-material";
 import Axios from "axios";
 import { AlertContext } from "../../components/Context/AlertDetails";
+import { LoadingContext } from "../../components/Context/Loading";
 
 export default function Upload() {
     const [type, setType] = useState("results");
@@ -17,6 +18,7 @@ export default function Upload() {
     const [exam, setExam] = useState("supple");
     const alert = useContext(AlertContext);
     const folderLocationRef = useRef<HTMLInputElement>();
+    const loading = useContext(LoadingContext);
 
     useEffect(() => {
         folderLocationRef.current?.focus();
@@ -26,7 +28,7 @@ export default function Upload() {
         <>
             <Title title="Upload" />
             {/* Results... registered Entries... code Names... Written-Test*/}
-            <div className="grid lg:grid-cols-6 md:grid-cols-3 grid-cols-2 gap-x-4 gap-y-4 no-print">
+            <div className="grid lg:grid-cols-6 md:grid-cols-2 grid-cols-2 gap-x-4 gap-y-4 no-print">
                 <CustTextField
                     select
                     label="Type"
@@ -97,8 +99,9 @@ export default function Upload() {
 
                             />
                         </div>
-                        <div className="col-span-1 row-start-3 flex gap-4">
-                            {type === "results" && (
+                        {type === "results" && (
+                            <div className="col-span-1 row-start-3 flex gap-4">
+
                                 <CustTextField
                                     type="number"
                                     label="Exam Month"
@@ -110,8 +113,9 @@ export default function Upload() {
                                         setExamMonth(parseInt(value) > 0 ? parseInt(value) : 0);
                                     }}
                                 />
-                            )}
-                        </div>
+
+                            </div>
+                        )}
                     </>
                 )
                 }
@@ -145,18 +149,14 @@ export default function Upload() {
                         </div>
                     </>
                 )}
-            </div>
 
-            {/* Folder loaction */}
-            <div className="grid lg:grid-cols-6 md:grid-cols-3 grid-cols-2 gap-x-4 gap-y-1 no-print">
-
+                {/* Folder loaction */}
                 <div className="col-span-2 row-start-4 flex gap-4">
                     <CustTextField
                         fullWidth
                         type="string"
                         label="Folder Location"
                         value={loc}
-
                         inputRef={folderLocationRef}
                         onChange={({ target: { value } }) => {
                             setLoc(value)
@@ -165,16 +165,17 @@ export default function Upload() {
                 </div>
 
                 {/* button */}
-                <div className="row-start-4 col-span-2 grid md:grid-cols-3 grid-cols-2 gap-4 items-center">
+                <div className="col-span-2 row-start-4 flex gap-4 items-center">
                     <button
                         type="submit"
-                        className="blue-button-filled h-fit flex items-center gap-2"
+                        className="blue-button-filled col-span-1 h-fit flex items-center gap-2"
                         disabled={(type === "results" || type === "cbt") && (acYear === 0 || examMonth === 0 || sem === 0 || loc.length === 0)
                             || (type === "registeredEntries" && (loc.length === 0))
                             || (type === "codeNames" && (loc.length === 0))
                         }
                         onClick={async () => {
                             if (type === "results") {
+                                loading?.showLoading(true, "Uploading file...");
                                 await Axios.post('/api/upload/results', {
                                     loc: loc,
                                     ext: '.xlsx',
@@ -184,82 +185,82 @@ export default function Upload() {
                                     exMonth: examMonth
                                 })
                                     .then(({ data }) => {
-                                        console.log(data);
                                         if (data.done)
                                             alert?.showAlert("Uploaded", "success");
                                         else
                                             alert?.showAlert("Failed to upload", "error");
                                     })
-                                    .catch(() => {
+                                    .catch(() =>
                                         alert?.showAlert("Error while Uploading file", "error")
-                                        // console.error('Error uploading data:', error);
-                                    });
+                                    )
+                                    .finally(() => loading?.showLoading(false));
                             }
                             else if (type === "registeredEntries" && exam === "supple") {
+                                loading?.showLoading(true, "Uploading file...");
                                 await Axios.post('/api/upload/table/paidsupple', {
                                     loc: loc
                                 })
                                     .then(({ data }) => {
-                                        console.log(data);
                                         if (data.done)
                                             alert?.showAlert("Uploaded", "success");
                                         else
                                             alert?.showAlert("Failed to upload", "error");
                                     })
-                                    .catch(() => {
+                                    .catch(() =>
                                         alert?.showAlert("Error while Uploading file", "error")
-                                        // console.error('Error uploading data:', error);
-                                    });
+                                    )
+                                    .finally(() => loading?.showLoading(false));
                             }
                             else if (type === "registeredEntries" && exam === "reval") {
+                                loading?.showLoading(true, "Uploading file...");
                                 await Axios.post('/api/upload/table/paidreevaluation', {
                                     loc: loc
                                 })
                                     .then(({ data }) => {
-                                        console.log(data);
                                         if (data.done)
                                             alert?.showAlert("Uploaded", "success");
                                         else
                                             alert?.showAlert("Failed to upload", "error");
                                     })
-                                    .catch(() => {
+                                    .catch(() =>
                                         alert?.showAlert("Error while Uploading file", "error")
-                                        // console.error('Error uploading data:', error);
-                                    });
+                                    )
+                                    .finally(() => loading?.showLoading(false));
                             }
                             else if (type === "registeredEntries" && exam === "cbt") {
+                                loading?.showLoading(true, "Uploading file...");
                                 await Axios.post('/api/upload/table/paidcbt', {
                                     loc: loc
                                 })
                                     .then(({ data }) => {
-                                        console.log(data);
                                         if (data.done)
                                             alert?.showAlert("Uploaded", "success");
                                         else
                                             alert?.showAlert("Failed to upload", "error");
                                     })
-                                    .catch(() => {
+                                    .catch(() =>
                                         alert?.showAlert("Error while Uploading file", "error")
-                                        // console.error('Error uploading data:', error);
-                                    });
+                                    )
+                                    .finally(() => loading?.showLoading(false));
                             }
                             else if (type === "codeNames") {
-                                await Axios.post('/api/upload/table/codeNames', {
-                                    loc: loc
+                                loading?.showLoading(true, "Uploading file...");
+                                await Axios.post('/api/upload/table/codenames', {
+                                    loc: loc,
                                 })
                                     .then(({ data }) => {
-                                        console.log(data);
                                         if (data.done)
                                             alert?.showAlert("Uploaded", "success");
                                         else
                                             alert?.showAlert("Failed to upload", "error");
                                     })
-                                    .catch(() => {
+                                    .catch(() =>
                                         alert?.showAlert("Error while Uploading file", "error")
-                                        // console.error('Error uploading data:', error);
-                                    });
+                                    )
+                                    .finally(() => loading?.showLoading(false));
                             }
                             else if (type === "cbt") {
+                                loading?.showLoading(true, "Uploading file...");
                                 await Axios.post('/api/upload/cbtsubjects', {
                                     loc: loc,
                                     ext: '.xlsx',
@@ -268,25 +269,66 @@ export default function Upload() {
                                     regYear: examMonth,
                                 })
                                     .then(({ data }) => {
-                                        console.log(data);
                                         if (data.done)
                                             alert?.showAlert("Uploaded", "success");
                                         else
                                             alert?.showAlert("Failed to upload", "error");
                                     })
-                                    .catch(() => {
+                                    .catch(() =>
                                         alert?.showAlert("Error while Uploading file", "error")
-                                        // console.error('Error uploading data:', error);
-                                    });
+                                    )
+                                    .finally(() => loading?.showLoading(false));
                             }
                         }}
                     >
                         <UploadOutlined fontSize="small" />
                         Upload
                     </button>
-                </div>
-            </div>
 
+                    {type !== "registeredEntries" && (
+                        <>
+                            {/* Download template button */}
+                            <button
+                                type="submit"
+                                className="blue-button-filled col-span-1 mr-auto h-fit flex items-center gap-2"
+                                onClick={async () => {
+                                    loading?.showLoading(true, "Downloading file...");
+                                    let fileContent: BlobPart | null = null, columnNames: string[], name: string | null = null;
+                                    if (type === "results") {
+                                        columnNames = ["rollNo", "Start entering subject codes here"];
+                                        fileContent = columnNames.join(',') + '\n';
+                                        name = "Results";
+                                    }
+                                    else if (type === "codeNames") {
+                                        columnNames = ["subCode", "subName"];
+                                        fileContent = columnNames.join(',') + '\n';
+                                        name = "Code Names";
+                                        
+                                    }
+                                    else if (type === "cbt") {
+                                        columnNames = ["subCode", "subName", "branch", "acYear", "sem", "regYear"];
+                                        fileContent = columnNames.join(',') + '\n'; 
+                                        name = "Written Test"; 
+
+                                    }
+                                    const blob = new Blob([fileContent as BlobPart], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                                        const url = window.URL.createObjectURL(blob);
+                                        const link = document.createElement('a');
+                                        link.href = url;
+                                        link.setAttribute('download', `${name} Template.csv`);
+                                        document.body.appendChild(link);
+                                        link.click();
+                                        document.body.removeChild(link);
+                                        alert?.showAlert("File downloaded successfully", "success");
+                                    loading?.showLoading(false);
+                                }}
+                            >
+                                Download Template
+                            </button>
+                        </>
+                    )}
+                </div>
+            </div >
         </>
     )
 }

@@ -1,0 +1,9 @@
+*************************  Template Store  *************************
+
+1). 	 hi  of code  3456543  of quantity  
+ 3  billed  40x3units  =  
+ 	 Rs.120  
+
+
+!!! Your bill total is  Rs.120 only . Thanks for shopping with us !!!
+

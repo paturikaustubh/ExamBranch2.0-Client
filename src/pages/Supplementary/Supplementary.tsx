@@ -1,5 +1,4 @@
 import Title from "../../components/Title";
-import Costs, { addcost, basecosts, maxcost } from "../../components/Costs";
 import { useContext, useEffect, useState } from "react";
 import dayjs from "dayjs";
 import { ExamSearchSubjectsProps } from "../../Types/responseTypes";
@@ -15,9 +14,30 @@ import { CustTextField } from "../../components/Custom/CustTextField";
 import { PrintDialog } from "../../components/Custom/PrintDialog";
 import { CustAutocomplete } from "../../components/Custom/CustAutocomplete";
 import { CustBarcode } from "../../components/Custom/Barcode";
+import Costs from "../../components/Costs";
 
 export default function Supple() {
   const alert = useContext(AlertContext);
+
+  const [costs, setCosts] = useState({
+    sbc: 0,
+    sac: 0,
+    sfc: 0,
+    cbc: 0,
+    cac: 0,
+    cfc: 0
+  });
+  const [fine, setFine] = useState({
+    A: 0,
+    B: 0,
+    C: 0,
+    D: 0,
+    E: 0,
+    F: 0,
+    G: 0,
+    H: 0
+  });
+
   const [rollNo, setRollNo] = useState("");
   const [availableSubs, setAvailableSubs] = useState<ExamSearchSubjectsProps>();
   const [selectedSubjects, setSelectedSubjects] =
@@ -49,52 +69,76 @@ export default function Supple() {
   );
 
   const reset = () => {
+    setRollNo("");
     setPrintTable(false);
     setShowForm(false);
     setSearched(false);
     setStudentCopyGenerated(false);
   };
 
+
   const calculateCostPerYear = (year: 1 | 2 | 3 | 4) => {
     let totalSubs = 0;
+    let fines = 0;
+    let A = 0, B = 0;
     switch (year) {
       case 1:
-        totalSubs =
-          (selectedSubjects as ExamSearchSubjectsProps)["A"].subNames.length +
-          (selectedSubjects as ExamSearchSubjectsProps)["B"].subNames.length;
+        A = (selectedSubjects as ExamSearchSubjectsProps)["A"].subNames.length;
+        B = (selectedSubjects as ExamSearchSubjectsProps)["B"].subNames.length;
+        totalSubs = A + B;
+        (A != 0 && B != 0) ? fines = fine.A + fine.B : (A == 0) ? fines = fine.B : fines = fine.A;
         break;
       case 2:
-        totalSubs =
-          (selectedSubjects as ExamSearchSubjectsProps)["C"].subNames.length +
-          (selectedSubjects as ExamSearchSubjectsProps)["D"].subNames.length;
-
+        A = (selectedSubjects as ExamSearchSubjectsProps)["C"].subNames.length;
+        B = (selectedSubjects as ExamSearchSubjectsProps)["D"].subNames.length;
+        totalSubs = A + B;
+        (A != 0 && B != 0) ? fines = fine.C + fine.D : (A == 0) ? fines = fine.D : fines = fine.C;
         break;
       case 3:
-        totalSubs =
-          (selectedSubjects as ExamSearchSubjectsProps)["E"].subNames.length +
-          (selectedSubjects as ExamSearchSubjectsProps)["F"].subNames.length;
+        A = (selectedSubjects as ExamSearchSubjectsProps)["E"].subNames.length;
+        B = (selectedSubjects as ExamSearchSubjectsProps)["F"].subNames.length;
+        totalSubs = A + B;
+        (A != 0 && B != 0) ? fines = fine.E + fine.F : (A == 0) ? fines = fine.F : fines = fine.E;
         break;
       case 4:
-        totalSubs =
-          (selectedSubjects as ExamSearchSubjectsProps)["G"].subNames.length +
-          (selectedSubjects as ExamSearchSubjectsProps)["H"].subNames.length;
+        A = (selectedSubjects as ExamSearchSubjectsProps)["G"].subNames.length;
+        B = (selectedSubjects as ExamSearchSubjectsProps)["H"].subNames.length;
+        totalSubs = A + B;
+        (A != 0 && B != 0) ? fines = fine.G + fine.H : (A == 0) ? fines = fine.H : fines = fine.G;
         break;
     }
-    const cost =
-      totalSubs >= 4 && totalSubs !== 0
-        ? maxcost
-        : totalSubs > 0
-          ? basecosts + (totalSubs - 1) * addcost
+    const maxCost = costs.sfc;
+    const baseCosts = costs.sbc;
+    const addCost = costs.sac;
+
+    let cost1 =
+      A >= 4
+        ? maxCost
+        : A > 0
+          ? baseCosts + (A - 1) * addCost
           : 0;
-    return { cost, totalSubs };
+    let cost2 =
+      B >= 4
+        ? maxCost
+        : B > 0
+          ? baseCosts + (B - 1) * addCost
+          : 0;
+    if(A > 0 && B > 0){cost1 = cost1; cost2 = cost2 + fines } 
+    (A === 0 && B > 0) ? cost2 = cost2 + fines : (A > 0 && B === 0) ? cost1 = cost1 + fines : 0;
+    return { cost: cost1 + cost2, totalSubs, A, B };
   };
 
   return (
     <>
       <Title title="Supplementary" />
-      <Costs />
+      <Costs
+        costs={costs}
+        setCosts={setCosts}
+        fine={fine}
+        setFine={setFine}
+      />
       <form
-        className="grid lg:grid-cols-6 md:grid-cols-3 grid-cols-2 gap-5 no-print"
+        className="grid lg:grid-cols-6 md:grid-cols-2 grid-cols-2 gap-4 no-print"
         onSubmit={async (e) => {
           e.preventDefault();
           const { data } = await Axios.get(
@@ -121,7 +165,7 @@ export default function Supple() {
           } else alert?.showAlert("No data found", "warning");
         }}
       >
-        <div className="col-span-2 row-start-2 flex gap-4">
+        <div className="row-start-2 col-span-3 grid md:grid-cols-3 grid-cols-2 gap-4 items-center">
           <CustTextField
             label="Roll Number"
             className="lg:col-span-2 col-span-1"
@@ -136,19 +180,18 @@ export default function Supple() {
               setPrintTable(false);
             }}
           />
-        </div>
-        <div className="row-start-2 col-span-2 grid md:grid-cols-3 grid-cols-2 gap-4 items-center">
+
           {!printTable ? (
             <button
               type="submit"
               className="blue-button-filled col-span-1 mr-auto h-fit flex items-center gap-2"
               disabled={rollNo.length !== 10 || searched}
             >
-              <SearchOutlined />
+              <SearchOutlined fontSize="small" />
               Search
             </button>
           ) : (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center col-span-1 gap-1">
               <button
                 className="green-button-filled col-span-1 mr-auto h-fit flex items-center gap-2"
                 type="button"
@@ -168,6 +211,7 @@ export default function Supple() {
 
                   if (data.done) {
                     alert?.showAlert(`Registered for ${rollNo}`, "success");
+                    setRollNo("");
                     setPrintTable(false);
                     setShowForm(false);
                     setSearched(false);
@@ -208,6 +252,7 @@ export default function Supple() {
                   >
                 }
                 studentCopyGenerated={studentCopyGenerated}
+                fine={fine}
               />
               <CustBarcode rollNo={rollNo} />
             </div>
@@ -225,6 +270,7 @@ export default function Supple() {
                       >
                     }
                     studentCopyGenerated={studentCopyGenerated}
+                    fine={fine}
                   />
                   <CustBarcode rollNo={rollNo} />
                   <span className="mx-auto text-lg text-center font-bold">
@@ -245,6 +291,7 @@ export default function Supple() {
                       >
                     }
                     studentCopyGenerated={studentCopyGenerated}
+                    fine={fine}
                   />
                   <CustBarcode rollNo={rollNo} />
                 </div>
@@ -298,17 +345,30 @@ function SubDetails({
   setSelectedSubjects,
   studentCopyGenerated,
   printTable,
+  fine,
 }: {
   supplySubs: ExamSearchSubjectsProps;
   calculateCostPerYear: (year: 1 | 2 | 3 | 4) => {
     cost: number;
     totalSubs: number;
+    A: number;
+    B: number;
   };
   setSelectedSubjects: React.Dispatch<
     React.SetStateAction<ExamSearchSubjectsProps>
   >;
   studentCopyGenerated: boolean;
   printTable: boolean;
+  fine: {
+    A: number;
+    B: number;
+    C: number;
+    D: number;
+    E: number;
+    F: number;
+    G: number;
+    H: number;
+  };
 }) {
   // ANCHOR STATES && VARS  ||========================================================================
   const subsA = supplySubs["A"].subNames;
@@ -345,7 +405,9 @@ function SubDetails({
         />
         <div className="col-span-2">
           {calculateCostPerYear(1).cost
-            ? formatCost(calculateCostPerYear(1).cost)
+            ? (calculateCostPerYear(1).A > 0 && calculateCostPerYear(1).B > 0) ? `${formatCost(calculateCostPerYear(1).cost)} Fine(${formatCost(fine.A)} + ${formatCost(fine.B)}) ` :
+              (calculateCostPerYear(1).B > 0) ? `${formatCost(calculateCostPerYear(1).cost)} Fine(${formatCost(fine.B)})` :
+                `${formatCost(calculateCostPerYear(1).cost)} Fine(${formatCost(fine.A)})`
             : "NA"}
         </div>
       </div>
@@ -371,7 +433,9 @@ function SubDetails({
         />
         <div className="col-span-2">
           {calculateCostPerYear(2).cost
-            ? formatCost(calculateCostPerYear(2).cost)
+            ? (calculateCostPerYear(2).A > 0 && calculateCostPerYear(2).B > 0) ? `${formatCost(calculateCostPerYear(2).cost)} Fine(${formatCost(fine.C)} + ${formatCost(fine.D)}) ` :
+              (calculateCostPerYear(2).B > 0) ? `${formatCost(calculateCostPerYear(2).cost)} Fine(${formatCost(fine.D)})` :
+                `${formatCost(calculateCostPerYear(2).cost)} Fine(${formatCost(fine.C)})`
             : "NA"}
         </div>
       </div>
@@ -397,7 +461,9 @@ function SubDetails({
         />
         <div className="col-span-2">
           {calculateCostPerYear(3).cost
-            ? formatCost(calculateCostPerYear(3).cost)
+            ? (calculateCostPerYear(3).A > 0 && calculateCostPerYear(3).B > 0) ? `${formatCost(calculateCostPerYear(3).cost)} Fine(${formatCost(fine.E)} + ${formatCost(fine.F)}) ` :
+              (calculateCostPerYear(3).B > 0) ? `${formatCost(calculateCostPerYear(3).cost)} Fine(${formatCost(fine.F)})` :
+                `${formatCost(calculateCostPerYear(3).cost)} Fine(${formatCost(fine.E)})`
             : "NA"}
         </div>
       </div>
@@ -423,7 +489,9 @@ function SubDetails({
         />
         <div className="col-span-2">
           {calculateCostPerYear(4).cost
-            ? formatCost(calculateCostPerYear(4).cost)
+            ? (calculateCostPerYear(4).A > 0 && calculateCostPerYear(4).B > 0) ? `${formatCost(calculateCostPerYear(4).cost)} Fine(${formatCost(fine.G)} + ${formatCost(fine.H)}) ` :
+              (calculateCostPerYear(4).B > 0) ? `${formatCost(calculateCostPerYear(4).cost)} Fine(${formatCost(fine.H)})` :
+                `${formatCost(calculateCostPerYear(4).cost)} Fine(${formatCost(fine.G)})`
             : "NA"}
         </div>
       </div>

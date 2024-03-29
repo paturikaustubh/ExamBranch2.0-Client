@@ -115,7 +115,7 @@ code {
 }
 
 .blue-button-outline-sm {
-  @apply text-blue-500 hover:text-white hover:bg-blue-500 border border-blue-500 rounded-md duration-300 px-3 py-2;
+  @apply text-blue-500 hover:text-white hover:bg-blue-500 border border-blue-500 rounded-md duration-300 px-2 py-1;
 }
 
 /* ANCHOR GREEN BUTTONS ||======================================================================== */
@@ -156,7 +156,7 @@ code {
 }
 
 .page-title {
-  @apply md:text-5xl text-4xl mx-auto font-semibold mb-6 text-blue-500;
+  @apply md:text-5xl text-4xl font-semibold text-blue-500;
 }
 
 .nav-link::after {
@@ -169,7 +169,27 @@ code {
   background-color: rgb(59 130 246);
   transform-origin: right;
   transform: scaleX(0%);
+  border-radius: 0px 0px 3px 3px;
   transition: transform 0.7s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.nav-link::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -5%;
+  width: 100%;
+  height: 2px;
+  background-color: rgba(59 130 246 / 0.3);
+  transform-origin: bottom;
+  transform: scaleY(0%);
+  border-radius: 0px 0px 3px 3px;
+  transition: transform 0.7s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.nav-link:hover::before,
+.nav-link:focus::before {
+  transform: scaleY(100%);
 }
 
 .active.nav-link::after {

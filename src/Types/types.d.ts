@@ -9,4 +9,16 @@ interface LoginCredentialsProps {
   displayName: string;
 }
 
-type grades = "O" | "A+" | "A" | "B+" | "B" | "C" | "F";
+type Grades = "O" | "A+" | "A" | "B+" | "B" | "C" | "F";
+
+type Pages =
+  | "revaluation"
+  | "download"
+  | "supplementary"
+  | "written-test"
+  | "upload"
+  | "manage-users"
+  | "manage-costs"
+  | "backup-and-restore"
+  | "manage-database"
+  | "test";

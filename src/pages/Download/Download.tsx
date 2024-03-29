@@ -14,9 +14,9 @@ import { useContext, useRef, useState } from "react";
 import { DeleteForeverOutlined, DownloadOutlined } from "@mui/icons-material";
 import { CustDialog } from "../../components/Custom/CustDialog";
 import Axios from "axios";
-import dayjs from "dayjs";
 import { AlertContext } from "../../components/Context/AlertDetails";
 import { LoadingContext } from "../../components/Context/Loading";
+import Title from "../../components/Title";
 
 export default function Download() {
   const alert = useContext(AlertContext);
@@ -35,11 +35,6 @@ export default function Download() {
     print: "Uregistered",
     report: "Report",
   };
-  const examNames = {
-    supple: "Supplementary",
-    reval: "Revaluation",
-    cbt: "Written Test",
-  };
 
   // ANCHOR FUNCTIONS  ||========================================================================
   const handleDownOptsClose = () => {
@@ -48,11 +43,9 @@ export default function Download() {
 
   return (
     <>
-      <div className="flex no-print">
-        <span className="page-title">Download</span>
-      </div>
+      <Title />
 
-      <div className="grid lg:grid-cols-6 md:grid-cols-3 grid-cols-2 gap-x-4 gap-y-6 no-print">
+      <div className="grid lg:grid-cols-6 md:grid-cols-3 grid-cols-2 gap-4 no-print">
         <CustTextField
           select
           label="Exam"
@@ -111,22 +104,21 @@ export default function Download() {
                 }&acYear=${acYear}&sem=${sem}`,
                 { responseType: "blob" }
               )
-                .then(({ data }) => {
-                  const url = window.URL.createObjectURL(new Blob([data]));
-                  const link = document.createElement("a");
-                  link.href = url;
-                  link.setAttribute(
-                    "download",
-                    `${examTypeNames[examType]}_${
-                      examNames[exam]
-                    }_${dayjs().format("DD-MMM-YY_hh-mm_A")}.xlsx`
-                  );
-                  document.body.appendChild(link);
-                  link.click();
-                  alert?.showAlert("File downloaded successfully", "success");
+                .then(({ data, headers }) => {
+                  if (data.type !== "application/json") {
+                    const url = window.URL.createObjectURL(new Blob([data]));
+                    const link = document.createElement("a");
+                    link.href = url;
+                    const fileName =
+                      headers["content-disposition"]?.split("filename=")[1];
+                    link.setAttribute("download", `${fileName.slice(1, -1)}`);
+                    document.body.appendChild(link);
+                    link.click();
+                    alert?.showAlert("File downloaded successfully", "success");
+                  } else alert?.showAlert("No data found", "warning");
                 })
                 .catch(() =>
-                  alert?.showAlert("Error downloading file", "error")
+                  alert?.showAlert("Error while downloading file", "error")
                 )
                 .finally(() => loading?.showLoading(false));
             }}

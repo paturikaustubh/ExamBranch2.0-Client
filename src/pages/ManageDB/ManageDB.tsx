@@ -4,18 +4,26 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  Menu,
-  MenuList,
 } from "@mui/material";
 import { CustTextField } from "../../components/Custom/CustTextField";
 import Title from "../../components/Title";
-import { ReactNode, useContext, useState } from "react";
-import { Add, DeleteOutline, Edit, SearchOutlined } from "@mui/icons-material";
+import { useContext, useState } from "react";
+import {
+  Add,
+  DeleteOutlined,
+  EditOutlined,
+  SearchOutlined,
+} from "@mui/icons-material";
 import Axios from "axios";
 import { AlertContext } from "../../components/Context/AlertDetails";
 import { LoadingContext } from "../../components/Context/Loading";
 import { CustDataGrid } from "../../components/Custom/CustDataGrid";
-import { GridColDef } from "@mui/x-data-grid";
+import {
+  GridActionsCellItem,
+  GridColDef,
+  GridFooter,
+  GridRowSelectionModel,
+} from "@mui/x-data-grid";
 import {
   AvailableDbTables,
   ManageDBResponseArr,
@@ -23,35 +31,25 @@ import {
 } from "../../Types/responseTypes";
 import { CustDialog } from "../../components/Custom/CustDialog";
 import dayjs from "dayjs";
-import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { formatCost } from "../../misc/CostFormater";
 
 export default function ManageDB() {
   const alert = useContext(AlertContext);
   const loading = useContext(LoadingContext);
 
   // ANCHOR STATES && VARS  ||========================================================================
-  const [table, setTable] = useState<AvailableDbTables>("studentinfo");
+  const [table, setTable] = useState<AvailableDbTables>("studentInfo");
   const [rollNo, setRollNo] = useState("");
   const [responseData, setResponseData] = useState<ManageDBResponseArr>([]);
+  const [selectedRows, setSelectedRows] = useState<GridRowSelectionModel>([]);
 
   const datagridCols: GridColDef[] = [
-    { field: "id", headerName: "S No.", minWidth: 80 },
+    { field: "id", headerName: "S No.", minWidth: 80, editable: false },
     {
       field: "subCode",
       headerName: "Subject Code",
       flex: 1,
       minWidth: 170,
-      renderCell: ({ row, value }) => (
-        <ManageRowDetails
-          row={row}
-          title={value}
-          type="update"
-          table={table}
-          responseData={responseData}
-          setResponseData={setResponseData}
-        />
-      ),
     },
     {
       field: "subName",
@@ -76,12 +74,16 @@ export default function ManageDB() {
       headerName: "AC Year",
       flex: 1,
       minWidth: 130,
+      type: "number",
+      renderCell: ({ value }) => value,
     },
     {
       field: "sem",
       headerName: "Semester",
       flex: 1,
       minWidth: 140,
+      type: "number",
+      renderCell: ({ value }) => value,
     },
     {
       field: "stat",
@@ -94,13 +96,16 @@ export default function ManageDB() {
       headerName: "Exam Year",
       flex: 1,
       minWidth: 150,
+      type: "number",
+      renderCell: ({ value }) => value,
     },
     {
       field: "exMonth",
       headerName: "Exam Month",
       flex: 1,
       minWidth: 160,
-      cellClassName: "text-right",
+      type: "number",
+      renderCell: ({ value }) => value,
     },
     {
       field: "user",
@@ -109,10 +114,12 @@ export default function ManageDB() {
       minWidth: 130,
     },
     {
-      field: "total",
+      field: "grandTotal",
       headerName: "Amount Paid",
       flex: 1,
       minWidth: 150,
+      type: "number",
+      renderCell: ({ value }) => formatCost(value),
     },
     {
       field: "regDate",
@@ -121,12 +128,50 @@ export default function ManageDB() {
       minWidth: 180,
       renderCell: ({ value }) => dayjs(value).format("DD MMM, YYYY"),
     },
+    {
+      field: "actions",
+      type: "actions",
+      headerName: "Actions",
+      width: 130,
+      cellClassName: "actions",
+      renderCell: ({ row }) => {
+        return [
+          <ManageRowDetails
+            key={1}
+            row={row as ManageDBResponseProps}
+            type="edit"
+            responseData={responseData}
+            setResponseData={setResponseData}
+            rollNo={rollNo}
+            table={table}
+          />,
+          <DeleteConfirmDialog
+            table={table}
+            tablesNames={tablesNames}
+            row={row}
+            setResponseData={setResponseData}
+            key={2}
+            rollNo={rollNo}
+          />,
+        ];
+      },
+    },
   ];
+
+  const tablesNames: Record<AvailableDbTables, string> = {
+    studentInfo: "Student Database",
+    printSupply: "Unregistered Supplementary",
+    paidSupply: "Registered Supplementary",
+    printReval: "Unregistered Revaluation",
+    paidReEvaluation: "Registered Revaluation",
+    printCBT: "Unregistered Written Test",
+    paidCBT: "Registered Written Test",
+  };
 
   // ANCHOR JSX  ||========================================================================
   return (
     <>
-      <Title title="Manage Database" />
+      <Title />
       <div className="grid sm:grid-cols-3 grid-cols-1 gap-4 no-print items-center">
         <CustTextField
           select
@@ -135,21 +180,22 @@ export default function ManageDB() {
           onChange={({ target: { value } }) => {
             setTable(value as AvailableDbTables);
             setResponseData([]);
+            setSelectedRows([]);
           }}
         >
-          <MenuItem value={"studentinfo"}>Student Database</MenuItem>
+          <MenuItem value={"studentInfo"}>Student Database</MenuItem>
           <ListSubheader style={{ backgroundColor: "#d4d4d4" }}>
             Paid Entries
           </ListSubheader>
-          <MenuItem value={"paidsupply"}>Paid Supplementary</MenuItem>
-          <MenuItem value={"paidreevaluation"}>Paid Revaluation</MenuItem>
-          <MenuItem value={"paidcbt"}>Paid WrittenTest</MenuItem>
+          <MenuItem value={"paidSupply"}>Paid Supplementary</MenuItem>
+          <MenuItem value={"paidReEvaluation"}>Paid Revaluation</MenuItem>
+          <MenuItem value={"paidCBT"}>Paid WrittenTest</MenuItem>
           <ListSubheader style={{ backgroundColor: "#d4d4d4" }}>
             Print Entries
           </ListSubheader>
-          <MenuItem value={"printsupply"}>Print Supplementary</MenuItem>
-          <MenuItem value={"printreval"}>Print Revaluation</MenuItem>
-          <MenuItem value={"printcbt"}>Print Written Test</MenuItem>
+          <MenuItem value={"printSupply"}>Print Supplementary</MenuItem>
+          <MenuItem value={"printReval"}>Print Revaluation</MenuItem>
+          <MenuItem value={"printCBT"}>Print Written Test</MenuItem>
         </CustTextField>
 
         {/* ANCHOR FORM ||======================================================================== */}
@@ -167,7 +213,6 @@ export default function ManageDB() {
                 }: {
                   data: { stdData: ManageDBResponseArr };
                 }) => {
-                  console.log(stdData);
                   if (stdData.length === 0) {
                     alert?.showAlert("No data found", "warning");
                   } else
@@ -191,8 +236,9 @@ export default function ManageDB() {
             inputProps={{ maxLength: 10 }}
             value={rollNo}
             onChange={({ target: { value } }) => {
-              setRollNo(value.toUpperCase());
+              setRollNo(value.trim().toUpperCase());
               setResponseData([]);
+              setSelectedRows([]);
             }}
             autoFocus
           />
@@ -209,15 +255,15 @@ export default function ManageDB() {
       {/* ANCHOR DATAGRID ||======================================================================== */}
       {responseData.length > 0 && (
         <div className={`bg-white p-4 rounded-sm mt-8 h-fit`}>
-          <div className="flex mb-4 items-center justify-between text-6xl font-semibold text-blue-500">
+          <div className="flex mb-4 items-center justify-between lg:text-6xl text-4xl font-semibold text-blue-500">
             <span className="">{rollNo}</span>
-            {table === "studentinfo" && (
+            {table === "studentInfo" && (
               <span>
                 <span className="text-red-500">
                   {responseData.filter(({ grade }) => grade === "F").length}
                 </span>
 
-                <span className="text-4xl font-normal">
+                <span className="lg:text-4xl text-2xl font-normal">
                   /{responseData.length}
                 </span>
               </span>
@@ -229,30 +275,49 @@ export default function ManageDB() {
             disableRowSelectionOnClick
             checkboxSelection
             columnVisibilityModel={{
-              grade: table === "studentinfo",
-              exYear: table === "studentinfo",
-              exMonth: table === "studentinfo",
-              user: table !== "studentinfo",
-              total: table !== "studentinfo",
-              regDate: table !== "studentinfo",
-              stat: table === "paidreevaluation",
-              branch: table === "paidcbt",
+              grade: table === "studentInfo",
+              exYear: table === "studentInfo",
+              exMonth: table === "studentInfo",
+              user: table !== "studentInfo",
+              total: table !== "studentInfo",
+              regDate: table !== "studentInfo",
+              stat: table === "paidReEvaluation",
+              branch: table === "paidCBT",
             }}
+            // isCellEditable={(params) => {
+            //   const {row} = params
+
+            // }}
+            sx={{ height: 600 }}
+            rowSelectionModel={selectedRows}
+            onRowSelectionModelChange={(ids) => setSelectedRows(ids)}
             slots={{
               toolbar: () => (
-                <div className="flex items-center gap-2 justify-end py-4 pr-4">
-                  <ManageRowDetails
-                    title={
-                      <>
-                        <Add fontSize="small" />
-                        Add New Record
-                      </>
-                    }
-                    type="new"
-                    table={table}
+                <div className="flex items-center gap-2 justify-between p-4">
+                  <div className="text-blue-500 lg:text-4xl text-2xl">
+                    {tablesNames[table]}
+                  </div>
+                  {table === "studentInfo" && (
+                    <ManageRowDetails
+                      rollNo={rollNo}
+                      responseData={responseData}
+                      setResponseData={setResponseData}
+                      type="add"
+                      table="studentInfo"
+                    />
+                  )}
+                </div>
+              ),
+              footer: () => (
+                <div className="flex flex-col p-4">
+                  <GridFooter />
+                  <MultiDeleteDialog
                     rollNo={rollNo}
-                    responseData={responseData}
+                    table={table}
                     setResponseData={setResponseData}
+                    selectedRows={selectedRows}
+                    setSelectedRows={setSelectedRows}
+                    responseData={responseData}
                   />
                 </div>
               ),
@@ -271,73 +336,74 @@ export default function ManageDB() {
 
 // ANCHOR MANAGE ROW DETAILS  ||========================================================================
 function ManageRowDetails({
-  title,
   row,
   type,
-  table,
   rollNo,
   responseData,
   setResponseData,
+  table,
 }: {
-  title: ReactNode;
-  type: "new" | "update";
-  table: AvailableDbTables;
   row?: ManageDBResponseProps;
-  rollNo?: string;
+  type: "add" | "edit";
+  rollNo: string;
   responseData: ManageDBResponseArr;
   setResponseData: React.Dispatch<React.SetStateAction<ManageDBResponseArr>>;
+  table: AvailableDbTables;
 }) {
+  // STATES && VARS  ||========================================================================
   const alert = useContext(AlertContext);
   const loading = useContext(LoadingContext);
   const [openRowDetailsDialog, setOpenRowDetailsDialog] = useState(false);
-  const [newRowDetails, setNewRowDetails] = useState<ManageDBResponseProps>({
-    ...row,
-    grade: row?.grade ?? "O",
-    acYear: row?.acYear ?? 1,
-    sem: row?.sem ?? 1,
-  } as ManageDBResponseProps);
-  const [alreadyExists, setAlreadyExists] = useState(false);
-  const [anchorEl, setAnchorEl] = useState<
-    (EventTarget & HTMLButtonElement) | null
-  >();
-  const openMenu = Boolean(anchorEl);
+  const [neuroDetails, setNeuroDetails] = useState<ManageDBResponseProps>(
+    row
+      ? { ...row, stat: row?.stat === "R" ? "R" : "S" }
+      : ({
+          grade: "O",
+          acYear: 1,
+          sem: 1,
+        } as ManageDBResponseProps)
+  );
+  const [subjectAlreadyExists, setSubjectAlreadyExists] = useState(false);
+  const [availableBranches, setAvailableBranches] = useState<string[]>([]);
 
+  // EFFECTS  ||========================================================================
+
+  // JSX  ||========================================================================
   return (
     <>
-      <button
-        className={`flex items-center gap-2 ${
-          type === "new" ? "blue-button-outline" : "text-blue-500"
-        }`}
-        onClick={({ currentTarget }) => {
-          type === "update"
-            ? setAnchorEl(currentTarget)
-            : setOpenRowDetailsDialog(true);
-        }}
-      >
-        {title}
-      </button>
-
-      <Menu
-        anchorEl={anchorEl}
-        open={openMenu}
-        onClose={() => setAnchorEl(null)}
-      >
-        <MenuList
-          sx={{ outline: 0, display: "flex", flexDirection: "column", gap: 1 }}
-          disablePadding
+      {type === "add" ? (
+        <button
+          className={`flex items-center lg:gap-2 gap-1 blue-button-outline`}
+          onClick={() => {
+            setOpenRowDetailsDialog(true);
+          }}
         >
-          <button
-            className="flex items-center gap-4 hover:bg-neutral-200 w-full h-full p-3"
-            onClick={() => setOpenRowDetailsDialog(true)}
-          >
-            <Edit fontSize="small" /> Edit Details
-          </button>
-          <button className="flex items-center gap-4 hover:bg-neutral-200 w-full h-full p-3">
-            <DeleteOutline fontSize="small" /> Delete Record
-          </button>
-        </MenuList>
-      </Menu>
+          <Add /> Add New Record
+        </button>
+      ) : (
+        <GridActionsCellItem
+          icon={<EditOutlined />}
+          label="Edit"
+          className="textPrimary"
+          onClick={() => {
+            setOpenRowDetailsDialog(true);
+            if (table === "paidCBT") {
+              Axios.get(`api/cbt/branchs`)
+                .then(({ data }) => setAvailableBranches(data.branch))
+                .catch((e) => {
+                  console.log(e);
+                  alert?.showAlert(
+                    "There was an error while fetching available branches",
+                    "error"
+                  );
+                });
+            }
+          }}
+          color="inherit"
+        />
+      )}
 
+      {/* ANCHOR ROW EDIT DIALOG ||======================================================================== */}
       <CustDialog
         open={openRowDetailsDialog}
         onClose={() => setOpenRowDetailsDialog(false)}
@@ -346,171 +412,373 @@ function ManageRowDetails({
       >
         <DialogTitle component={"div"}>
           <span className="text-3xl font-semibold text-blue-500">
-            {type === "new"
+            {type === "add"
               ? `Add new record for ${rollNo}`
-              : `${newRowDetails?.subCode}-${newRowDetails?.subName}`}
+              : `Edit ${row?.subCode} - ${row?.subName}`}
           </span>
         </DialogTitle>
-        <DialogContent>
-          <div className="grid md:grid-cols-3 grid-cols-1 gap-6 mt-6">
-            <CustTextField
-              label="Subject Code"
-              value={newRowDetails?.subCode}
-              onChange={({ target: { value } }) => {
-                setNewRowDetails({
-                  ...newRowDetails,
-                  subCode: value.toUpperCase(),
-                });
-              }}
-              onBlur={({ target: { value } }) => {
-                if (
-                  responseData.filter(({ subCode }) => subCode === value)
-                    .length > 0
-                ) {
-                  setAlreadyExists(true);
-                  alert?.showAlert("Subject code already exists", "warning");
-                } else setAlreadyExists(false);
-              }}
-            />
-            <CustTextField
-              label="Subject Name"
-              value={newRowDetails?.subName}
-              onChange={({ target: { value } }) => {
-                setNewRowDetails({
-                  ...newRowDetails,
-                  subName: value.toUpperCase(),
-                });
-              }}
-            />
-            {table === "studentinfo" ? (
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            loading?.showLoading(true);
+            if (type === "add") {
+              Axios.post(`api/manage/database/${rollNo}`, {
+                details: neuroDetails,
+                tableName: "studentinfo",
+              })
+                .then(({ data }) => {
+                  if (data.done) {
+                    alert?.showAlert("New record created", "success");
+                    setResponseData((prevVals) => {
+                      const indx = prevVals.findIndex(
+                        ({ subCode }) => subCode === row?.subCode
+                      );
+                      if (indx > -1) {
+                        return [
+                          ...prevVals.slice(0, indx),
+                          neuroDetails,
+                          ...prevVals.slice(indx + 1),
+                        ];
+                      }
+
+                      return [
+                        ...prevVals,
+                        { ...neuroDetails, id: prevVals.length + 1 },
+                      ];
+                    });
+                    setOpenRowDetailsDialog(false);
+                  } else alert?.showAlert(data.error.message, "error");
+                })
+                .catch((e) => {
+                  console.log(e);
+                  alert?.showAlert("There was an error while saving", "error");
+                })
+                .finally(() => loading?.showLoading(false));
+            } else {
+              Axios.patch(`api/manage/database/${rollNo}`, {
+                details: { ...neuroDetails, oldSubCode: row?.subCode },
+                tableName: table,
+                username: sessionStorage.getItem("username"),
+              })
+                .then(({ data }) => {
+                  if (data.updated) {
+                    alert?.showAlert("Record updated", "success");
+                    setResponseData((prevVals) => {
+                      const indx = prevVals.findIndex(
+                        ({ subCode }) => subCode === row?.subCode
+                      );
+                      if (indx > -1) {
+                        return [
+                          ...prevVals.slice(0, indx),
+                          neuroDetails,
+                          ...prevVals.slice(indx + 1),
+                        ];
+                      }
+
+                      return [
+                        ...prevVals,
+                        { ...neuroDetails, id: prevVals.length + 1 },
+                      ];
+                    });
+                    setOpenRowDetailsDialog(false);
+                    return;
+                  }
+                  alert?.showAlert(data.error.message, "error");
+                })
+                .finally(() => loading?.showLoading(false));
+            }
+          }}
+        >
+          <DialogContent>
+            <div className="grid md:grid-cols-3 grid-cols-1 gap-6">
               <CustTextField
-                label="Grade"
-                value={newRowDetails?.grade}
+                label="Subject Code"
+                value={neuroDetails.subCode ?? ""}
                 onChange={({ target: { value } }) => {
-                  setNewRowDetails({
-                    ...newRowDetails,
-                    grade: value as grades,
+                  setNeuroDetails({
+                    ...neuroDetails,
+                    subCode: value.toUpperCase(),
+                  });
+                }}
+                onBlur={({ target: { value } }) => {
+                  value = value.trim();
+                  const subCodeSplitted = value.split("");
+                  setNeuroDetails((prevVals) => ({
+                    ...prevVals,
+                    acYear: parseInt(subCodeSplitted[4] ?? "1") as
+                      | 1
+                      | 2
+                      | 3
+                      | 4,
+                    sem: parseInt(subCodeSplitted[5] ?? "1") as 1 | 2,
+                  }));
+
+                  if (value.length > 0) {
+                    Axios.get(`api/manage/database/sub-name/${value}`)
+                      .then(({ data }) => {
+                        if (!data.error)
+                          setNeuroDetails((prevVals) => ({
+                            ...prevVals,
+                            subName: data.subName,
+                          }));
+                      })
+                      .catch((e) => {
+                        alert?.showAlert(e.response.data.error, "error");
+                      });
+                  }
+
+                  if (
+                    responseData.filter(
+                      ({ subCode }) =>
+                        subCode.toLowerCase() === value.toLowerCase()
+                    ).length > 0 &&
+                    value !== row?.subCode
+                  ) {
+                    setSubjectAlreadyExists(true);
+                    setOpenRowDetailsDialog(true);
+                    alert?.showAlert("Subject code already exists", "warning");
+                  } else setSubjectAlreadyExists(false);
+                }}
+              />
+              <CustTextField
+                label="Subject Name"
+                value={neuroDetails.subName ?? ""}
+                onChange={({ target: { value } }) => {
+                  setNeuroDetails({
+                    ...neuroDetails,
+                    subName: value.toUpperCase(),
+                  });
+                }}
+              />
+
+              {table === "studentInfo" ? (
+                <CustTextField
+                  label="Grade"
+                  value={neuroDetails?.grade}
+                  onChange={({ target: { value } }) => {
+                    setNeuroDetails({
+                      ...neuroDetails,
+                      grade: value as Grades,
+                    });
+                  }}
+                  select
+                >
+                  <MenuItem value="O">O</MenuItem>
+                  <MenuItem value="A+">A+</MenuItem>
+                  <MenuItem value="A">A</MenuItem>
+                  <MenuItem value="B+">B+</MenuItem>
+                  <MenuItem value="B">B</MenuItem>
+                  <MenuItem value="C">C</MenuItem>
+                  <MenuItem value="F">F</MenuItem>
+                </CustTextField>
+              ) : (
+                <CustTextField
+                  value={neuroDetails.regDate}
+                  label="Registered Date"
+                  disabled
+                />
+              )}
+            </div>
+            <div className="grid md:grid-cols-2 grid-cols-1 mt-6 items-center gap-6">
+              {table === "studentInfo" && (
+                <>
+                  <CustTextField
+                    label="Exam Year"
+                    type="number"
+                    value={neuroDetails.exYear ?? ""}
+                    InputProps={{
+                      inputProps: {
+                        min: dayjs().year() - 4,
+                        max: dayjs().year(),
+                      },
+                    }}
+                    onChange={({ target: { value } }) => {
+                      setNeuroDetails({
+                        ...neuroDetails,
+                        exYear: parseInt(value) > 0 ? parseInt(value) : 0,
+                      });
+                    }}
+                  />
+                  <CustTextField
+                    label="Exam Month"
+                    type="number"
+                    value={neuroDetails.exMonth ?? ""}
+                    InputProps={{
+                      inputProps: { min: 1, max: 12 },
+                    }}
+                    onChange={({ target: { value } }) => {
+                      setNeuroDetails({
+                        ...neuroDetails,
+                        exMonth: parseInt(value) > 0 ? parseInt(value) : 0,
+                      });
+                    }}
+                  />
+                </>
+              )}
+
+              <CustTextField
+                label="Academic Year"
+                value={neuroDetails?.acYear}
+                onChange={({ target: { value } }) => {
+                  setNeuroDetails({
+                    ...neuroDetails,
+                    acYear: parseInt(value) as 1 | 2 | 3 | 4,
                   });
                 }}
                 select
               >
-                <MenuItem value="O">O</MenuItem>
-                <MenuItem value="A+">A+</MenuItem>
-                <MenuItem value="A">A</MenuItem>
-                <MenuItem value="B+">B+</MenuItem>
-                <MenuItem value="B">B</MenuItem>
-                <MenuItem value="C">C</MenuItem>
-                <MenuItem value="F">F</MenuItem>
+                <MenuItem value="1">1</MenuItem>
+                <MenuItem value="2">2</MenuItem>
+                <MenuItem value="3">3</MenuItem>
+                <MenuItem value="4">4</MenuItem>
               </CustTextField>
-            ) : table === "paidreevaluation" ? (
               <CustTextField
-                label="Status"
-                value={newRowDetails?.stat !== "R" ? "S" : "R"}
-                onChange={({ target: { value } }) =>
-                  setNewRowDetails({
-                    ...newRowDetails,
-                    stat: value as "R" | "S",
-                  })
-                }
+                label="Semester"
+                value={neuroDetails?.sem}
+                onChange={({ target: { value } }) => {
+                  setNeuroDetails({
+                    ...neuroDetails,
+                    sem: parseInt(value) as 1 | 2,
+                  });
+                }}
                 select
               >
-                <MenuItem value="R">Regular</MenuItem>
-                <MenuItem value="S">Supplementary</MenuItem>
+                <MenuItem value="1">1</MenuItem>
+                <MenuItem value="2">2</MenuItem>
               </CustTextField>
-            ) : null}
-          </div>
-          <div className="grid md:grid-cols-2 grid-cols-1 mt-6 items-center gap-6">
-            {table === "studentinfo" && (
-              <>
+              {table !== "studentInfo" && (
                 <CustTextField
-                  label="Exam Year"
-                  type="number"
-                  value={newRowDetails?.exYear}
-                  InputProps={{
-                    inputProps: { max: dayjs().year() },
-                  }}
-                  onChange={({ target: { value } }) => {
-                    setNewRowDetails({
-                      ...newRowDetails,
-                      exYear: parseInt(value) > 0 ? parseInt(value) : 0,
-                    });
-                  }}
-                />
-                <CustTextField
-                  label="Exam Month"
-                  type="number"
-                  value={newRowDetails?.exMonth}
-                  InputProps={{
-                    inputProps: { min: 1, max: 12 },
-                  }}
-                  onChange={({ target: { value } }) => {
-                    setNewRowDetails({
-                      ...newRowDetails,
-                      exMonth: parseInt(value) > 0 ? parseInt(value) : 0,
-                    });
-                  }}
-                />
-              </>
-            )}
-            <CustTextField
-              label="Academic Year"
-              value={newRowDetails?.acYear}
-              onChange={({ target: { value } }) => {
-                setNewRowDetails({
-                  ...newRowDetails,
-                  acYear: parseInt(value) as 1 | 2 | 3 | 4,
-                });
-              }}
-              select
-            >
-              <MenuItem value="1">1</MenuItem>
-              <MenuItem value="2">2</MenuItem>
-              <MenuItem value="3">3</MenuItem>
-              <MenuItem value="4">4</MenuItem>
-            </CustTextField>
-            <CustTextField
-              label="Semester"
-              value={newRowDetails?.sem}
-              onChange={({ target: { value } }) => {
-                setNewRowDetails({
-                  ...newRowDetails,
-                  sem: parseInt(value) as 1 | 2,
-                });
-              }}
-              select
-            >
-              <MenuItem value="1">1</MenuItem>
-              <MenuItem value="2">2</MenuItem>
-            </CustTextField>
-            {table !== "studentinfo" && (
-              <>
-                <CustTextField
+                  value={neuroDetails.user}
                   label="User"
-                  value={newRowDetails?.user}
-                  onChange={({ target: { value } }) =>
-                    setNewRowDetails({ ...newRowDetails, user: value })
-                  }
+                  onChange={({ target: { value } }) => {
+                    setNeuroDetails({ ...neuroDetails, user: value });
+                  }}
                 />
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <DatePicker
-                    label="Registered Date"
-                    value={dayjs(newRowDetails?.regDate)}
-                    onChange={(value) =>
-                      setNewRowDetails({
-                        ...newRowDetails,
-                        regDate: dayjs(value),
-                      })
-                    }
-                  />
-                </LocalizationProvider>
-              </>
-            )}
+              )}
+              {table === "paidReEvaluation" ? (
+                <CustTextField
+                  value={neuroDetails.stat !== "R" ? "S" : "R"}
+                  label="Status"
+                  onChange={({ target: { value } }) =>
+                    setNeuroDetails({
+                      ...neuroDetails,
+                      stat: (value === "R" ? "R" : "S") as "R" | "S",
+                    })
+                  }
+                  select
+                >
+                  <MenuItem value="R">Regular</MenuItem>
+                  <MenuItem value="S">Supplementary</MenuItem>
+                </CustTextField>
+              ) : table === "paidCBT" ? (
+                <CustTextField
+                  value={neuroDetails.branch}
+                  label="Branch"
+                  onChange={({ target: { value } }) =>
+                    setNeuroDetails({ ...neuroDetails, branch: value })
+                  }
+                  select
+                >
+                  {availableBranches.map((branch) => (
+                    <MenuItem key={branch} value={branch}>
+                      {branch}
+                    </MenuItem>
+                  ))}
+                </CustTextField>
+              ) : null}
+            </div>
+          </DialogContent>
+          <DialogActions>
+            <button
+              className="red-button"
+              onClick={() => {
+                setOpenRowDetailsDialog(false);
+                setNeuroDetails(row as ManageDBResponseProps);
+              }}
+              type="button"
+            >
+              Cancel
+            </button>
+            <button
+              className="blue-button"
+              disabled={
+                !neuroDetails.subCode ||
+                !neuroDetails.subName ||
+                (table === "studentInfo"
+                  ? !neuroDetails.exYear || !neuroDetails.exMonth
+                  : !neuroDetails.user) ||
+                (table === "paidReEvaluation" &&
+                  neuroDetails.stat !== "R" &&
+                  neuroDetails.stat !== "S" &&
+                  neuroDetails.stat !== "") ||
+                subjectAlreadyExists
+              }
+              type="submit"
+            >
+              Save
+            </button>
+          </DialogActions>
+        </form>
+      </CustDialog>
+
+      {/* ANCHOR DELETE CONFIRM DIALOG  */}
+    </>
+  );
+}
+
+// ANCHOR DELTE CONFIRM DIALOG  ||========================================================================
+function DeleteConfirmDialog({
+  table,
+  row,
+  setResponseData,
+  tablesNames,
+  rollNo,
+}: {
+  table: AvailableDbTables;
+  row: ManageDBResponseProps;
+  setResponseData: React.Dispatch<
+    React.SetStateAction<ManageDBResponseProps[]>
+  >;
+  tablesNames: Record<AvailableDbTables, string>;
+  rollNo: string;
+}) {
+  const alert = useContext(AlertContext);
+  const loading = useContext(LoadingContext);
+
+  const [openDeleteConfirmDialog, setOpenDeleteConfirmDialog] = useState(false);
+
+  return (
+    <>
+      <GridActionsCellItem
+        icon={<DeleteOutlined />}
+        label="Delete"
+        className="textPrimary"
+        onClick={() => setOpenDeleteConfirmDialog(true)}
+        color="error"
+        disabled={table.substring(0, 5) === "print"}
+      />
+      <CustDialog
+        open={openDeleteConfirmDialog}
+        onClose={() => setOpenDeleteConfirmDialog(false)}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle component={"div"}>
+          <span className="text-red-600 font-semibold text-4xl">
+            Delete {row?.subCode}-{row?.subName}?
+          </span>
+        </DialogTitle>
+        <DialogContent>
+          <div>
+            This will permanatly delete this subject from{" "}
+            <span className="font-bold">{tablesNames[table]}</span> for{" "}
+            <span className="font-bold">{rollNo}</span>.
           </div>
         </DialogContent>
         <DialogActions>
           <button
             className="red-button"
-            onClick={() => setOpenRowDetailsDialog(false)}
+            onClick={() => setOpenDeleteConfirmDialog(false)}
           >
             Cancel
           </button>
@@ -518,35 +786,137 @@ function ManageRowDetails({
             className="blue-button"
             onClick={() => {
               loading?.showLoading(true);
-              setResponseData((prevVals) => {
-                const indx = prevVals.findIndex(
-                  ({ subCode }) => subCode === row?.subCode
-                );
-                if (indx > -1) {
-                  return [
-                    ...prevVals.slice(0, indx),
-                    newRowDetails,
-                    ...prevVals.slice(indx + 1),
-                  ];
-                }
-
-                return [
-                  ...prevVals,
-                  { ...newRowDetails, id: prevVals.length + 1 },
-                ];
-              });
-              setOpenRowDetailsDialog(false);
-              loading?.showLoading(false);
+              setOpenDeleteConfirmDialog(false);
+              Axios.delete(
+                `api/manage/database?rollNo=${rollNo}&subCode=${JSON.stringify([
+                  row.subCode,
+                ])}&tableName=${table}`
+              )
+                .then(() => {
+                  setResponseData((prevVals) =>
+                    prevVals
+                      .filter(({ subCode }) => subCode !== row?.subCode)
+                      .map((details, indx) => ({ ...details, id: indx + 1 }))
+                  );
+                  alert?.showAlert("Record deleted", "success");
+                })
+                .catch((e) => {
+                  console.log(e);
+                  alert?.showAlert(
+                    "There was an error while downloading.",
+                    "error"
+                  );
+                })
+                .finally(() => loading?.showLoading(false));
             }}
-            disabled={
-              !newRowDetails.subCode ||
-              !newRowDetails.subName ||
-              !newRowDetails.exYear ||
-              !newRowDetails.exMonth ||
-              alreadyExists
-            }
           >
-            Save
+            Delete
+          </button>
+        </DialogActions>
+      </CustDialog>
+    </>
+  );
+}
+
+// ANCHOR MULTI DELETE CONFIRM DIALOG  ||================================================================
+function MultiDeleteDialog({
+  table,
+  setResponseData,
+  responseData,
+  rollNo,
+  selectedRows,
+  setSelectedRows,
+}: {
+  table: AvailableDbTables;
+  setResponseData: React.Dispatch<
+    React.SetStateAction<ManageDBResponseProps[]>
+  >;
+  responseData: ManageDBResponseProps[];
+  rollNo: string;
+  selectedRows: GridRowSelectionModel;
+  setSelectedRows: React.Dispatch<React.SetStateAction<GridRowSelectionModel>>;
+}) {
+  const alert = useContext(AlertContext);
+  const loading = useContext(LoadingContext);
+
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  let selectedRowsSubCodes: string[] = [];
+  selectedRows.forEach((rowId) => {
+    selectedRowsSubCodes.push(responseData[(rowId as number) - 1].subCode);
+  });
+
+  return (
+    <>
+      <button
+        className="red-button-outline ml-auto"
+        disabled={selectedRows.length === 0}
+        onClick={() => {
+          if (table.substring(0, 5) !== "print") setOpenDeleteDialog(true);
+          else {
+            if (selectedRows.length === responseData.length)
+              setOpenDeleteDialog(true);
+            else alert?.showAlert("Select all records to delete", "warning");
+          }
+        }}
+      >
+        Delete Selected
+      </button>
+
+      <CustDialog
+        open={openDeleteDialog}
+        onClose={() => setOpenDeleteDialog(false)}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle component={"div"}>
+          <span className="text-4xl text-red-600 font-semibold">
+            Delete multiple records
+          </span>
+        </DialogTitle>
+        <DialogContent>
+          <div className="font-semibold">
+            All the following records will be deleted permanently.
+          </div>
+          <div className="mt-4">{selectedRowsSubCodes.join(", ")}</div>
+        </DialogContent>
+        <DialogActions>
+          <button
+            className="red-button"
+            onClick={() => setOpenDeleteDialog(false)}
+          >
+            Cancel
+          </button>
+          <button
+            className="blue-button"
+            onClick={() => {
+              loading?.showLoading(true);
+              Axios.delete(
+                `api/manage/database?rollNo=${rollNo}&subCode=${JSON.stringify(
+                  selectedRowsSubCodes
+                )}&tableName=${table}`
+              )
+                .then(({ data }) => {
+                  if (data.deleted) {
+                    alert?.showAlert("Record deleted", "success");
+                    setResponseData((prevVals) =>
+                      prevVals
+                        .filter(({ id }) => !selectedRows.includes(id))
+                        .map((row, indx) => ({ ...row, id: indx + 1 }))
+                    );
+                    setSelectedRows([]);
+                  }
+                })
+                .catch((e) => {
+                  console.log(e);
+                  alert?.showAlert(
+                    "There was an error while deleting",
+                    "error"
+                  );
+                })
+                .finally(() => loading?.showLoading(false));
+            }}
+          >
+            Delete
           </button>
         </DialogActions>
       </CustDialog>

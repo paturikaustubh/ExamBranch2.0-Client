@@ -47,10 +47,11 @@ export interface ExamSemProps {
 }
 
 export interface ManageDBResponseProps {
+  id: number;
   rollNo: string;
   subCode: string;
   subName: string;
-  grade: grades;
+  grade: Grades;
   acYear: 1 | 2 | 3 | 4;
   sem: 1 | 2;
   exYear: number;
@@ -65,10 +66,19 @@ export interface ManageDBResponseProps {
 export type ManageDBResponseArr = ManageDBResponseProps[];
 
 export type AvailableDbTables =
-  | "studentinfo"
-  | "paidsupply"
-  | "printsupply"
-  | "paidreevaluation"
-  | "printreval"
-  | "paidcbt"
-  | "printcbt";
+  | "studentInfo"
+  | "paidSupply"
+  | "printSupply"
+  | "paidReEvaluation"
+  | "printReval"
+  | "paidCBT"
+  | "printCBT";
+
+export interface UserDetailsProps {
+  username: string;
+  displayName: string;
+  password: string;
+  confirmPassword: string;
+}
+
+export type UsersTableArr = UserDetailsProps[];

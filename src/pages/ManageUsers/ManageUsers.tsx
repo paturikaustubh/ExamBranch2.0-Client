@@ -99,7 +99,7 @@ export default function ManageUsers() {
   // ANCHOR JSX  ||========================================================================
   return (
     <>
-      <Title title="Manage Users" />
+      <Title />
       <Container maxWidth="lg" className={`bg-white py-4`}>
         <CustDataGrid
           rows={userDetailsResponse}
@@ -285,7 +285,12 @@ function ManageUserDetails({
                     alert?.showAlert("Added new user", "success");
                     setUserDetailsResponse((prevVals) => [
                       ...prevVals,
-                      { ...newUserDetails, id: prevVals.length + 1 },
+                      {
+                        ...newUserDetails,
+                        id: prevVals.length + 1,
+                        password: "",
+                        confirmPassword: "",
+                      },
                     ]);
                   }
                 })
@@ -334,6 +339,7 @@ function ManageUserDetails({
                 }
               />
               <CustTextField
+                sx={{ mb: "auto" }}
                 label={type === "add" ? "Password" : "Edit Password"}
                 type={showPassword ? "text" : "password"}
                 value={newUserDetails?.password ?? ""}

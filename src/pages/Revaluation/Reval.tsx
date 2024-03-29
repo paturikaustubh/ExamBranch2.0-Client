@@ -115,7 +115,7 @@ export default function Reval() {
   // ANCHOR JSX  ||========================================================================
   return (
     <>
-      <Title title="Revaluation" />
+      <Title />
 
       {/* ANCHOR REVAL FORM  ||======================================================================== */}
       <form

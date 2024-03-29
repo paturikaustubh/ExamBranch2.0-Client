@@ -171,7 +171,7 @@ export default function ManageDB() {
   // ANCHOR JSX  ||========================================================================
   return (
     <>
-      <Title title="Manage Database" />
+      <Title />
       <div className="grid sm:grid-cols-3 grid-cols-1 gap-4 no-print items-center">
         <CustTextField
           select
@@ -691,7 +691,6 @@ function ManageRowDetails({
           <DialogActions>
             <button
               className="red-button"
-              onMouseEnter={() => console.log(typeof neuroDetails?.stat)}
               onClick={() => {
                 setOpenRowDetailsDialog(false);
                 setNeuroDetails(row as ManageDBResponseProps);
@@ -851,7 +850,14 @@ function MultiDeleteDialog({
       <button
         className="red-button-outline ml-auto"
         disabled={selectedRows.length === 0}
-        onClick={() => setOpenDeleteDialog(true)}
+        onClick={() => {
+          if (table.substring(0, 5) !== "print") setOpenDeleteDialog(true);
+          else {
+            if (selectedRows.length === responseData.length)
+              setOpenDeleteDialog(true);
+            else alert?.showAlert("Select all records to delete", "warning");
+          }
+        }}
       >
         Delete Selected
       </button>

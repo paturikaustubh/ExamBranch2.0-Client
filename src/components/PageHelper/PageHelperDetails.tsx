@@ -5,6 +5,8 @@ import { RevalOverview } from "../../misc/Helper Details/Revaluation/Overview";
 import { RevalExceptions } from "../../misc/Helper Details/Revaluation/Exceptions";
 import { SuppleOverview } from "../../misc/Helper Details/Supplementary/Overview";
 import { SuppleParams } from "../../misc/Helper Details/Supplementary/Parameters";
+import { SuppleProcedure } from "../../misc/Helper Details/Supplementary/Procedure";
+import { SuppleExceptions } from "../../misc/Helper Details/Supplementary/Exceptions";
 
 export const HelperContents: {
   [key in Pages]: {
@@ -23,7 +25,8 @@ export const HelperContents: {
   supplementary: {
     overview: <SuppleOverview />,
     parameters: <SuppleParams />,
-    procedure: "Nee ishtam bro",
+    procedure: <SuppleProcedure />,
+    exceptions: <SuppleExceptions />,
   },
   "written-test": {
     overview: "This is just an overview lol",

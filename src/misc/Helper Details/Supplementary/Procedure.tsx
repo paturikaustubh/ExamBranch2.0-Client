@@ -31,6 +31,10 @@ export function SuppleProcedure() {
           and last one for Student.
         </li>
         <li>
+          Fines are applied for each semester and the subtotals are calculated
+          by adding the fines for each semester (if applicable).
+        </li>
+        <li>
           Now click on <code>Print</code>. This will open a pop-up, make sure
           all the points are being covered before taking a print and hand it
           over to the student.
@@ -39,14 +43,12 @@ export function SuppleProcedure() {
           Once the student comes back from accounts section after completing the
           payment, search for the same number. This time you can find that the
           subjects that the student took print for are fetched. Now you can
-          directly click <code>Register</code> button to complete registration.
-        </li>
-        <li className="font-semibold text-red-600">
-          Before registering, select the regular semester first.
+          directly click <code>Register</code> button to complete the
+          registration.
         </li>
         <li>
           Refer the <i className="font-semibold">Exceptions</i> section to know
-          more about handling data related to registring for revaluation.
+          more about handling data related to registring for supplementary.
         </li>
       </ol>
     </div>

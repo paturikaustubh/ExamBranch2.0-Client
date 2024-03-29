@@ -48,9 +48,11 @@ export default function LoginForm({
             e.preventDefault();
             loading?.showLoading(true);
 
-            Axios.get(
+            Axios.post(
               `api/login?username=${loginCreds.username}&password=${loginCreds.password}`,
               {
+                username: loginCreds.username,
+                password: loginCreds.password,
                 withCredentials: true,
               }
             )

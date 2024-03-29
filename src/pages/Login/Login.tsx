@@ -36,9 +36,7 @@ export default function LoginForm({
   // ANCHOR JSX  ||========================================================================
   return (
     <div className="h-[100dvh] flex justify-center items-center gap-10">
-      <div className="fixed top-10">
-        {/* <Title title="Exam Branch Portal" /> */}
-      </div>
+      <div className="fixed top-10"></div>
       <div className="flex items-center justify-around gap-60 bg-white w-[80%] py-7 pr-10 lg:pl-24 md:pl-12 pl-2 rounded-lg">
         <img
           src={Logo}

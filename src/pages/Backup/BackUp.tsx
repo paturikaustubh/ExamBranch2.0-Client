@@ -6,21 +6,20 @@ import Axios from "axios";
 import { AlertContext } from "../../components/Context/AlertDetails";
 import { LoadingContext } from "../../components/Context/Loading";
 
-
 export default function backup() {
   const [action, setAction] = useState("backUp");
   const [loc, setLoc] = useState("");
   const folderLocationRef = useRef<HTMLInputElement>();
   const alert = useContext(AlertContext);
   const loading = useContext(LoadingContext);
-  
+
   useEffect(() => {
     folderLocationRef.current?.focus();
   }, [action]);
 
   return (
     <>
-      <Title title={"Backup and Restore"} />
+      <Title />
 
       {/* Backup... Restore... */}
       <div className="grid lg:grid-cols-6 md:grid-cols-2 grid-cols-2 gap-x-4 gap-y-4 no-print">
@@ -29,22 +28,23 @@ export default function backup() {
           label="Action"
           value={action}
           onChange={({ target: { value } }) => {
-            setAction((value))
+            setAction(value);
           }}
         >
           <MenuItem value="backUp">Backup</MenuItem>
           <MenuItem value="restore">Restore</MenuItem>
         </CustTextField>
 
-        {(action === "backUp") && (
+        {action === "backUp" && (
           <>
             <button
               type="submit"
               className="blue-button-filled col-span-1 mr-auto h-fit flex items-center gap-2 row-start-2"
               onClick={async () => {
                 loading?.showLoading(true, "Downloading file...");
-                await Axios.get('/api/download/table?tableName=studentinfo&sem=0&acYear=0',
-                { responseType: "blob" }
+                await Axios.get(
+                  "/api/download/table?tableName=studentinfo&sem=0&acYear=0",
+                  { responseType: "blob" }
                 )
                   .then(({ data }) => {
                     if (data.type !== "application/json") {
@@ -54,7 +54,10 @@ export default function backup() {
                       link.setAttribute("download", "backup.xlsx");
                       document.body.appendChild(link);
                       link.click();
-                      alert?.showAlert("File downloaded successfully", "success");
+                      alert?.showAlert(
+                        "File downloaded successfully",
+                        "success"
+                      );
                     } else alert?.showAlert("No data found", "warning");
                   })
                   .catch(() =>
@@ -68,10 +71,11 @@ export default function backup() {
           </>
         )}
 
-        {(action === "restore") && (
+        {action === "restore" && (
           <>
             <div className="text-red-600 text-l font-bold text-2xl col-span-2 row-start-2 flex gap-4 whitespace-nowrap">
-              The file name MUST be <code>backup.csv</code> / <code>backup.xlsx</code>
+              The file name MUST be <code>backup.csv</code> /{" "}
+              <code>backup.xlsx</code>
             </div>
 
             {/* Folder loaction */}
@@ -83,7 +87,7 @@ export default function backup() {
                 value={loc}
                 inputRef={folderLocationRef}
                 onChange={({ target: { value } }) => {
-                  setLoc(value)
+                  setLoc(value);
                 }}
               />
             </div>
@@ -96,31 +100,27 @@ export default function backup() {
                 onClick={async () => {
                   loading?.showLoading(true, "Restoring file...");
                   if (action === "restore") {
-                    await Axios.post('/api/upload/studentinfo', {
-                      loc: loc
+                    await Axios.post("/api/upload/studentinfo", {
+                      loc: loc,
                     })
                       .then(({ data }) => {
                         console.log(data);
-                        if (data.done)
-                          alert?.showAlert("Restored", "success");
-                        else
-                          alert?.showAlert("Failed to upload", "error");
+                        if (data.done) alert?.showAlert("Restored", "success");
+                        else alert?.showAlert("Failed to upload", "error");
                       })
-                      .catch(() => 
+                      .catch(() =>
                         alert?.showAlert("Error while Uploading file", "error")
                       )
-                      .finally(() => loading?.showLoading(false));                      
+                      .finally(() => loading?.showLoading(false));
                   }
                 }}
               >
                 Restore
               </button>
             </div>
-
-
           </>
         )}
-      </div >
+      </div>
     </>
-  )
+  );
 }

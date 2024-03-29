@@ -1,7 +1,7 @@
-import Box from '@mui/material/Box';
-import EditIcon from '@mui/icons-material/Edit';
-import SaveIcon from '@mui/icons-material/Save';
-import CancelIcon from '@mui/icons-material/Close';
+import Box from "@mui/material/Box";
+import EditIcon from "@mui/icons-material/Edit";
+import SaveIcon from "@mui/icons-material/Save";
+import CancelIcon from "@mui/icons-material/Close";
 import {
   GridRowsProp,
   GridRowModesModel,
@@ -13,13 +13,13 @@ import {
   GridRowId,
   GridRowModel,
   GridRowEditStopReasons,
-} from '@mui/x-data-grid';
-import HelpIcon from '@mui/icons-material/Help';
-import { useEffect, useState } from 'react';
-import Axios from 'axios';
+} from "@mui/x-data-grid";
+import HelpIcon from "@mui/icons-material/Help";
+import { useEffect, useState } from "react";
+import Axios from "axios";
 import { formatCost } from "../../misc/CostFormater";
-import Title from '../../components/Title';
-import { IconButton } from '@mui/material';
+import Title from "../../components/Title";
+import { IconButton } from "@mui/material";
 
 export function Costs() {
   const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
@@ -32,23 +32,20 @@ export function Costs() {
   const [writtenMaxCost, setWrittenMaxCost] = useState(0);
 
   useEffect(() => {
-    Axios.get(`api/cost/costs?module=cbt`)
-    .then((res) => {
+    Axios.get(`api/cost/costs?module=cbt`).then((res) => {
       setWrittenBaseCost(res.data["cbc"]);
       setWrittenAddCost(res.data["cac"]);
       setWrittenMaxCost(res.data["cfc"]);
-    })
-    Axios.get(`api/cost/costs?module=reval`)
-    .then((res) => {
+    });
+    Axios.get(`api/cost/costs?module=reval`).then((res) => {
       setRevalCost(res.data["rev"]);
-    })
-    Axios.get(`api/cost/costs?module=supple`)
-    .then((res) => {
+    });
+    Axios.get(`api/cost/costs?module=supple`).then((res) => {
       setSuppleBaseCost(res.data.costs["sbc"]);
       setSuppleAddCost(res.data.costs["sac"]);
       setSuppleMaxCost(res.data.costs["sfc"]);
-    })
-  })
+    });
+  });
 
   const initialRows: GridRowsProp = [
     {
@@ -61,17 +58,20 @@ export function Costs() {
       id: "Revaluation",
       baseCost: formatCost(revalCost),
       additionalCost: "NA",
-      maxCost: "NA"
+      maxCost: "NA",
     },
     {
       id: "Written Test",
       baseCost: formatCost(writtenBaseCost),
       additionalCost: formatCost(writtenAddCost),
-      maxCost: formatCost(writtenMaxCost)
-    }
+      maxCost: formatCost(writtenMaxCost),
+    },
   ];
 
-  const handleRowEditStop: GridEventListener<'rowEditStop'> = (params, event) => {
+  const handleRowEditStop: GridEventListener<"rowEditStop"> = (
+    params,
+    event
+  ) => {
     if (params.reason === GridRowEditStopReasons.rowFocusOut) {
       event.defaultMuiPrevented = true;
     }
@@ -110,41 +110,41 @@ export function Costs() {
   };
 
   const initialColumns: GridColDef[] = [
-    { field: 'id', headerName: 'Exam', width: 200, editable: true },
+    { field: "id", headerName: "Exam", width: 200, editable: true },
     {
-      field: 'baseCost',
-      headerName: 'Base Cost',
-      type: 'number',
+      field: "baseCost",
+      headerName: "Base Cost",
+      type: "number",
       width: 200,
-      align: 'center',
-      headerAlign: 'center',
+      align: "center",
+      headerAlign: "center",
       editable: true,
     },
     {
-      field: 'additionalCost',
-      headerName: 'Additional Cost',
-      type: 'number',
+      field: "additionalCost",
+      headerName: "Additional Cost",
+      type: "number",
       width: 200,
-      align: 'center',
-      headerAlign: 'center',
+      align: "center",
+      headerAlign: "center",
       editable: true,
-      renderCell: ({ value }) => value
+      renderCell: ({ value }) => value,
     },
     {
-      field: 'maxCost',
-      headerName: 'Max Cost',
-      headerAlign: 'center',
+      field: "maxCost",
+      headerName: "Max Cost",
+      headerAlign: "center",
       width: 200,
       editable: true,
-      align: 'center',
-      type: 'number',
+      align: "center",
+      type: "number",
     },
     {
-      field: 'actions',
-      type: 'actions',
-      headerName: 'Actions',
+      field: "actions",
+      type: "actions",
+      headerName: "Actions",
       width: 200,
-      cellClassName: 'actions',
+      cellClassName: "actions",
       getActions: ({ id }) => {
         const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
 
@@ -154,7 +154,7 @@ export function Costs() {
               icon={<SaveIcon />}
               label="Save"
               sx={{
-                color: 'primary.main',
+                color: "primary.main",
               }}
               onClick={handleSaveClick(id)}
             />,
@@ -175,7 +175,7 @@ export function Costs() {
             className="textPrimary"
             onClick={handleEditClick(id)}
             color="inherit"
-          />
+          />,
         ];
       },
     },
@@ -185,33 +185,31 @@ export function Costs() {
 
   return (
     <>
-     <div className="flex justify-center">
-       <Title title="Manage Costs" />
+      <div className="flex justify-center">
+        <Title />
         <IconButton>
-         <HelpIcon
-         color = "primary"
-         />
-      </IconButton>
-    </div>
-    <Box
-      sx={{
-        background: "white",
-        width: "max-Content",
-        margin: "auto"
-      }}
-    >
-      <DataGrid
-        rows={rows}
-        columns={initialColumns}
-        editMode="row"
-        rowModesModel={rowModesModel}
-        onRowModesModelChange={handleRowModesModelChange}
-        onRowEditStop={handleRowEditStop}
-        processRowUpdate={processRowUpdate}
-        hideFooterSelectedRowCount
-        hideFooterPagination
-      />
-    </Box>
+          <HelpIcon color="primary" />
+        </IconButton>
+      </div>
+      <Box
+        sx={{
+          background: "white",
+          width: "max-Content",
+          margin: "auto",
+        }}
+      >
+        <DataGrid
+          rows={rows}
+          columns={initialColumns}
+          editMode="row"
+          rowModesModel={rowModesModel}
+          onRowModesModelChange={handleRowModesModelChange}
+          onRowEditStop={handleRowEditStop}
+          processRowUpdate={processRowUpdate}
+          hideFooterSelectedRowCount
+          hideFooterPagination
+        />
+      </Box>
     </>
   );
 }
@@ -226,27 +224,29 @@ export function Fines() {
   const d3 = new Date("2024-03-25");
 
   useEffect(() => {
-    Axios.get(`api/cost/costs?module=supple`)
-    .then((res) => {
+    Axios.get(`api/cost/costs?module=supple`).then((res) => {
       setFine1(res.data.fines["A"]);
       setFine2(res.data.fines["B"]);
       setFine3(res.data.fines["C"]);
-    })
+    });
   }, []);
 
   const initialRows: GridRowsProp = [
     {
-      id: 'Supplemenatary Exam',
+      id: "Supplemenatary Exam",
       fine1: fine1,
       date1: d1,
       fine2: fine2,
       date2: d2,
       fine3: fine3,
-      date3: d3
-    }
-  ]
+      date3: d3,
+    },
+  ];
 
-  const handleRowEditStop: GridEventListener<'rowEditStop'> = (params, event) => {
+  const handleRowEditStop: GridEventListener<"rowEditStop"> = (
+    params,
+    event
+  ) => {
     if (params.reason === GridRowEditStopReasons.rowFocusOut) {
       event.defaultMuiPrevented = true;
     }
@@ -282,72 +282,72 @@ export function Fines() {
     setRowModesModel(newRowModesModel);
   };
 
- const initialColumns: GridColDef[] = [
-  {
-    field: 'id',
-    headerName: 'Exam Name',
-    width: 190,
-    editable: true
-  },
-  {
-    field: 'fine1',
-    headerName: 'Fine 1',
-    width: 100,
-    editable: true,
-    headerAlign: 'center',
-    align: 'center'
-  },
-  {
-    field: 'date1',
-    type: 'date',
-    headerName: 'Date',
-    width: 140,
-    editable: true,
-    headerAlign: 'center',
-    align: 'center'
-  },
-  {
-    field: 'fine2',
-    headerName: 'Fine 2',
-    width: 100,
-    editable: true,
-    headerAlign: 'center',
-    align: 'center'
-  },
-  {
-    field: 'date2',
-    type: 'date',
-    headerName: 'Date',
-    width: 140,
-    editable: true,
-    headerAlign: 'center',
-    align: 'center'
-  },
-  {
-    field: 'fine3',
-    headerName: 'Fine 3',
-    width: 100,
-    editable: true,
-    headerAlign: 'center',
-    align: 'center'
-  },
-  {
-    field: 'date3',
-    type: 'date',
-    headerName: 'Date',
-    width: 150,
-    editable: true,
-    headerAlign: 'center',
-    align: 'center'
-  },
+  const initialColumns: GridColDef[] = [
     {
-      field: 'actions',
-      type: 'actions',
-      headerName: 'Actions',
+      field: "id",
+      headerName: "Exam Name",
+      width: 190,
+      editable: true,
+    },
+    {
+      field: "fine1",
+      headerName: "Fine 1",
+      width: 100,
+      editable: true,
+      headerAlign: "center",
+      align: "center",
+    },
+    {
+      field: "date1",
+      type: "date",
+      headerName: "Date",
+      width: 140,
+      editable: true,
+      headerAlign: "center",
+      align: "center",
+    },
+    {
+      field: "fine2",
+      headerName: "Fine 2",
+      width: 100,
+      editable: true,
+      headerAlign: "center",
+      align: "center",
+    },
+    {
+      field: "date2",
+      type: "date",
+      headerName: "Date",
+      width: 140,
+      editable: true,
+      headerAlign: "center",
+      align: "center",
+    },
+    {
+      field: "fine3",
+      headerName: "Fine 3",
+      width: 100,
+      editable: true,
+      headerAlign: "center",
+      align: "center",
+    },
+    {
+      field: "date3",
+      type: "date",
+      headerName: "Date",
+      width: 150,
+      editable: true,
+      headerAlign: "center",
+      align: "center",
+    },
+    {
+      field: "actions",
+      type: "actions",
+      headerName: "Actions",
       width: 80,
-      cellClassName: 'actions',
-      headerAlign: 'center',
-      align: 'center',
+      cellClassName: "actions",
+      headerAlign: "center",
+      align: "center",
       getActions: ({ id }) => {
         const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
 
@@ -357,7 +357,7 @@ export function Fines() {
               icon={<SaveIcon />}
               label="Save"
               sx={{
-                color: 'primary.main',
+                color: "primary.main",
               }}
               onClick={handleSaveClick(id)}
             />,
@@ -378,7 +378,7 @@ export function Fines() {
             className="textPrimary"
             onClick={handleEditClick(id)}
             color="inherit"
-          />
+          />,
         ];
       },
     },
@@ -388,33 +388,31 @@ export function Fines() {
 
   return (
     <>
-     <div className="flex justify-center mt-6">
-       <Title title="Supplementary Fines" />
+      <div className="flex justify-center mt-6">
+        <Title />
         <IconButton>
-         <HelpIcon
-         color = "primary"
-         />
-      </IconButton>
-    </div>
-    <Box
-      sx={{
-        background: "white",
-        width: "max-Content",
-        margin: "auto"
-      }}
-    >
-      <DataGrid
-        rows={rows}
-        columns={initialColumns}
-        editMode="row"
-        rowModesModel={rowModesModel}
-        onRowModesModelChange={handleRowModesModelChange}
-        onRowEditStop={handleRowEditStop}
-        processRowUpdate={processRowUpdate}
-        hideFooterSelectedRowCount
-        hideFooterPagination
-      />
-    </Box>
+          <HelpIcon color="primary" />
+        </IconButton>
+      </div>
+      <Box
+        sx={{
+          background: "white",
+          width: "max-Content",
+          margin: "auto",
+        }}
+      >
+        <DataGrid
+          rows={rows}
+          columns={initialColumns}
+          editMode="row"
+          rowModesModel={rowModesModel}
+          onRowModesModelChange={handleRowModesModelChange}
+          onRowEditStop={handleRowEditStop}
+          processRowUpdate={processRowUpdate}
+          hideFooterSelectedRowCount
+          hideFooterPagination
+        />
+      </Box>
     </>
   );
 }
@@ -425,5 +423,5 @@ export default function ManageCosts() {
       <Costs />
       <Fines />
     </>
-  )
+  );
 }

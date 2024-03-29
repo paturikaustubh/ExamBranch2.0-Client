@@ -25,7 +25,7 @@ export default function Supple() {
     sfc: 0,
     cbc: 0,
     cac: 0,
-    cfc: 0
+    cfc: 0,
   });
   const [fine, setFine] = useState({
     A: 0,
@@ -35,7 +35,7 @@ export default function Supple() {
     E: 0,
     F: 0,
     G: 0,
-    H: 0
+    H: 0,
   });
 
   const [rollNo, setRollNo] = useState("");
@@ -76,67 +76,75 @@ export default function Supple() {
     setStudentCopyGenerated(false);
   };
 
-
   const calculateCostPerYear = (year: 1 | 2 | 3 | 4) => {
     let totalSubs = 0;
     let fines = 0;
-    let A = 0, B = 0;
+    let A = 0,
+      B = 0;
     switch (year) {
       case 1:
         A = (selectedSubjects as ExamSearchSubjectsProps)["A"].subNames.length;
         B = (selectedSubjects as ExamSearchSubjectsProps)["B"].subNames.length;
         totalSubs = A + B;
-        (A != 0 && B != 0) ? fines = fine.A + fine.B : (A == 0) ? fines = fine.B : fines = fine.A;
+        A != 0 && B != 0
+          ? (fines = fine.A + fine.B)
+          : A == 0
+          ? (fines = fine.B)
+          : (fines = fine.A);
         break;
       case 2:
         A = (selectedSubjects as ExamSearchSubjectsProps)["C"].subNames.length;
         B = (selectedSubjects as ExamSearchSubjectsProps)["D"].subNames.length;
         totalSubs = A + B;
-        (A != 0 && B != 0) ? fines = fine.C + fine.D : (A == 0) ? fines = fine.D : fines = fine.C;
+        A != 0 && B != 0
+          ? (fines = fine.C + fine.D)
+          : A == 0
+          ? (fines = fine.D)
+          : (fines = fine.C);
         break;
       case 3:
         A = (selectedSubjects as ExamSearchSubjectsProps)["E"].subNames.length;
         B = (selectedSubjects as ExamSearchSubjectsProps)["F"].subNames.length;
         totalSubs = A + B;
-        (A != 0 && B != 0) ? fines = fine.E + fine.F : (A == 0) ? fines = fine.F : fines = fine.E;
+        A != 0 && B != 0
+          ? (fines = fine.E + fine.F)
+          : A == 0
+          ? (fines = fine.F)
+          : (fines = fine.E);
         break;
       case 4:
         A = (selectedSubjects as ExamSearchSubjectsProps)["G"].subNames.length;
         B = (selectedSubjects as ExamSearchSubjectsProps)["H"].subNames.length;
         totalSubs = A + B;
-        (A != 0 && B != 0) ? fines = fine.G + fine.H : (A == 0) ? fines = fine.H : fines = fine.G;
+        A != 0 && B != 0
+          ? (fines = fine.G + fine.H)
+          : A == 0
+          ? (fines = fine.H)
+          : (fines = fine.G);
         break;
     }
     const maxCost = costs.sfc;
     const baseCosts = costs.sbc;
     const addCost = costs.sac;
 
-    let cost1 =
-      A >= 4
-        ? maxCost
-        : A > 0
-          ? baseCosts + (A - 1) * addCost
-          : 0;
-    let cost2 =
-      B >= 4
-        ? maxCost
-        : B > 0
-          ? baseCosts + (B - 1) * addCost
-          : 0;
-    if(A > 0 && B > 0){cost1 = cost1; cost2 = cost2 + fines } 
-    (A === 0 && B > 0) ? cost2 = cost2 + fines : (A > 0 && B === 0) ? cost1 = cost1 + fines : 0;
+    let cost1 = A >= 4 ? maxCost : A > 0 ? baseCosts + (A - 1) * addCost : 0;
+    let cost2 = B >= 4 ? maxCost : B > 0 ? baseCosts + (B - 1) * addCost : 0;
+    if (A > 0 && B > 0) {
+      cost1 = cost1;
+      cost2 = cost2 + fines;
+    }
+    A === 0 && B > 0
+      ? (cost2 = cost2 + fines)
+      : A > 0 && B === 0
+      ? (cost1 = cost1 + fines)
+      : 0;
     return { cost: cost1 + cost2, totalSubs, A, B };
   };
 
   return (
     <>
-      <Title title="Supplementary" />
-      <Costs
-        costs={costs}
-        setCosts={setCosts}
-        fine={fine}
-        setFine={setFine}
-      />
+      <Title />
+      <Costs costs={costs} setCosts={setCosts} fine={fine} setFine={setFine} />
       <form
         className="grid lg:grid-cols-6 md:grid-cols-2 grid-cols-2 gap-4 no-print"
         onSubmit={async (e) => {
@@ -405,9 +413,17 @@ function SubDetails({
         />
         <div className="col-span-2">
           {calculateCostPerYear(1).cost
-            ? (calculateCostPerYear(1).A > 0 && calculateCostPerYear(1).B > 0) ? `${formatCost(calculateCostPerYear(1).cost)} Fine(${formatCost(fine.A)} + ${formatCost(fine.B)}) ` :
-              (calculateCostPerYear(1).B > 0) ? `${formatCost(calculateCostPerYear(1).cost)} Fine(${formatCost(fine.B)})` :
-                `${formatCost(calculateCostPerYear(1).cost)} Fine(${formatCost(fine.A)})`
+            ? calculateCostPerYear(1).A > 0 && calculateCostPerYear(1).B > 0
+              ? `${formatCost(calculateCostPerYear(1).cost)} Fine(${formatCost(
+                  fine.A
+                )} + ${formatCost(fine.B)}) `
+              : calculateCostPerYear(1).B > 0
+              ? `${formatCost(calculateCostPerYear(1).cost)} Fine(${formatCost(
+                  fine.B
+                )})`
+              : `${formatCost(calculateCostPerYear(1).cost)} Fine(${formatCost(
+                  fine.A
+                )})`
             : "NA"}
         </div>
       </div>
@@ -433,9 +449,17 @@ function SubDetails({
         />
         <div className="col-span-2">
           {calculateCostPerYear(2).cost
-            ? (calculateCostPerYear(2).A > 0 && calculateCostPerYear(2).B > 0) ? `${formatCost(calculateCostPerYear(2).cost)} Fine(${formatCost(fine.C)} + ${formatCost(fine.D)}) ` :
-              (calculateCostPerYear(2).B > 0) ? `${formatCost(calculateCostPerYear(2).cost)} Fine(${formatCost(fine.D)})` :
-                `${formatCost(calculateCostPerYear(2).cost)} Fine(${formatCost(fine.C)})`
+            ? calculateCostPerYear(2).A > 0 && calculateCostPerYear(2).B > 0
+              ? `${formatCost(calculateCostPerYear(2).cost)} Fine(${formatCost(
+                  fine.C
+                )} + ${formatCost(fine.D)}) `
+              : calculateCostPerYear(2).B > 0
+              ? `${formatCost(calculateCostPerYear(2).cost)} Fine(${formatCost(
+                  fine.D
+                )})`
+              : `${formatCost(calculateCostPerYear(2).cost)} Fine(${formatCost(
+                  fine.C
+                )})`
             : "NA"}
         </div>
       </div>
@@ -461,9 +485,17 @@ function SubDetails({
         />
         <div className="col-span-2">
           {calculateCostPerYear(3).cost
-            ? (calculateCostPerYear(3).A > 0 && calculateCostPerYear(3).B > 0) ? `${formatCost(calculateCostPerYear(3).cost)} Fine(${formatCost(fine.E)} + ${formatCost(fine.F)}) ` :
-              (calculateCostPerYear(3).B > 0) ? `${formatCost(calculateCostPerYear(3).cost)} Fine(${formatCost(fine.F)})` :
-                `${formatCost(calculateCostPerYear(3).cost)} Fine(${formatCost(fine.E)})`
+            ? calculateCostPerYear(3).A > 0 && calculateCostPerYear(3).B > 0
+              ? `${formatCost(calculateCostPerYear(3).cost)} Fine(${formatCost(
+                  fine.E
+                )} + ${formatCost(fine.F)}) `
+              : calculateCostPerYear(3).B > 0
+              ? `${formatCost(calculateCostPerYear(3).cost)} Fine(${formatCost(
+                  fine.F
+                )})`
+              : `${formatCost(calculateCostPerYear(3).cost)} Fine(${formatCost(
+                  fine.E
+                )})`
             : "NA"}
         </div>
       </div>
@@ -489,9 +521,17 @@ function SubDetails({
         />
         <div className="col-span-2">
           {calculateCostPerYear(4).cost
-            ? (calculateCostPerYear(4).A > 0 && calculateCostPerYear(4).B > 0) ? `${formatCost(calculateCostPerYear(4).cost)} Fine(${formatCost(fine.G)} + ${formatCost(fine.H)}) ` :
-              (calculateCostPerYear(4).B > 0) ? `${formatCost(calculateCostPerYear(4).cost)} Fine(${formatCost(fine.H)})` :
-                `${formatCost(calculateCostPerYear(4).cost)} Fine(${formatCost(fine.G)})`
+            ? calculateCostPerYear(4).A > 0 && calculateCostPerYear(4).B > 0
+              ? `${formatCost(calculateCostPerYear(4).cost)} Fine(${formatCost(
+                  fine.G
+                )} + ${formatCost(fine.H)}) `
+              : calculateCostPerYear(4).B > 0
+              ? `${formatCost(calculateCostPerYear(4).cost)} Fine(${formatCost(
+                  fine.H
+                )})`
+              : `${formatCost(calculateCostPerYear(4).cost)} Fine(${formatCost(
+                  fine.G
+                )})`
             : "NA"}
         </div>
       </div>
@@ -499,9 +539,9 @@ function SubDetails({
         Grand Total:{" "}
         {formatCost(
           calculateCostPerYear(1).cost +
-          calculateCostPerYear(2).cost +
-          calculateCostPerYear(3).cost +
-          calculateCostPerYear(4).cost
+            calculateCostPerYear(2).cost +
+            calculateCostPerYear(3).cost +
+            calculateCostPerYear(4).cost
         )}
         (
         {calculateCostPerYear(1).totalSubs +

@@ -3,8 +3,7 @@ import { useContext, useEffect, useState } from "react";
 import dayjs from "dayjs";
 import Axios from "axios";
 // Material UI Components
-import { Autocomplete, IconButton, MenuItem } from "@mui/material";
-import HelpIcon from '@mui/icons-material/Help';
+import { Autocomplete, MenuItem } from "@mui/material";
 import { HowToRegOutlined, ListAltOutlined, SearchOutlined } from '@mui/icons-material';
 import Divider from '@mui/material/Divider';
 // Custom Components
@@ -18,6 +17,7 @@ import { formatCost } from "../../misc/CostFormater";
 import { Print } from "../../components/Custom/Print";
 
 export default function CBT() {
+    // Contexts
     const alert = useContext(AlertContext);
     const loading = useContext(LoadingContext);
     // States
@@ -38,10 +38,11 @@ export default function CBT() {
     const [maxCost, setMaxCost] = useState<number>(0);
     const [branches, setBranches] = useState<string[]>([]);
     const [selectedSubjectNames, setSelectedSubjectNames] = useState<string[]>([]);    
-    const [grandTotal, setGrandTotal] = useState(0);
+    const [years, setYears] = useState([]);
+    const [semesters, setSemesters] = useState([]);
+    const [branchSelected, setBranchSelected] = useState(false);
+    const [branchIndex, setBranchIndex] = useState(0);
     let subs: string[] = [];
-    const years = ['1', '2', '3', '4'];
-    const semesters = ["1", "2"];
     // Effects
     useEffect(() => {
         setInterval(() => {
@@ -52,6 +53,8 @@ export default function CBT() {
         Axios.get(`api/cbt/branchs`)
         .then((response) => {
             setBranches(response.data["branch"]);
+            setYears(response.data["regYear"]);
+            setSemesters(response.data["sem"]);
         });
         Axios.get(`api/cost/costs?module=cbt`)
         .then((response) => {
@@ -75,7 +78,6 @@ export default function CBT() {
     const CalcTotalCost = () => {
         if (selectedSubjectNames.length > 0) {
           if (selectedSubjectNames.length == 1) {
-            setGrandTotal(baseCost);
             return (
               <>
                 <h3>
@@ -87,7 +89,6 @@ export default function CBT() {
               </>
             );
           } else if (selectedSubjectNames.length >= 5) {
-            setGrandTotal(maxCost);
             return (
               <>
                 <h3>
@@ -118,7 +119,6 @@ export default function CBT() {
             }
             let b = baseCost;
             let ad = additionalCost;
-            setGrandTotal(b + ad * (selectedSubjectNames.length));
             return (
               <>
                 <h3>
@@ -143,11 +143,6 @@ export default function CBT() {
         <div>
             <div className="flex justify-center">
                 <Title title="CBT" />
-                <IconButton>
-                    <HelpIcon
-                    color = "primary"
-                    />
-                </IconButton>
             </div>
             <div className="grid lg:grid-cols-6 md:grid-cols-3 sm:grid-cols-2 gap-4">
                 {
@@ -234,6 +229,12 @@ export default function CBT() {
                         setBranch(value);
                         setSearched(false);
                         setGenerateForm(false);
+                        setBranchSelected(true);
+                        for(let i = 0; i < branches.length; i++) {
+                            if(value == branches[i]) {
+                                setBranchIndex(i);
+                            }
+                        }
                     }}
                     >
                       {
@@ -268,6 +269,7 @@ export default function CBT() {
                         }
                     </CustTextField>
                     <CustTextField 
+                    disabled = {!branchSelected}
                     select
                     label="Semester"
                     className="col-span-1"
@@ -279,11 +281,9 @@ export default function CBT() {
                     }}
                     >
                         {
-                            semesters.map((semester) => (
-                                <MenuItem value={semester} key={semester}>
-                                    {semester}
-                                </MenuItem>
-                            ))
+                            <MenuItem value={semesters[branchIndex]} key={semesters[branchIndex]}>
+                                {semesters[branchIndex]}
+                            </MenuItem>
                         }
                     </CustTextField>
                 </div>
@@ -422,7 +422,16 @@ export default function CBT() {
                     {generateForm && (
                     <>
                     <Divider />
-                    <div>
+                    <div
+                    style={{
+                        backgroundImage: generateForm
+                        ? `url(assets/LightLogo.png)`
+                        : "",
+                        backgroundRepeat: "no-repeat",
+                        backgroundPosition: "center",
+                        backgroundSize: "60%",
+                    }}
+                    >
                         <FormSectionHeader copyType={"Student"}/>
                         <div className="grid grid-cols-9 my-10">
                             <span className="lg:text-xl text-lg font-semibold col-span-1 col-start-5">

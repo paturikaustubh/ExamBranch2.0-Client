@@ -159,6 +159,9 @@ export function Costs() {
       headerAlign: 'center',
       editable: true,
       renderCell: (params) => {
+        if(params.id == 'Revaluation') {
+          return 'NA';
+        }
         return formatCost(parseInt(params.value));
       }
     },
@@ -171,6 +174,9 @@ export function Costs() {
       align: 'center',
       type: 'number',
       renderCell: (params) => {
+        if(params.id == 'Revaluation') {
+          return 'NA';
+        }
         return formatCost(parseInt(params.value));
       }
     },
@@ -352,7 +358,12 @@ export function Fines() {
       width: 130,
       editable: true,
       headerAlign: 'center',
-      align: 'center'   
+      align: 'center',
+      renderCell: (params) => {
+        return (
+          dayjs(params.value).format('DD MMM, YY')
+        )
+      }   
     },
     {
       field: 'fine1',
@@ -374,7 +385,12 @@ export function Fines() {
       width: 130,
       editable: true,
       headerAlign: 'center',
-      align: 'center'
+      align: 'center',
+      renderCell: (params) => {
+        return (
+          dayjs(params.value).format('DD MMM, YY')
+        )
+      } 
     },
     {
       field: 'fine2',
@@ -396,7 +412,12 @@ export function Fines() {
       width: 130,
       editable: true,
       headerAlign: 'center',
-      align: 'center'
+      align: 'center',
+      renderCell: (params) => {
+        return (
+          dayjs(params.value).format('DD MMM, YY')
+        )
+      } 
     },
     {
       field: 'fine3',
@@ -418,7 +439,12 @@ export function Fines() {
       width: 130,
       editable: true,
       headerAlign: 'center',
-      align: 'center'
+      align: 'center',
+      renderCell: (params) => {
+        return (
+          dayjs(params.value).format('DD MMM, YY')
+        )
+      } 
     },
       {
         field: 'actions',

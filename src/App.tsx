@@ -52,15 +52,15 @@ function App() {
     },
     {
       path: "manage-users",
-      element: <ManageUsers />
+      element: <ManageUsers />,
     },
     {
       path: "manage-costs",
-      element: <ManageCosts />
+      element: <ManageCosts />,
     },
     {
-      path: "backup-and-restore",
-      element: <Backup />
+      path: "backup",
+      element: <Backup />,
     },
     {
       path: "manage-database",

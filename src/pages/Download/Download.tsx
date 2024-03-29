@@ -16,6 +16,7 @@ import { CustDialog } from "../../components/Custom/CustDialog";
 import Axios from "axios";
 import { AlertContext } from "../../components/Context/AlertDetails";
 import { LoadingContext } from "../../components/Context/Loading";
+import Title from "../../components/Title";
 
 export default function Download() {
   const alert = useContext(AlertContext);
@@ -42,11 +43,9 @@ export default function Download() {
 
   return (
     <>
-      <div className="flex no-print">
-        <span className="page-title">Download</span>
-      </div>
+      <Title />
 
-      <div className="grid lg:grid-cols-6 md:grid-cols-3 grid-cols-2 gap-x-4 gap-y-6 no-print">
+      <div className="grid lg:grid-cols-6 md:grid-cols-3 grid-cols-2 gap-4 no-print">
         <CustTextField
           select
           label="Exam"

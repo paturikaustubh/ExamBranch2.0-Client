@@ -15,14 +15,16 @@ import { ExamSearchSubjectsProps, ExamSemProps } from "../../Types/responseTypes
 import { AlertContext } from "../Context/AlertDetails";
 import { LoadingContext } from "../Context/Loading";
 
-export function PrintDialog({
+export function Print({
   rollNo,
   exam,
   setStudentCopyGenerated,
-  selectedSubjects,
   printTable,
-  reset,
-  grandTotal,
+  acYear,
+  sem,
+  selectedSubjects,
+  branch,
+  reset
 }: {
   rollNo: string;
   exam: "supple" | "reval" | "cbt";
@@ -30,19 +32,14 @@ export function PrintDialog({
   selectedSubjects: ExamSearchSubjectsProps | ExamSemProps;
   printTable: boolean;
   reset: () => void;
-  grandTotal: number;
+  acYear: number;
+  sem: number;
+  branch: string;
 }) {
   // ANCHOR STATES && VARS  ||========================================================================
   const [openPrintDialog, setOpenPrintDialog] = useState(false);
   const alert = useContext(AlertContext);
   const loading = useContext(LoadingContext);
-  // console.log( rollNo,
-  //   exam,
-  //   setStudentCopyGenerated,
-  //   selectedSubjects,
-  //   printTable,
-  //   reset,
-  //   grandTotal,);
 
   // ANCHOR JSX  ||========================================================================
   return (
@@ -131,9 +128,11 @@ export function PrintDialog({
               loading?.showLoading(true);
               setOpenPrintDialog(false);
               Axios.post(`api/${exam}/print/${rollNo}`, {
+                acYear: acYear,
+                sem: sem,
                 subjects: selectedSubjects,
-                username: sessionStorage.getItem("username"),
-                grandTotal,
+                branch: branch,
+                username: sessionStorage.getItem("username")
               })
                 .then(({ data }) => {
                   if (!data.done) {

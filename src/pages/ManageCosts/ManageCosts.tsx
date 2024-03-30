@@ -1,6 +1,8 @@
+// Material UI Components
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Close';
+// Material UI Data Grid Components
 import {
   GridRowsProp,
   GridRowModesModel,
@@ -12,21 +14,26 @@ import {
   GridRowModel,
   GridRowEditStopReasons,
 } from '@mui/x-data-grid';
+// React Components
 import { useContext, useEffect, useState } from 'react';
 import Axios from 'axios';
+import dayjs from 'dayjs';
+// Custom Components
 import Title from '../../components/Title';
 import { formatCost } from "../../misc/CostFormater";
 import { AlertContext } from '../../components/Context/AlertDetails';
 import { LoadingContext } from "../../components/Context/Loading";
 import { CustDataGrid } from '../../components/Custom/CustDataGrid';
-import dayjs from 'dayjs';
 
 export function Costs() {
+  // States
   const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
   const [costRows, setCostRows] = useState<GridRowsProp>([]);
+  // Contexts
   const alert = useContext(AlertContext);
   const loading = useContext(LoadingContext);
 
+  // Effects
   useEffect(() => {
     Promise.all([
       Axios.get(`api/cost/costs?module=supply`),
@@ -69,6 +76,7 @@ export function Costs() {
     });
   }, []);
 
+  // Utility Functions
   const handleRowEditStop: GridEventListener<'rowEditStop'> = (params, event) => {
     const { id, field } = params;
   
@@ -248,11 +256,14 @@ export function Costs() {
 }
 
 export function Fines() {
+  // States
   const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
   const [fineRows, setFineRows] = useState<GridRowsProp>([]);
+  // Contexts
   const alert = useContext(AlertContext);
   const loading = useContext(LoadingContext);
 
+  // Effects
   useEffect(() => {
     Axios.get(`api/cost/fines`)
     .then((res) => {
@@ -490,6 +501,7 @@ export function Fines() {
       },
     ];
   
+  // Utility Functions
   const handleRowEditStop: GridEventListener<'rowEditStop'> = (params, event) => {
     if (params.reason === GridRowEditStopReasons.rowFocusOut) {
       event.defaultMuiPrevented = true;
@@ -596,6 +608,7 @@ export function Fines() {
   );
 }
 
+// Main component
 export default function ManageCosts() {
   return (
     <>

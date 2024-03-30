@@ -34,12 +34,14 @@ export function Costs() {
 
   // Effects
   useEffect(() => {
+    loading?.showLoading(true);
     Promise.all([
-      Axios.get(`api/cost/costs?module=supply`),
-      Axios.get(`api/cost/costs?module=revaluation`),
+      Axios.get(`api/cost/costs?module=supple`),
+      Axios.get(`api/cost/costs?module=reval`),
       Axios.get(`api/cost/costs?module=cbt`),
     ])
       .then(([suppleRes, revalRes, cbtRes]) => {
+        console.log(suppleRes.data, revalRes.data, cbtRes.data, "tderyfguhb");
         const suppleBaseCost = suppleRes.data.costs["sbc"];
         const suppleAddCost = suppleRes.data.costs["sac"];
         const suppleMaxCost = suppleRes.data.costs["sfc"];
@@ -72,6 +74,9 @@ export function Costs() {
       })
       .catch((error) => {
         alert?.showAlert(error, "error");
+      })
+      .finally(() => {
+        loading?.showLoading(false);
       });
   }, []);
 

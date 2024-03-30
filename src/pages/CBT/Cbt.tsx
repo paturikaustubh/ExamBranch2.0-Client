@@ -194,6 +194,8 @@ export default function CBT() {
                   subs.push(data.subCodes);
                   setPrintTableExist(data.printTableExist);
                   setSearched(true);
+                } else {
+                  alert?.showAlert("No data found", "warning");
                 }
               } else {
                 alert?.showAlert(error.message, "error");
@@ -359,7 +361,15 @@ export default function CBT() {
       </form>
       {/*Generation of Exam Branch Copy*/}
       {searched && (
-        <div className="bg-white rounded-sm p-4 w-full mt-5">
+        <div
+          className="bg-white rounded-sm p-4 w-full mt-5"
+          style={{
+            backgroundImage: generateForm ? `url(assets/LightLogo.png)` : "",
+            backgroundRepeat: "no-repeat",
+            backgroundPosition: "center",
+            backgroundSize: "60%",
+          }}
+        >
           <div>
             <FormSectionHeader copyType={"Exam Branch"} />
             <div className="grid grid-cols-9 my-10">
@@ -429,16 +439,7 @@ export default function CBT() {
           {generateForm && (
             <>
               <Divider />
-              <div
-                style={{
-                  backgroundImage: generateForm
-                    ? `url(assets/LightLogo.png)`
-                    : "",
-                  backgroundRepeat: "no-repeat",
-                  backgroundPosition: "center",
-                  backgroundSize: "60%",
-                }}
-              >
+              <div>
                 <FormSectionHeader copyType={"Student"} />
                 <div className="grid grid-cols-9 my-10">
                   <span className="lg:text-xl text-lg font-semibold col-span-1 col-start-5">

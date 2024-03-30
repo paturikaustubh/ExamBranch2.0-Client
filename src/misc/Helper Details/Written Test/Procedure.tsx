@@ -1,9 +1,7 @@
-export function SuppleProcedure() {
+export function CbtProcedure() {
   return (
     <div>
-      <span>
-        These are the steps to followed to register for supplementary:
-      </span>
+      <span>These are the steps to followed to register for written test:</span>
       <ol
         style={{
           listStyle: "number",
@@ -14,7 +12,10 @@ export function SuppleProcedure() {
           marginTop: "1rem",
         }}
       >
-        <li>Provide the right roll number to perform search.</li>
+        <li>
+          Provide the right details for the parameters in their respective
+          fields.
+        </li>
         <li>
           Click the <code>Search</code> button. If there is any valid data
           available in the database based on the given parameter values, you
@@ -31,10 +32,6 @@ export function SuppleProcedure() {
           and last one for Student.
         </li>
         <li>
-          Fines are applied for each semester and the subtotals are calculated
-          by adding the fines for each semester (if applicable).
-        </li>
-        <li>
           Now click on <code>Print</code>. This will open a pop-up, make sure
           all the points are being covered before taking a print and hand it
           over to the student.
@@ -48,7 +45,7 @@ export function SuppleProcedure() {
         </li>
         <li>
           Refer the <i className="font-semibold">Exceptions</i> section to know
-          more about handling data related to registring for supplementary.
+          more about handling data related to registring for written test.
         </li>
       </ol>
     </div>

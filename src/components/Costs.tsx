@@ -26,7 +26,7 @@ export interface FineProps{
 
 function CostField({ cost, label }: { cost: number, label: string }) {
     return (
-        <div className="lg:col-span-1 md:col-span-1 col-span-1">
+        <div className="lg:col-span-1 md:col-span-1 col-span-1 no-print">
             <CustTextField
                 disabled
                 fullWidth

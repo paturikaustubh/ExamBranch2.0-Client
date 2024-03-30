@@ -14,7 +14,6 @@ import { AlertContext } from "../../components/Context/AlertDetails";
 import Logo from "/assets/Logo.png";
 import Axios from "axios";
 import { LoadingContext } from "../../components/Context/Loading";
-import Title from "../../components/Title";
 
 export default function LoginForm({
   setGoAhead,
@@ -36,12 +35,11 @@ export default function LoginForm({
   // ANCHOR JSX  ||========================================================================
   return (
     <div className="h-[100dvh] flex justify-center items-center gap-10">
-      <div className="fixed top-10"></div>
-      <div className="flex items-center justify-around gap-60 bg-white w-[80%] py-7 pr-10 lg:pl-24 md:pl-12 pl-2 rounded-lg">
+      <div className="grid lg:grid-cols-2 grid-cols-1 items-center justify-around bg-white w-[80%] py-7 md:px-6 px-3 rounded-lg">
         <img
           src={Logo}
           alt="College Logo"
-          className="hidden lg:block size-52"
+          className="hidden lg:block size-52 ml-20"
         />
         <div className="flex flex-col items-center grow justify-center h-fit lg:gap-28 gap-14 lg:p-4 p-2">
           <div className="lg:text-7xl md:text-6xl text-5xl font-semibold text-blue-700">

@@ -3,8 +3,7 @@ import { useContext, useEffect, useState } from "react";
 import dayjs from "dayjs";
 import Axios from "axios";
 // Material UI Components
-import { Autocomplete, IconButton, MenuItem } from "@mui/material";
-import HelpIcon from "@mui/icons-material/Help";
+import { Autocomplete, MenuItem } from "@mui/material";
 import {
   HowToRegOutlined,
   ListAltOutlined,
@@ -12,7 +11,6 @@ import {
 } from "@mui/icons-material";
 import Divider from "@mui/material/Divider";
 // Custom Components
-import Title from "../../components/Title";
 import { CustTextField } from "../../components/Custom/CustTextField";
 import { CustBarcode } from "../../components/Custom/Barcode";
 import { AlertContext } from "../../components/Context/AlertDetails";
@@ -22,6 +20,7 @@ import { formatCost } from "../../misc/CostFormater";
 import { Print } from "../../components/Custom/Print";
 
 export default function CBT() {
+  // Contexts
   const alert = useContext(AlertContext);
   const loading = useContext(LoadingContext);
   // States
@@ -44,10 +43,9 @@ export default function CBT() {
   const [selectedSubjectNames, setSelectedSubjectNames] = useState<string[]>(
     []
   );
-  const [grandTotal, setGrandTotal] = useState(0);
+  const [years, setYears] = useState([]);
+  const [semesters, setSemesters] = useState([]);
   let subs: string[] = [];
-  const years = ["1", "2", "3", "4"];
-  const semesters = ["1", "2"];
   // Effects
   useEffect(() => {
     setInterval(() => {
@@ -56,7 +54,10 @@ export default function CBT() {
   }, []);
   useEffect(() => {
     Axios.get(`api/cbt/branchs`).then((response) => {
+      console.log(response.data);
       setBranches(response.data["branch"]);
+      setYears(response.data["acYear"]);
+      setSemesters(response.data["sem"]);
     });
     Axios.get(`api/cost/costs?module=cbt`).then((response) => {
       setBaseCost(response.data["cbc"]);
@@ -79,7 +80,6 @@ export default function CBT() {
   const CalcTotalCost = () => {
     if (selectedSubjectNames.length > 0) {
       if (selectedSubjectNames.length == 1) {
-        setGrandTotal(baseCost);
         return (
           <>
             <h3>
@@ -91,7 +91,6 @@ export default function CBT() {
           </>
         );
       } else if (selectedSubjectNames.length >= 5) {
-        setGrandTotal(maxCost);
         return (
           <>
             <h3>
@@ -122,7 +121,6 @@ export default function CBT() {
         }
         let b = baseCost;
         let ad = additionalCost;
-        setGrandTotal(b + ad * selectedSubjectNames.length);
         return (
           <>
             <h3>
@@ -145,12 +143,7 @@ export default function CBT() {
   };
   return (
     <div>
-      <div className="flex justify-center">
-        <Title />
-        <IconButton>
-          <HelpIcon color="primary" />
-        </IconButton>
-      </div>
+      <div className="flex justify-center"></div>
       <div className="grid lg:grid-cols-6 md:grid-cols-3 sm:grid-cols-2 gap-4">
         {
           <>
@@ -201,6 +194,8 @@ export default function CBT() {
                   subs.push(data.subCodes);
                   setPrintTableExist(data.printTableExist);
                   setSearched(true);
+                } else {
+                  alert?.showAlert("No data found", "warning");
                 }
               } else {
                 alert?.showAlert(error.message, "error");
@@ -282,9 +277,9 @@ export default function CBT() {
               setGenerateForm(false);
             }}
           >
-            {semesters.map((semester) => (
-              <MenuItem value={semester} key={semester}>
-                {semester}
+            {semesters.map((sem, indx) => (
+              <MenuItem value={sem} key={indx}>
+                {sem}
               </MenuItem>
             ))}
           </CustTextField>
@@ -366,7 +361,15 @@ export default function CBT() {
       </form>
       {/*Generation of Exam Branch Copy*/}
       {searched && (
-        <div className="bg-white rounded-sm p-4 w-full mt-5">
+        <div
+          className="bg-white rounded-sm p-4 w-full mt-5"
+          style={{
+            backgroundImage: generateForm ? `url(assets/LightLogo.png)` : "",
+            backgroundRepeat: "no-repeat",
+            backgroundPosition: "center",
+            backgroundSize: "60%",
+          }}
+        >
           <div>
             <FormSectionHeader copyType={"Exam Branch"} />
             <div className="grid grid-cols-9 my-10">

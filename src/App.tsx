@@ -11,6 +11,7 @@ import PageLayout from "./components/Custom/PageLayout";
 import AlertProvider from "./components/Context/AlertDetails";
 import { Backdrop, CircularProgress } from "@mui/material";
 import LoadingProvider from "./components/Context/Loading";
+import Title from "./components/Title";
 // import Test from "./misc/Test";
 
 const LoginForm = lazy(() => import("./pages/Login/Login"));
@@ -59,7 +60,7 @@ function App() {
       element: <ManageCosts />,
     },
     {
-      path: "backup",
+      path: "backup-and-restore",
       element: <Backup />,
     },
     {
@@ -123,7 +124,12 @@ function App() {
                   <Route
                     key={indx}
                     path={path}
-                    element={<PageLayout>{element}</PageLayout>}
+                    element={
+                      <PageLayout>
+                        <Title />
+                        {element}
+                      </PageLayout>
+                    }
                   />
                 ))}
               </Route>

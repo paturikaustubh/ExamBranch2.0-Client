@@ -241,7 +241,7 @@ function Truncate() {
               loading?.showLoading(true);
               Axios.delete(`api/${exam}?acYear=${acYear}&sem=${sem}`)
                 .then(({ data }) => {
-                  if (data.deleted) {
+                  if (data.done) {
                     alert?.showAlert(
                       `${
                         exam.charAt(0).toUpperCase() + exam.slice(1)

@@ -1,6 +1,5 @@
 import { MenuItem } from "@mui/material";
 import { CustTextField } from "../../components/Custom/CustTextField";
-import Title from "../../components/Title";
 import { useContext, useEffect, useRef, useState } from "react";
 import Axios from "axios";
 import { AlertContext } from "../../components/Context/AlertDetails";
@@ -19,8 +18,6 @@ export default function backup() {
 
   return (
     <>
-      <Title />
-
       {/* Backup... Restore... */}
       <div className="grid lg:grid-cols-6 md:grid-cols-2 grid-cols-2 gap-x-4 gap-y-4 no-print">
         <CustTextField

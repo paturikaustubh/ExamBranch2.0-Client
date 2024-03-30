@@ -6,7 +6,6 @@ import {
   DialogActions,
 } from "@mui/material";
 import { CustTextField } from "../../components/Custom/CustTextField";
-import Title from "../../components/Title";
 import { useContext, useState } from "react";
 import {
   Add,
@@ -171,7 +170,6 @@ export default function ManageDB() {
   // ANCHOR JSX  ||========================================================================
   return (
     <>
-      <Title />
       <div className="grid sm:grid-cols-3 grid-cols-1 gap-4 no-print items-center">
         <CustTextField
           select

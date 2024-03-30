@@ -1,5 +1,4 @@
 import { MenuItem } from "@mui/material";
-import Title from "../../components/Title";
 import { useContext, useEffect, useRef, useState } from "react";
 import { CustTextField } from "../../components/Custom/CustTextField";
 import dayjs from "dayjs";
@@ -26,7 +25,6 @@ export default function Upload() {
 
   return (
     <>
-      <Title />
       {/* Results... registered Entries... code Names... Written-Test*/}
       <div className="grid lg:grid-cols-6 md:grid-cols-2 grid-cols-2 gap-x-4 gap-y-4 no-print">
         <CustTextField

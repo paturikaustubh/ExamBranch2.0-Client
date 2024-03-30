@@ -35,7 +35,6 @@ export default function LoginForm({
   // ANCHOR JSX  ||========================================================================
   return (
     <div className="h-[100dvh] flex justify-center items-center gap-10">
-      <div className="fixed top-10"></div>
       <div className="grid lg:grid-cols-2 grid-cols-1 items-center justify-around bg-white w-[80%] py-7 md:px-6 px-3 rounded-lg">
         <img
           src={Logo}

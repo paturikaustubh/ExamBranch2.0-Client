@@ -14,12 +14,9 @@ import {
   GridRowModel,
   GridRowEditStopReasons,
 } from "@mui/x-data-grid";
-import HelpIcon from "@mui/icons-material/Help";
 import { useEffect, useState } from "react";
 import Axios from "axios";
 import { formatCost } from "../../misc/CostFormater";
-import Title from "../../components/Title";
-import { IconButton } from "@mui/material";
 
 export function Costs() {
   const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
@@ -185,12 +182,6 @@ export function Costs() {
 
   return (
     <>
-      <div className="flex justify-center">
-        <Title />
-        <IconButton>
-          <HelpIcon color="primary" />
-        </IconButton>
-      </div>
       <Box
         sx={{
           background: "white",
@@ -388,12 +379,6 @@ export function Fines() {
 
   return (
     <>
-      <div className="flex justify-center mt-6">
-        <Title />
-        <IconButton>
-          <HelpIcon color="primary" />
-        </IconButton>
-      </div>
       <Box
         sx={{
           background: "white",

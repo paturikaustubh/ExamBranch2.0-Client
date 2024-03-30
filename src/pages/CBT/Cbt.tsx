@@ -11,7 +11,6 @@ import {
 } from "@mui/icons-material";
 import Divider from "@mui/material/Divider";
 // Custom Components
-import Title from "../../components/Title";
 import { CustTextField } from "../../components/Custom/CustTextField";
 import { CustBarcode } from "../../components/Custom/Barcode";
 import { AlertContext } from "../../components/Context/AlertDetails";
@@ -144,7 +143,6 @@ export default function CBT() {
   };
   return (
     <div>
-      <Title />
       <div className="grid lg:grid-cols-6 md:grid-cols-3 sm:grid-cols-2 gap-4">
         {
           <>

@@ -1,5 +1,4 @@
 import { useContext, useLayoutEffect, useState } from "react";
-import Title from "../../components/Title";
 import { UsersTableArr, UserDetailsProps } from "../../Types/responseTypes";
 import Axios from "axios";
 import { LoadingContext } from "../../components/Context/Loading";
@@ -99,7 +98,6 @@ export default function ManageUsers() {
   // ANCHOR JSX  ||========================================================================
   return (
     <>
-      <Title />
       <Container maxWidth="lg" className={`bg-white py-4`}>
         <CustDataGrid
           rows={userDetailsResponse}

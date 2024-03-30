@@ -1,4 +1,3 @@
-import Title from "../../components/Title";
 import { useContext, useEffect, useState } from "react";
 import dayjs from "dayjs";
 import { ExamSearchSubjectsProps } from "../../Types/responseTypes";
@@ -143,7 +142,6 @@ export default function Supple() {
 
   return (
     <>
-      <Title />
       <Costs costs={costs} setCosts={setCosts} fine={fine} setFine={setFine} />
       <form
         className="grid lg:grid-cols-6 md:grid-cols-2 grid-cols-2 gap-4 no-print"

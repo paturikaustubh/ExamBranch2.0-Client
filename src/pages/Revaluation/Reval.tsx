@@ -18,7 +18,6 @@ import { CustBarcode } from "../../components/Custom/Barcode";
 import { CustAutocomplete } from "../../components/Custom/CustAutocomplete";
 import { MenuItem } from "@mui/material";
 import { LoadingContext } from "../../components/Context/Loading";
-import Title from "../../components/Title";
 
 export default function Reval() {
   // ANCHOR STATES && VARS  ||========================================================================
@@ -115,8 +114,6 @@ export default function Reval() {
   // ANCHOR JSX  ||========================================================================
   return (
     <>
-      <Title />
-
       {/* ANCHOR REVAL FORM  ||======================================================================== */}
       <form
         className="grid lg:grid-cols-6 md:grid-cols-3 grid-cols-2 gap-4 no-print"

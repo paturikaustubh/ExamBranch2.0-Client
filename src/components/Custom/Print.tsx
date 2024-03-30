@@ -11,7 +11,10 @@ import {
 import { useState } from "react";
 import { CustDialog } from "./CustDialog";
 import Axios from "axios";
-import { ExamSearchSubjectsProps, ExamSemProps } from "../../Types/responseTypes";
+import {
+  ExamSearchSubjectsProps,
+  ExamSemProps,
+} from "../../Types/responseTypes";
 import { AlertContext } from "../Context/AlertDetails";
 import { LoadingContext } from "../Context/Loading";
 
@@ -24,7 +27,8 @@ export function Print({
   sem,
   selectedSubjects,
   branch,
-  reset
+  reset,
+  grandTotal,
 }: {
   rollNo: string;
   exam: "supple" | "reval" | "cbt";
@@ -35,6 +39,7 @@ export function Print({
   acYear: number;
   sem: number;
   branch: string;
+  grandTotal: number;
 }) {
   // ANCHOR STATES && VARS  ||========================================================================
   const [openPrintDialog, setOpenPrintDialog] = useState(false);
@@ -128,11 +133,12 @@ export function Print({
               loading?.showLoading(true);
               setOpenPrintDialog(false);
               Axios.post(`api/${exam}/print/${rollNo}`, {
+                subjects: selectedSubjects,
                 acYear: acYear,
                 sem: sem,
-                subjects: selectedSubjects,
                 branch: branch,
-                username: sessionStorage.getItem("username")
+                username: sessionStorage.getItem("username"),
+                grandTotal: grandTotal,
               })
                 .then(({ data }) => {
                   if (!data.done) {

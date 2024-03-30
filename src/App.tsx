@@ -59,7 +59,7 @@ function App() {
       element: <ManageCosts />,
     },
     {
-      path: "backup",
+      path: "backup-and-restore",
       element: <Backup />,
     },
     {

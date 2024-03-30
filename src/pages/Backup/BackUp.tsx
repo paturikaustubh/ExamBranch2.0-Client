@@ -106,7 +106,7 @@ export default function backup() {
                       .then(({ data }) => {
                         console.log(data);
                         if (data.done) alert?.showAlert("Restored", "success");
-                        else alert?.showAlert("Failed to upload", "error");
+                        else alert?.showAlert("Failed to Restore", "error");
                       })
                       .catch(() =>
                         alert?.showAlert("Error while Uploading file", "error")

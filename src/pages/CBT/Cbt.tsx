@@ -20,6 +20,7 @@ import { formatCost } from "../../misc/CostFormater";
 import { Print } from "../../components/Custom/Print";
 
 export default function CBT() {
+  // Contexts
   const alert = useContext(AlertContext);
   const loading = useContext(LoadingContext);
   // States
@@ -42,10 +43,9 @@ export default function CBT() {
   const [selectedSubjectNames, setSelectedSubjectNames] = useState<string[]>(
     []
   );
-  const [grandTotal, setGrandTotal] = useState(0);
+  const [years, setYears] = useState([]);
+  const [semesters, setSemesters] = useState([]);
   let subs: string[] = [];
-  const years = ["1", "2", "3", "4"];
-  const semesters = ["1", "2"];
   // Effects
   useEffect(() => {
     setInterval(() => {
@@ -54,7 +54,10 @@ export default function CBT() {
   }, []);
   useEffect(() => {
     Axios.get(`api/cbt/branchs`).then((response) => {
+      console.log(response.data);
       setBranches(response.data["branch"]);
+      setYears(response.data["acYear"]);
+      setSemesters(response.data["sem"]);
     });
     Axios.get(`api/cost/costs?module=cbt`).then((response) => {
       setBaseCost(response.data["cbc"]);
@@ -77,7 +80,6 @@ export default function CBT() {
   const CalcTotalCost = () => {
     if (selectedSubjectNames.length > 0) {
       if (selectedSubjectNames.length == 1) {
-        setGrandTotal(baseCost);
         return (
           <>
             <h3>
@@ -89,7 +91,6 @@ export default function CBT() {
           </>
         );
       } else if (selectedSubjectNames.length >= 5) {
-        setGrandTotal(maxCost);
         return (
           <>
             <h3>
@@ -120,7 +121,6 @@ export default function CBT() {
         }
         let b = baseCost;
         let ad = additionalCost;
-        setGrandTotal(b + ad * selectedSubjectNames.length);
         return (
           <>
             <h3>
@@ -143,6 +143,7 @@ export default function CBT() {
   };
   return (
     <div>
+      <div className="flex justify-center"></div>
       <div className="grid lg:grid-cols-6 md:grid-cols-3 sm:grid-cols-2 gap-4">
         {
           <>
@@ -274,9 +275,9 @@ export default function CBT() {
               setGenerateForm(false);
             }}
           >
-            {semesters.map((semester) => (
-              <MenuItem value={semester} key={semester}>
-                {semester}
+            {semesters.map((sem, indx) => (
+              <MenuItem value={sem} key={indx}>
+                {sem}
               </MenuItem>
             ))}
           </CustTextField>
@@ -428,7 +429,16 @@ export default function CBT() {
           {generateForm && (
             <>
               <Divider />
-              <div>
+              <div
+                style={{
+                  backgroundImage: generateForm
+                    ? `url(assets/LightLogo.png)`
+                    : "",
+                  backgroundRepeat: "no-repeat",
+                  backgroundPosition: "center",
+                  backgroundSize: "60%",
+                }}
+              >
                 <FormSectionHeader copyType={"Student"} />
                 <div className="grid grid-cols-9 my-10">
                   <span className="lg:text-xl text-lg font-semibold col-span-1 col-start-5">

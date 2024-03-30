@@ -260,7 +260,7 @@ export default function Upload() {
                   ext: ".xlsx",
                   acYear: acYear,
                   sem: sem,
-                  regYear: examMonth,
+                  regYear: examYear,
                 })
                   .then(({ data }) => {
                     if (data.done) alert?.showAlert("Uploaded", "success");
@@ -285,30 +285,23 @@ export default function Upload() {
                 className="blue-button-filled col-span-1 flex items-center gap-2"
                 onClick={async () => {
                   loading?.showLoading(true, "Downloading file...");
-                  let fileContent: BlobPart | null = null,
-                    columnNames: string[] = [],
+                  let columnNames: string[] = [],
                     name: string | null = null;
                   if (type === "results") {
                     columnNames = [
                       "rollNo",
                       "Start entering subject codes here",
                     ];
-                    fileContent = columnNames.join(",") + "\n";
                     name = "Results";
                   } else if (type === "codeNames") {
                     columnNames = ["subCode", "subName"];
-                    fileContent = columnNames.join(",") + "\n";
                     name = "Code Names";
                   } else if (type === "cbt") {
                     columnNames = [
                       "subCode",
                       "subName",
-                      "branch",
-                      "acYear",
-                      "sem",
-                      "regYear",
+                      "branch",                      
                     ];
-                    fileContent = columnNames.join(",") + "\n";
                     name = "Written Test";
                   }
                   const wb = xlsx.utils.book_new();

@@ -6,6 +6,7 @@ import { UploadOutlined } from "@mui/icons-material";
 import Axios from "axios";
 import { AlertContext } from "../../components/Context/AlertDetails";
 import { LoadingContext } from "../../components/Context/Loading";
+import * as xlsx from "xlsx";
 
 export default function Upload() {
   const [type, setType] = useState("results");
@@ -43,6 +44,9 @@ export default function Upload() {
           <MenuItem value="codeNames">Code Names</MenuItem>
           <MenuItem value="cbt">Written Test</MenuItem>
         </CustTextField>
+      </div>
+
+      <div className="grid lg:grid-cols-6 md:grid-cols-2 grid-cols-2 gap-x-4 gap-y-4 no-print">
 
         {/* type === Results || Written-Test */}
         {(type === "results" || type === "cbt") && (
@@ -82,6 +86,7 @@ export default function Upload() {
               </CustTextField>
             </div>
 
+
             <div className="col-span-1 row-start-3 flex gap-4">
               <CustTextField
                 type="number"
@@ -115,6 +120,7 @@ export default function Upload() {
           </>
         )}
 
+
         {/* type === Registered Entries */}
         {type === "registeredEntries" && (
           <>
@@ -143,9 +149,11 @@ export default function Upload() {
             </div>
           </>
         )}
+      </div>
 
-        {/* Folder loaction */}
-        <div className="col-span-2 row-start-4 flex gap-4">
+      {/* Folder loaction */}
+      <div className="grid pt-4 lg:grid-cols-6 md:grid-cols-2 grid-cols-2 gap-4 no-print">
+        <div className="lg:col-span-2 col-span-3 lg:row-start-2 row-start-1 flex gap-4 items-center">
           <CustTextField
             fullWidth
             type="string"
@@ -158,8 +166,9 @@ export default function Upload() {
           />
         </div>
 
+        
         {/* button */}
-        <div className="col-span-2 row-start-4 flex gap-4 items-center">
+        <div className="col-span-3 row-start-2 flex gap-4 items-center">
           <button
             type="submit"
             className="blue-button-filled col-span-1 h-fit flex items-center gap-2"
@@ -184,6 +193,7 @@ export default function Upload() {
                   exMonth: examMonth,
                 })
                   .then(({ data }) => {
+                    console.log(data);
                     if (data.done) alert?.showAlert("Uploaded", "success");
                     else alert?.showAlert("Failed to upload", "error");
                   })
@@ -272,11 +282,11 @@ export default function Upload() {
               {/* Download template button */}
               <button
                 type="submit"
-                className="blue-button-filled col-span-1 mr-auto h-fit flex items-center gap-2"
+                className="blue-button-filled col-span-1 flex items-center gap-2"
                 onClick={async () => {
                   loading?.showLoading(true, "Downloading file...");
                   let fileContent: BlobPart | null = null,
-                    columnNames: string[],
+                    columnNames: string[] = [],
                     name: string | null = null;
                   if (type === "results") {
                     columnNames = [
@@ -301,13 +311,17 @@ export default function Upload() {
                     fileContent = columnNames.join(",") + "\n";
                     name = "Written Test";
                   }
-                  const blob = new Blob([fileContent as BlobPart], {
+                  const wb = xlsx.utils.book_new();
+                  const ws = xlsx.utils.aoa_to_sheet([columnNames]); // Add your field names here
+                  xlsx.utils.book_append_sheet(wb, ws, 'Sheet1');
+                  const excelBuffer = xlsx.write(wb, { type: "buffer", bookType: 'xlsx' });
+                  const blob = new Blob([excelBuffer as BlobPart], {
                     type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                   });
                   const url = window.URL.createObjectURL(blob);
                   const link = document.createElement("a");
                   link.href = url;
-                  link.setAttribute("download", `${name} Template.csv`);
+                  link.setAttribute("download", `${name} Template.xlsx`);
                   document.body.appendChild(link);
                   link.click();
                   document.body.removeChild(link);

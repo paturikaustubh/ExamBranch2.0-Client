@@ -45,6 +45,7 @@ export default function CBT() {
   );
   const [years, setYears] = useState([]);
   const [semesters, setSemesters] = useState([]);
+  const [grandTotal, setGrandTotal] = useState(0);
   let subs: string[] = [];
   // Effects
   useEffect(() => {
@@ -80,6 +81,7 @@ export default function CBT() {
   const CalcTotalCost = () => {
     if (selectedSubjectNames.length > 0) {
       if (selectedSubjectNames.length == 1) {
+        setGrandTotal(200);
         return (
           <>
             <h3>
@@ -91,6 +93,7 @@ export default function CBT() {
           </>
         );
       } else if (selectedSubjectNames.length >= 5) {
+        setGrandTotal(500);
         return (
           <>
             <h3>
@@ -106,6 +109,7 @@ export default function CBT() {
         if (!isNaN(baseCost) && !isNaN(additionalCost)) {
           let b = baseCost;
           let ad = additionalCost;
+          setGrandTotal(b + ad * (selectedSubjectNames.length - 1));
           return (
             <>
               <h3>
@@ -320,11 +324,12 @@ export default function CBT() {
                   loading?.showLoading(true);
 
                   Axios.post(`api/cbt/paid/${rollNo}`, {
+                    subjects: { subCodes, subNames } as ExamSemProps,
                     acYear: year,
                     sem: semester,
-                    subjects: { subCodes, subNames } as ExamSemProps,
                     branch: branch,
                     username: sessionStorage.getItem("username"),
+                    grandTotal: grandTotal,
                   })
                     .then(
                       ({
@@ -541,6 +546,7 @@ export default function CBT() {
                     selectedSubjects={{ subCodes, subNames } as ExamSemProps}
                     branch={branch}
                     reset={reset}
+                    grandTotal={grandTotal}
                   />
                 </div>
               </div>

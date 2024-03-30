@@ -3,8 +3,7 @@ import { useContext, useEffect, useState } from "react";
 import dayjs from "dayjs";
 import Axios from "axios";
 // Material UI Components
-import { Autocomplete, IconButton, MenuItem } from "@mui/material";
-import HelpIcon from "@mui/icons-material/Help";
+import { Autocomplete, MenuItem } from "@mui/material";
 import {
   HowToRegOutlined,
   ListAltOutlined,
@@ -145,12 +144,7 @@ export default function CBT() {
   };
   return (
     <div>
-      <div className="flex justify-center">
-        <Title />
-        <IconButton>
-          <HelpIcon color="primary" />
-        </IconButton>
-      </div>
+      <Title />
       <div className="grid lg:grid-cols-6 md:grid-cols-3 sm:grid-cols-2 gap-4">
         {
           <>

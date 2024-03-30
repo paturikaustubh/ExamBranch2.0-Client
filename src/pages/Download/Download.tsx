@@ -174,6 +174,9 @@ export default function Download() {
 }
 
 function Truncate() {
+  const loading = useContext(LoadingContext);
+  const alert = useContext(AlertContext);
+
   const [openDialog, setOpenDialog] = useState(false);
   const [exam, setExam] = useState("supple");
   const [acYear, setAcYear] = useState("0");
@@ -191,7 +194,7 @@ function Truncate() {
 
       <CustDialog open={openDialog} maxWidth="md" fullWidth>
         <DialogTitle component={"div"}>
-          <span className="lg:text-5xl md:text-4xl text-3xl text-red-600 font-bold">
+          <span className="lg:text-5xl md:text-4xl text-3xl text-red-600 font-semibold">
             Truncate
           </span>
         </DialogTitle>
@@ -235,7 +238,34 @@ function Truncate() {
           <button className="red-button" onClick={() => setOpenDialog(false)}>
             Cancel
           </button>
-          <button className="blue-button" onClick={() => {}}>
+          <button
+            className="blue-button"
+            onClick={() => {
+              loading?.showLoading(true);
+              Axios.delete(`api/${exam}?acYear=${acYear}&sem=${sem}`)
+                .then(({ data }) => {
+                  if (data.deleted) {
+                    alert?.showAlert(
+                      `${
+                        exam.charAt(0).toUpperCase() + exam.slice(1)
+                      } tables cleared`,
+                      "success"
+                    );
+                  } else {
+                    console.log(data);
+                    alert?.showAlert(
+                      "There was an error while processing request",
+                      "error"
+                    );
+                  }
+                })
+                .catch((e) => {
+                  alert?.showAlert("There was an error in the server", "error");
+                  console.log(e);
+                })
+                .finally(() => loading?.showLoading(false));
+            }}
+          >
             Truncate
           </button>
         </DialogActions>

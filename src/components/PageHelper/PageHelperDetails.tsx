@@ -7,6 +7,13 @@ import { SuppleOverview } from "../../misc/Helper Details/Supplementary/Overview
 import { SuppleParams } from "../../misc/Helper Details/Supplementary/Parameters";
 import { SuppleProcedure } from "../../misc/Helper Details/Supplementary/Procedure";
 import { SuppleExceptions } from "../../misc/Helper Details/Supplementary/Exceptions";
+import { CbtOverview } from "../../misc/Helper Details/Written Test/Overview";
+import { CbtParams } from "../../misc/Helper Details/Written Test/Parameters";
+import { CbtProcedure } from "../../misc/Helper Details/Written Test/Procedure";
+import { CbtExceptions } from "../../misc/Helper Details/Written Test/Exceptions";
+import { DownOverview } from "../../misc/Helper Details/Download/Overview";
+import { DownParams } from "../../misc/Helper Details/Download/Parameters";
+import { DownProcedure } from "../../misc/Helper Details/Download/Procedure";
 
 export const HelperContents: {
   [key in Pages]: {
@@ -29,16 +36,17 @@ export const HelperContents: {
     exceptions: <SuppleExceptions />,
   },
   "written-test": {
-    overview: "This is just an overview lol",
-    parameters: "Em le bro...",
-    procedure: "Nee ishtam bro",
-  },
-  upload: {
-    overview: "This is just an overview lol",
-    parameters: "Em le bro...",
-    procedure: "Nee ishtam bro",
+    overview: <CbtOverview />,
+    parameters: <CbtParams />,
+    procedure: <CbtProcedure />,
+    exceptions: <CbtExceptions />,
   },
   download: {
+    overview: <DownOverview />,
+    parameters: <DownParams />,
+    procedure: <DownProcedure />,
+  },
+  upload: {
     overview: "This is just an overview lol",
     parameters: "Em le bro...",
     procedure: "Nee ishtam bro",

@@ -55,7 +55,6 @@ export default function CBT() {
   }, []);
   useEffect(() => {
     Axios.get(`api/cbt/branchs`).then((response) => {
-      console.log(response.data);
       setBranches(response.data["branch"]);
       setYears(response.data["acYear"]);
       setSemesters(response.data["sem"]);
@@ -79,65 +78,21 @@ export default function CBT() {
     </div>
   );
   const CalcTotalCost = () => {
-    if (selectedSubjectNames.length > 0) {
-      if (selectedSubjectNames.length == 1) {
-        setGrandTotal(200);
-        return (
-          <>
-            <h3>
-              {" "}
-              <>
-                Grand Total: {baseCost} ({selectedSubjectNames.length} Subject)
-              </>
-            </h3>
-          </>
-        );
-      } else if (selectedSubjectNames.length >= 5) {
-        setGrandTotal(500);
-        return (
-          <>
-            <h3>
-              {" "}
-              <br />
-              <>
-                Grand Total: {maxCost} ({selectedSubjectNames.length} Subjects)
-              </>
-            </h3>
-          </>
-        );
+    if (subs.length > 0) {
+      if (subs.length === 1) {
+        setGrandTotal(baseCost);
+      } else if (subs.length >= 5) {
+        setGrandTotal(maxCost);
       } else {
         if (!isNaN(baseCost) && !isNaN(additionalCost)) {
           let b = baseCost;
           let ad = additionalCost;
-          setGrandTotal(b + ad * (selectedSubjectNames.length - 1));
-          return (
-            <>
-              <h3>
-                {" "}
-                <br />
-                <>
-                  Grand Total: {b + ad * (selectedSubjectNames.length - 1)} (
-                  {selectedSubjectNames.length} Subjects)
-                </>
-              </h3>
-            </>
-          );
+          setGrandTotal(b + ad * (subs.length - 1));
         }
-        let b = baseCost;
-        let ad = additionalCost;
-        return (
-          <>
-            <h3>
-              {" "}
-              <br />
-              <>
-                Grand Total: {b + ad * selectedSubjectNames.length} (
-                {selectedSubjectNames.length} Subjects)
-              </>
-            </h3>
-          </>
-        );
       }
+    }
+    else {
+      setGrandTotal(0);
     }
   };
   const reset = () => {
@@ -176,6 +131,8 @@ export default function CBT() {
       <form
         className="no-print"
         onSubmit={(e) => {
+          console.log(baseCost);
+          console.log(additionalCost);
           e.preventDefault();
           onchange = () => {
             setSearched(false);
@@ -302,20 +259,23 @@ export default function CBT() {
             }}
           />
           <div className="col-span-3 flex items-center">
-            <button
+            {!printTableExist && (
+              <button
               type="submit"
               className="blue-button-filled mx-2"
+              onClick={()=> {setGrandTotal(maxCost)}}
               disabled={
-                rollNo.length !== 10 ||
-                branch === "" ||
-                year === 0 ||
-                semester === parseInt("") ||
-                searched
+              rollNo.length !== 10 ||
+              branch === "" ||
+              year === 0 ||
+              semester === parseInt("") ||
+              searched
               }
-            >
-              <SearchOutlined fontSize="small" />
-              Search
-            </button>
+              >
+              <SearchOutlined fontSize="small" className="mr-2"/>
+                Search
+              </button>
+            )}
             {printTableExist && searched && (
               <button
                 type="submit"
@@ -403,6 +363,7 @@ export default function CBT() {
                       }
                     }
                   });
+                  CalcTotalCost();
                   if (val.length === 0) {
                     setEmpty(true);
                   } else setEmpty(false);
@@ -419,7 +380,13 @@ export default function CBT() {
             </div>
             <div className="flex justify-around">
               <span className="lg:text-xl text-lg font-semibold">
-                <CalcTotalCost />
+                <h3>
+                  {" "}
+                  <br />
+                  <>
+                    Grand Total: {grandTotal} ({selectedSubjectNames.length} Subjects)
+                  </>
+                </h3>
               </span>
             </div>
             <div className="flex justify-around">
@@ -477,7 +444,13 @@ export default function CBT() {
                 </div>
                 <div className="flex justify-around">
                   <span className="lg:text-xl text-lg font-semibold">
-                    <CalcTotalCost />
+                    <h3>
+                      {" "}
+                      <br />
+                      <>
+                        Grand Total: {grandTotal} ({selectedSubjectNames.length} Subjects)
+                      </>
+                    </h3>
                   </span>
                 </div>
                 <div className="flex justify-around">
@@ -527,7 +500,13 @@ export default function CBT() {
                 </div>
                 <div className="flex justify-around">
                   <span className="lg:text-xl text-lg font-semibold">
-                    <CalcTotalCost />
+                    <h3>
+                      {" "}
+                      <br />
+                      <>
+                        Grand Total: {grandTotal} ({selectedSubjectNames.length} Subjects)
+                      </>
+                    </h3>
                   </span>
                 </div>
                 <div className="flex justify-around">

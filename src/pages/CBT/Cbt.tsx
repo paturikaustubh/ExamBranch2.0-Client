@@ -90,8 +90,7 @@ export default function CBT() {
           setGrandTotal(b + ad * (subs.length - 1));
         }
       }
-    }
-    else {
+    } else {
       setGrandTotal(0);
     }
   };
@@ -131,8 +130,6 @@ export default function CBT() {
       <form
         className="no-print"
         onSubmit={(e) => {
-          console.log(baseCost);
-          console.log(additionalCost);
           e.preventDefault();
           onchange = () => {
             setSearched(false);
@@ -261,18 +258,20 @@ export default function CBT() {
           <div className="col-span-3 flex items-center">
             {!printTableExist && (
               <button
-              type="submit"
-              className="blue-button-filled mx-2"
-              onClick={()=> {setGrandTotal(maxCost)}}
-              disabled={
-              rollNo.length !== 10 ||
-              branch === "" ||
-              year === 0 ||
-              semester === parseInt("") ||
-              searched
-              }
+                type="submit"
+                className="blue-button-filled mx-2"
+                onClick={() => {
+                  setGrandTotal(maxCost);
+                }}
+                disabled={
+                  rollNo.length !== 10 ||
+                  branch === "" ||
+                  year === 0 ||
+                  semester === parseInt("") ||
+                  searched
+                }
               >
-              <SearchOutlined fontSize="small" className="mr-2"/>
+                <SearchOutlined fontSize="small" className="mr-2" />
                 Search
               </button>
             )}
@@ -384,7 +383,8 @@ export default function CBT() {
                   {" "}
                   <br />
                   <>
-                    Grand Total: {grandTotal} ({selectedSubjectNames.length} Subjects)
+                    Grand Total: {grandTotal} ({selectedSubjectNames.length}{" "}
+                    Subjects)
                   </>
                 </h3>
               </span>
@@ -448,7 +448,8 @@ export default function CBT() {
                       {" "}
                       <br />
                       <>
-                        Grand Total: {grandTotal} ({selectedSubjectNames.length} Subjects)
+                        Grand Total: {grandTotal} ({selectedSubjectNames.length}{" "}
+                        Subjects)
                       </>
                     </h3>
                   </span>
@@ -504,7 +505,8 @@ export default function CBT() {
                       {" "}
                       <br />
                       <>
-                        Grand Total: {grandTotal} ({selectedSubjectNames.length} Subjects)
+                        Grand Total: {grandTotal} ({selectedSubjectNames.length}{" "}
+                        Subjects)
                       </>
                     </h3>
                   </span>

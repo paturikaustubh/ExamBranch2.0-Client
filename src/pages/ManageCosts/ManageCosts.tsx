@@ -41,7 +41,6 @@ export function Costs() {
       Axios.get(`api/cost/costs?module=cbt`),
     ])
       .then(([suppleRes, revalRes, cbtRes]) => {
-        console.log(suppleRes.data, revalRes.data, cbtRes.data, "tderyfguhb");
         const suppleBaseCost = suppleRes.data.costs["sbc"];
         const suppleAddCost = suppleRes.data.costs["sac"];
         const suppleMaxCost = suppleRes.data.costs["sfc"];

@@ -2,11 +2,35 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Exam Branch Portal</title>
   </head>
   <body>
+    <script src="https://cdn.botpress.cloud/webchat/v1/inject.js"></script>
+    <script>
+      window.botpressWebChat.init({
+        composerPlaceholder: "Chat with Exam Branch Assistant",
+        botConversationDescription: "Your portal guide.",
+        botId: "43c47a36-a78a-414e-a482-aa067a294c06",
+        hostUrl: "https://cdn.botpress.cloud/webchat/v1",
+        messagingUrl: "https://messaging.botpress.cloud",
+        clientId: "43c47a36-a78a-414e-a482-aa067a294c06",
+        webhookId: "3e45c685-d837-4fce-83cd-06119ff3a1b9",
+        lazySocket: true,
+        themeName: "prism",
+        botName: "Exam Branch Assistant",
+        avatarUrl:
+          "https://yt3.googleusercontent.com/8Bo1OeVw9PaTQQ_TfJ0deJL9d5ZiykpOo5YFt1r6qWsvFZwDlVTBLEhLWruDxCXhKKoqwtRQ=s900-c-k-c0x00ffffff-no-rj",
+        stylesheet:
+          "https://webchat-styler-css.botpress.app/prod/cb61f61e-9842-43a4-a932-52592771ebe8/v81562/style.css",
+        frontendVersion: "v1",
+        useSessionStorage: true,
+        enableConversationDeletion: true,
+        theme: "prism",
+        themeColor: "#2563eb",
+      });
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

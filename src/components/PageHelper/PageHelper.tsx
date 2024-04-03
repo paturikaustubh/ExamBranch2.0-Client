@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 
 import { DialogActions, DialogContent, DialogTitle } from "@mui/material";
@@ -15,6 +15,8 @@ export function PageHelper() {
 
   const [openHelperDialog, setOpenHelperDialog] = useState(false);
   const [viewInFullScreen, setViewInFullScreen] = useState(false);
+
+  useEffect(() => setOpenHelperDialog(false), [pathname]);
 
   return (
     <div className="page-helper">

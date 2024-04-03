@@ -11,7 +11,11 @@ import {
 } from "@mui/material";
 import { CustTextField } from "../../components/Custom/CustTextField";
 import { useContext, useRef, useState } from "react";
-import { DeleteForeverOutlined, DownloadOutlined } from "@mui/icons-material";
+import {
+  DeleteForeverOutlined,
+  DownloadOutlined,
+  ExpandMore,
+} from "@mui/icons-material";
 import { CustDialog } from "../../components/Custom/CustDialog";
 import Axios from "axios";
 import { AlertContext } from "../../components/Context/AlertDetails";
@@ -83,12 +87,17 @@ export default function Download() {
 
         <div className="row-start-3 col-span-1 flex items-center divide-x divide-blue-600">
           <button
-            className="blue-button-filled w-full"
+            className="blue-button-filled w-full flex items-center justify-between"
             style={{ borderRadius: "6px 0px 0px 6px" }}
             ref={buttonPopoverRef}
             onClick={() => setOpenDonloadOpts(true)}
           >
-            {examTypeNames[examType]}
+            <span className="">{examTypeNames[examType]}</span>
+            <span
+              className={`duration-300 ${openDonloadOpts ? "rotate-180" : ""}`}
+            >
+              <ExpandMore />
+            </span>
           </button>
           <button
             className="blue-button-filled"
@@ -262,6 +271,9 @@ function Truncate() {
                 })
                 .finally(() => loading?.showLoading(false));
             }}
+            disabled={
+              (acYear === "0" && sem !== "0") || (acYear !== "0" && sem === "0")
+            }
           >
             Truncate
           </button>

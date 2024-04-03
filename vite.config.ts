@@ -4,6 +4,7 @@ import { config } from "dotenv";
 
 config({ path: __dirname + "/.env" });
 const { SERVER_IP } = process.env;
+
 export default defineConfig({
   plugins: [react()],
   server: {

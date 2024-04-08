@@ -12,7 +12,6 @@ import AlertProvider from "./components/Context/AlertDetails";
 import { Backdrop, CircularProgress } from "@mui/material";
 import LoadingProvider from "./components/Context/Loading";
 import Title from "./components/Title";
-// import Test from "./misc/Test";
 
 const LoginForm = lazy(() => import("./pages/Login/Login"));
 const Reval = lazy(() => import("./pages/Revaluation/Reval"));
@@ -76,6 +75,9 @@ function App() {
   // ANCHOR EFFECTS  ||========================================================================
   useLayoutEffect(() => {
     sessionStorage.getItem("username") && setGoAhead(true);
+    const chatWindow = document.getElementById("bp-web-widget-container");
+    console.log(chatWindow);
+    if (chatWindow) chatWindow.style.zIndex = "9999";
   }, []);
 
   // ANCHOR JSX  ||========================================================================

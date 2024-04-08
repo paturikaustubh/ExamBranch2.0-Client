@@ -212,6 +212,7 @@ export default function ManageDB() {
                   data: { stdData: ManageDBResponseArr };
                 }) => {
                   if (stdData.length === 0) {
+                    setResponseData([]);
                     alert?.showAlert("No data found", "warning");
                   } else
                     setResponseData(

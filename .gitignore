@@ -24,3 +24,5 @@ src/loginInfo.ts
 *.sln
 *.sw?
 start-server.txt
+.env
+package-lock.json

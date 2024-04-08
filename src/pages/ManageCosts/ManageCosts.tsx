@@ -302,6 +302,8 @@ export function Fines() {
           date2: new Date(res.data[0].fine_2Dt),
           fine3: res.data[0].fine_3,
           date3: new Date(res.data[0].fine_3Dt),
+          fine4: res.data[0].fine_4,
+          date4: new Date(res.data[0].fine_4Dt)
         },
         {
           id: "1-2",
@@ -312,6 +314,8 @@ export function Fines() {
           date2: new Date(res.data[1].fine_2Dt),
           fine3: res.data[1].fine_3,
           date3: new Date(res.data[1].fine_3Dt),
+          fine4: res.data[1].fine_4,
+          date4: new Date(res.data[1].fine_4Dt)
         },
         {
           id: "2-1",
@@ -322,6 +326,8 @@ export function Fines() {
           date2: new Date(res.data[2].fine_2Dt),
           fine3: res.data[2].fine_3,
           date3: new Date(res.data[2].fine_3Dt),
+          fine4: res.data[2].fine_4,
+          date4: new Date(res.data[2].fine_4Dt)
         },
         {
           id: "2-2",
@@ -332,6 +338,8 @@ export function Fines() {
           date2: new Date(res.data[3].fine_2Dt),
           fine3: res.data[3].fine_3,
           date3: new Date(res.data[3].fine_3Dt),
+          fine4: res.data[3].fine_4,
+          date4: new Date(res.data[3].fine_4Dt)
         },
         {
           id: "3-1",
@@ -342,6 +350,8 @@ export function Fines() {
           date2: new Date(res.data[4].fine_2Dt),
           fine3: res.data[4].fine_3,
           date3: new Date(res.data[4].fine_3Dt),
+          fine4: res.data[4].fine_4,
+          date4: new Date(res.data[4].fine_4Dt)
         },
         {
           id: "3-2",
@@ -352,6 +362,8 @@ export function Fines() {
           date2: new Date(res.data[5].fine_2Dt),
           fine3: res.data[5].fine_3,
           date3: new Date(res.data[5].fine_3Dt),
+          fine4: res.data[5].fine_4,
+          date4: new Date(res.data[5].fine_4Dt)
         },
         {
           id: "4-1",
@@ -362,6 +374,8 @@ export function Fines() {
           date2: new Date(res.data[6].fine_2Dt),
           fine3: res.data[6].fine_3,
           date3: new Date(res.data[6].fine_3Dt),
+          fine4: res.data[6].fine_4,
+          date4: new Date(res.data[6].fine_4Dt)
         },
         {
           id: "4-2",
@@ -372,6 +386,8 @@ export function Fines() {
           date2: new Date(res.data[7].fine_2Dt),
           fine3: res.data[7].fine_3,
           date3: new Date(res.data[7].fine_3Dt),
+          fine4: res.data[7].fine_4,
+          date4: new Date(res.data[7].fine_4Dt)
         },
       ];
       setFineRows(rows);
@@ -397,7 +413,7 @@ export function Fines() {
       align: "center",
       renderCell: (params) => {
         return dayjs(params.value).format("DD MMM, YY");
-      },
+      }
     },
     {
       field: "fine1",
@@ -408,7 +424,7 @@ export function Fines() {
       align: "center",
       renderCell: (params) => {
         return formatCost(params.value);
-      },
+      }
     },
     {
       field: "date1",
@@ -420,7 +436,7 @@ export function Fines() {
       align: "center",
       renderCell: (params) => {
         return dayjs(params.value).format("DD MMM, YY");
-      },
+      }
     },
     {
       field: "fine2",
@@ -431,7 +447,7 @@ export function Fines() {
       align: "center",
       renderCell: (params) => {
         return formatCost(params.value);
-      },
+      }
     },
     {
       field: "date2",
@@ -443,7 +459,7 @@ export function Fines() {
       align: "center",
       renderCell: (params) => {
         return dayjs(params.value).format("DD MMM, YY");
-      },
+      }
     },
     {
       field: "fine3",
@@ -454,7 +470,7 @@ export function Fines() {
       align: "center",
       renderCell: (params) => {
         return formatCost(params.value);
-      },
+      }
     },
     {
       field: "date3",
@@ -466,7 +482,30 @@ export function Fines() {
       align: "center",
       renderCell: (params) => {
         return dayjs(params.value).format("DD MMM, YY");
-      },
+      }
+    },
+    {
+      field: "fine4",
+      headerName: "Fine 4",
+      width: 90,
+      editable: true,
+      headerAlign: "center",
+      align: "center",
+      renderCell: (params) => {
+        return formatCost(params.value);
+      }    
+    },
+    {
+      field: "date4",
+      type: "date",
+      headerName: "F4-Date",
+      width: 130,
+      editable: true,
+      headerAlign: "center",
+      align: "center",
+      renderCell: (params) => {
+        return dayjs(params.value).format("DD MMM, YY");
+      }
     },
     {
       field: "actions",
@@ -556,16 +595,17 @@ export function Fines() {
     else if (newRow.id == "3-2") yearAndSemester = "F";
     else if (newRow.id == "4-1") yearAndSemester = "G";
     else if (newRow.id == "4-2") yearAndSemester = "H";
-    console.log(dayjs(newRow.date0, "DD-MMM-YY"));
     Axios.patch(`api/cost/fines`, {
       semChar: yearAndSemester,
       fine1: newRow.fine1,
       fine2: newRow.fine2,
       fine3: newRow.fine3,
-      nofinedate: "12-May-24",
-      fine1date: "12-May-24",
-      fine2date: "12-May-24",
-      fine3date: "12-May-24",
+      fine4: newRow.fine4,
+      nofinedate: newRow.date0,
+      fine1date: newRow.date1,
+      fine2date: newRow.date2,
+      fine3date: newRow.date3,
+      fine4date: newRow.date4
     })
       .then(
         ({
@@ -601,7 +641,7 @@ export function Fines() {
           Supplementary Fines
         </h1>
       </div>
-      <div className="w-full max-w-screen-lg mx-auto">
+      <div className="w-full max-w-screen-xl mx-auto">
         <CustDataGrid
           style={{ height: "auto", width: "100%", margin: "auto" }}
           rows={fineRows}

@@ -601,11 +601,11 @@ export function Fines() {
       fine2: newRow.fine2,
       fine3: newRow.fine3,
       fine4: newRow.fine4,
-      nofinedate: newRow.date0,
-      fine1date: newRow.date1,
-      fine2date: newRow.date2,
-      fine3date: newRow.date3,
-      fine4date: newRow.date4
+      nofinedate: dayjs(newRow.date0).format("DD MMM, YY"),
+      fine1date: dayjs(newRow.date1).format("DD MMM, YY"),
+      fine2date: dayjs(newRow.date2).format("DD MMM, YY"),
+      fine3date: dayjs(newRow.date3).format("DD MMM, YY"),
+      fine4date: dayjs(newRow.date4).format("DD MMM, YY")
     })
       .then(
         ({

@@ -46,7 +46,10 @@ export default function CBT() {
   const [years, setYears] = useState([]);
   const [semesters, setSemesters] = useState([]);
   const [grandTotal, setGrandTotal] = useState(0);
-  let subs: string[] = [];
+  // let subs: string[] = [];
+  const [selectedSubjectCodes, setselectedSubjectCodes] = useState<string[]>(
+    []
+  );
   // Effects
   useEffect(() => {
     setInterval(() => {
@@ -77,18 +80,16 @@ export default function CBT() {
       <span className="lg:text-xl text-lg">{currDateTime}</span>
     </div>
   );
-  const CalcTotalCost = () => {
+  const CalcTotalCost = (subs: string[]) => {
     if (subs.length > 0) {
       if (subs.length === 1) {
         setGrandTotal(baseCost);
-      } else if (subs.length >= 5) {
-        setGrandTotal(maxCost);
+      } else if (subs.length === 2) {
+        setGrandTotal(baseCost + additionalCost);
+      } else if (subs.length === 3) {
+        setGrandTotal(baseCost + additionalCost * 2);
       } else {
-        if (!isNaN(baseCost) && !isNaN(additionalCost)) {
-          let b = baseCost;
-          let ad = additionalCost;
-          setGrandTotal(b + ad * (subs.length - 1));
-        }
+        setGrandTotal(maxCost);
       }
     } else {
       setGrandTotal(0);
@@ -98,6 +99,8 @@ export default function CBT() {
     setPrintTableExist(false);
     setSearched(false);
     setGenerateForm(false);
+    setselectedSubjectCodes([]);
+    setSelectedSubjectNames([]);
   };
   return (
     <div>
@@ -131,9 +134,7 @@ export default function CBT() {
         className="no-print"
         onSubmit={(e) => {
           e.preventDefault();
-          onchange = () => {
-            setSearched(false);
-          };
+
           loading?.showLoading(true);
           Axios.get(
             `api/cbt/search?acYear=${year}&sem=${semester}&reg=${examYear}&branch=${branch}&rollNo=${rollNo}`
@@ -146,10 +147,12 @@ export default function CBT() {
               } = data;
               if (!error) {
                 if (data.subCodes.length) {
+                  CalcTotalCost(data.subCodes);
                   setSubCodes(data.subCodes);
                   setSubNames(data.subNames);
                   setSelectedSubjectNames(data.subNames);
-                  subs.push(data.subCodes);
+                  // subs.push(data.subCodes);
+                  setselectedSubjectCodes(data.subCodes);
                   setPrintTableExist(data.printTableExist);
                   setSearched(true);
                 } else {
@@ -253,6 +256,7 @@ export default function CBT() {
               setRollNo(value.toUpperCase());
               setSearched(false);
               setGenerateForm(false);
+              setPrintTableExist(false);
             }}
           />
           <div className="col-span-3 flex items-center">
@@ -275,54 +279,51 @@ export default function CBT() {
                 Search
               </button>
             )}
-            {printTableExist && searched && (
-              <button
-                type="submit"
-                className="green-button-filled"
-                onClick={() => {
-                  loading?.showLoading(true);
-
-                  Axios.post(`api/cbt/paid/${rollNo}`, {
-                    subjects: { subCodes, subNames } as ExamSemProps,
-                    acYear: year,
-                    sem: semester,
-                    branch: branch,
-                    username: sessionStorage.getItem("username"),
-                    grandTotal: grandTotal,
-                  })
-                    .then(
-                      ({
-                        data: { done, error },
-                      }: {
-                        data: { done: boolean; error: string };
-                      }) => {
-                        if (done) {
-                          alert?.showAlert(
-                            `Registered for ${rollNo}`,
-                            "success"
-                          );
-                          reset();
-                        } else {
-                          alert?.showAlert(error, "error");
-                        }
-                      }
-                    )
-                    .catch(() =>
-                      alert?.showAlert(
-                        "There was an error while connecting to the server.",
-                        "error"
-                      )
-                    )
-                    .finally(() => loading?.showLoading(false));
-                }}
-              >
-                <HowToRegOutlined />
-                Register
-              </button>
-            )}
           </div>
         </div>
       </form>
+      {printTableExist && searched && (
+        <button
+          type="button"
+          className="green-button-filled"
+          onClick={() => {
+            loading?.showLoading(true);
+
+            Axios.post(`api/cbt/paid/${rollNo}`, {
+              subjects: { subCodes, subNames } as ExamSemProps,
+              acYear: year,
+              sem: semester,
+              branch: branch,
+              username: sessionStorage.getItem("username"),
+              grandTotal: grandTotal,
+            })
+              .then(
+                ({
+                  data: { done, error },
+                }: {
+                  data: { done: boolean; error: string };
+                }) => {
+                  if (done) {
+                    alert?.showAlert(`Registered for ${rollNo}`, "success");
+                    reset();
+                  } else {
+                    alert?.showAlert(error, "error");
+                  }
+                }
+              )
+              .catch(() =>
+                alert?.showAlert(
+                  "There was an error while connecting to the server.",
+                  "error"
+                )
+              )
+              .finally(() => loading?.showLoading(false));
+          }}
+        >
+          <HowToRegOutlined />
+          Register
+        </button>
+      )}
       {/*Generation of Exam Branch Copy*/}
       {searched && (
         <div
@@ -351,7 +352,7 @@ export default function CBT() {
                 readOnly={generateForm || printTableExist}
                 multiple
                 onChange={(_e, val) => {
-                  subs = [];
+                  let subs: string[] = [];
                   setSelectedSubjectNames(val);
                   val.forEach((value) => {
                     for (let i = 0; i < subNames.length; i++) {
@@ -362,7 +363,8 @@ export default function CBT() {
                       }
                     }
                   });
-                  CalcTotalCost();
+                  setselectedSubjectCodes(subs);
+                  CalcTotalCost(subs);
                   if (val.length === 0) {
                     setEmpty(true);
                   } else setEmpty(false);
@@ -524,7 +526,12 @@ export default function CBT() {
                     printTable={printTableExist}
                     acYear={year}
                     sem={semester}
-                    selectedSubjects={{ subCodes, subNames } as ExamSemProps}
+                    selectedSubjects={
+                      {
+                        subCodes: selectedSubjectCodes,
+                        subNames: selectedSubjectNames,
+                      } as ExamSemProps
+                    }
                     branch={branch}
                     reset={reset}
                     grandTotal={grandTotal}
